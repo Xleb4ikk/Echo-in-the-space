@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerCamera : MonoBehaviour
 {
     public Transform playerBody; // Перетащите сюда объект игрока в инспекторе
-    public float mouseSensitivity = 2f;
+    public float mouseSensitivity = 1f;
 
     private InputSystem_Actions inputActions;
     private Vector2 lookInput;
@@ -41,10 +41,12 @@ public class PlayerCamera : MonoBehaviour
         float mouseX = lookInput.x * mouseSensitivity;
         float mouseY = lookInput.y * mouseSensitivity;
 
+        // Вращаем только по X (вверх/вниз) — КАМЕРА
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+
+        // Вращаем только по Y (влево/вправо) — ИГРОК
         playerBody.Rotate(Vector3.up * mouseX);
     }
 
