@@ -1,0 +1,55 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class PlayerCamera : MonoBehaviour
+{
+    public Transform playerBody; // Перетащите сюда объект игрока в инспекторе
+    public float mouseSensitivity = 2f;
+
+    private InputSystem_Actions inputActions;
+    private Vector2 lookInput;
+    private float xRotation = 0f;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Awake()
+    {
+        inputActions = new InputSystem_Actions();
+    }
+
+    void OnEnable()
+    {
+        inputActions.Player.Enable();
+        inputActions.Player.Look.performed += OnLook;
+        inputActions.Player.Look.canceled += OnLook;
+    }
+
+    void OnDisable()
+    {
+        inputActions.Player.Look.performed -= OnLook;
+        inputActions.Player.Look.canceled -= OnLook;
+        inputActions.Player.Disable();
+    }
+
+    void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked; // Скрыть и зафиксировать курсор
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        float mouseX = lookInput.x * mouseSensitivity;
+        float mouseY = lookInput.y * mouseSensitivity;
+
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        playerBody.Rotate(Vector3.up * mouseX);
+    }
+
+    private void OnLook(InputAction.CallbackContext context)
+    {
+        lookInput = context.ReadValue<Vector2>();
+    }
+}
