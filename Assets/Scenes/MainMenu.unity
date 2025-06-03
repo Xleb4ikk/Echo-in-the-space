@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 0
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: c62c0e91e6670d64fb4c60670d7cbb68, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: a16c3253ae2cf1946924a631be02193f, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -119,29 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &6652512 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5823559825142757249, guid: b566ce7283e47f741b0fa467b5b72884, type: 3}
+--- !u!4 &6652515 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8160877726573648184, guid: b566ce7283e47f741b0fa467b5b72884, type: 3}
   m_PrefabInstance: {fileID: 1156644951}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6652514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6652512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35bcf1edc42ef214bb08020d31081a5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  residential_module: {fileID: 551618495}
-  minDelay: 1
-  maxDelay: 3
-  minAngle: 30
-  maxAngle: 180
-  rotationSpeed: 10
 --- !u!1 &101039598
 GameObject:
   m_ObjectHideFlags: 0
@@ -326,6 +308,7 @@ GameObject:
   m_Component:
   - component: {fileID: 413340993}
   - component: {fileID: 413340992}
+  - component: {fileID: 413340994}
   m_Layer: 0
   m_Name: ScriptsFolder
   m_TagString: Untagged
@@ -366,6 +349,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &413340994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 413340991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35bcf1edc42ef214bb08020d31081a5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  residential_module: {fileID: 6652515}
+  Solar_Panel1: {fileID: 551618495}
+  minDelay: 1
+  maxDelay: 3
+  minAngle: 30
+  maxAngle: 180
+  residential_module_Rotate_Speed: 5
+  rotationSpeed: 10
 --- !u!1 &429250339
 GameObject:
   m_ObjectHideFlags: 0
@@ -1066,10 +1069,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5823559825142757249, guid: b566ce7283e47f741b0fa467b5b72884, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6652514}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b566ce7283e47f741b0fa467b5b72884, type: 3}
 --- !u!1 &1641015084
 GameObject:
