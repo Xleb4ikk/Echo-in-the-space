@@ -1,0 +1,12 @@
+{
+    "name": "New Actions",
+    "maps": [
+        {
+            "name": "move",
+            "id": "19523cf0-72e7-4e40-90d9-a37639f00225",
+            "actions": [],
+            "bindings": []
+        }
+    ],
+    "controlSchemes": []
+}
