@@ -16,6 +16,8 @@ public class Player : MonoBehaviour
     private float velocityY = 0f;
     private bool isGrounded;
 
+    private PlayerStamina playerStamina;
+
     void Awake()
     {
         inputActions = new InputSystem_Actions();
@@ -42,6 +44,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        playerStamina = GetComponent<PlayerStamina>();
     }
 
     void Update()
@@ -61,6 +64,11 @@ public class Player : MonoBehaviour
         // Добавляем вертикальное движение
         move.y = velocityY;
 
+        if (isSprinting && playerStamina != null && playerStamina.currentStamina <= 0f)
+        {
+            isSprinting = false;
+        }
+
         // Выбираем скорость: обычная или спринт
         float currentSpeed = isSprinting ? speed * sprintMultiplier : speed;
 
@@ -75,6 +83,18 @@ public class Player : MonoBehaviour
 
     private void OnSprint(InputAction.CallbackContext context)
     {
+        // Получаем ссылку на компонент PlayerStamina
+        var stamina = GetComponent<PlayerStamina>();
+        // Если стамина есть и закончилась — не даём бежать
+        if (stamina != null && stamina.currentStamina <= 0f)
+        {
+            isSprinting = false;
+            return;
+        }
         isSprinting = context.ReadValueAsButton();
     }
+
+    public bool IsSprinting => isSprinting;
+
+    public Vector2 MoveInput => moveInput;
 }
