@@ -23,10 +23,10 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
+  m_AmbientIntensity: 0
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: a16c3253ae2cf1946924a631be02193f, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: c62c0e91e6670d64fb4c60670d7cbb68, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -94,7 +94,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 31e6eaf6c338a644c982c445bea8bf3c, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -136,6 +136,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcf1edc42ef214bb08020d31081a5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  residential_module: {fileID: 551618495}
+  minDelay: 1
+  maxDelay: 3
+  minAngle: 30
+  maxAngle: 180
   rotationSpeed: 10
 --- !u!1 &101039598
 GameObject:
@@ -633,6 +638,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 548970264}
   m_CullTransparentMesh: 1
+--- !u!4 &551618495 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -6193452328417486396, guid: b566ce7283e47f741b0fa467b5b72884, type: 3}
+  m_PrefabInstance: {fileID: 1156644951}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &563857616
 GameObject:
   m_ObjectHideFlags: 0
