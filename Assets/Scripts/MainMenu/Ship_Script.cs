@@ -26,32 +26,15 @@ public class Ship_Script : MonoBehaviour
     {
         StartCoroutine(RotationCycle());
         flameButton.onClick.AddListener(() => {
-            Debug.Log(" нопка нажата Ч запускаем анимацию");
-            animator.SetTrigger("PlayNewGame");
+            Debug.Log("ѕеред установкой: " + animator.GetBool("StartGame"));
+            animator.SetBool("StartGame", true);
+            Debug.Log("ѕосле установки: " + animator.GetBool("StartGame"));
         });
-    }
-
-    void PlayFlame()
-    {
-        Debug.Log("FlameButtonTrigger: нажата кнопка");
-
-        if (animator != null)
-        {
-            Debug.Log("FlameButtonTrigger: запускаем анимацию FlameStart");
-            animator.Play("NewGameShip", 0, 0f);
-        }
-        else
-        {
-            Debug.LogError("FlameButtonTrigger: Animator не назначен!");
-        }
     }
 
     void Update()
     {
         residential_module.Rotate(0f, 0f, residential_module_Rotate_Speed * Time.deltaTime);
-
-        float curveSpeed = animator.GetFloat("AnimSpeed");
-        animator.speed = curveSpeed;
 
         if (isRotating && Solar_Panel1 != null)
         {
@@ -77,6 +60,7 @@ public class Ship_Script : MonoBehaviour
 
         }
     }
+
 
     IEnumerator RotationCycle()
     {
