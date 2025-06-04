@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System;
 
 public class Ship_Script : MonoBehaviour
@@ -26,9 +27,8 @@ public class Ship_Script : MonoBehaviour
     {
         StartCoroutine(RotationCycle());
         flameButton.onClick.AddListener(() => {
-            Debug.Log("Перед установкой: " + animator.GetBool("StartGame"));
             animator.SetBool("StartGame", true);
-            Debug.Log("После установки: " + animator.GetBool("StartGame"));
+            SceneManager.LoadScene(1);
         });
     }
 
