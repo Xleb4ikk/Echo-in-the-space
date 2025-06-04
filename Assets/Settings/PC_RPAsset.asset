@@ -54,11 +54,7 @@ MonoBehaviour:
   m_ReflectionProbeBlending: 1
   m_ReflectionProbeBoxProjection: 1
   m_ReflectionProbeAtlas: 1
-<<<<<<< Updated upstream
   m_ShadowDistance: 30
-=======
-  m_ShadowDistance: 50
->>>>>>> Stashed changes
   m_ShadowCascadeCount: 4
   m_Cascade2Split: 0.25
   m_Cascade3Split: {x: 0.1, y: 0.3}
@@ -114,11 +110,7 @@ MonoBehaviour:
   m_PrefilterDebugKeywords: 1
   m_PrefilterWriteRenderingLayers: 1
   m_PrefilterHDROutput: 1
-<<<<<<< Updated upstream
-  m_PrefilterAlphaOutput: 0
-=======
   m_PrefilterAlphaOutput: 1
->>>>>>> Stashed changes
   m_PrefilterSSAODepthNormals: 0
   m_PrefilterSSAOSourceDepthLow: 1
   m_PrefilterSSAOSourceDepthMedium: 1
@@ -138,11 +130,7 @@ MonoBehaviour:
   m_PrefilterScreenCoord: 1
   m_PrefilterNativeRenderPass: 1
   m_PrefilterUseLegacyLightmaps: 0
-<<<<<<< Updated upstream
-  m_PrefilterBicubicLightmapSampling: 0
-=======
   m_PrefilterBicubicLightmapSampling: 1
->>>>>>> Stashed changes
   m_ShaderVariantLogLevel: 0
   m_ShadowCascades: 0
   m_Textures:
