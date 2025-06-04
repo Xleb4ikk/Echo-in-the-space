@@ -5,6 +5,7 @@ public class Ship_Script : MonoBehaviour
 {
     public Transform residential_module;
     public Transform Solar_Panel1;
+    public Transform Ship;
 
     public float minDelay = 1f;
     public float maxDelay = 3f;
@@ -14,11 +15,17 @@ public class Ship_Script : MonoBehaviour
     public float rotationSpeed = 0.5f; // градусов в секунду
 
     private bool isRotating = false;
+    private bool NewGame = false;
     private float targetAngleZ;
 
     void Start()
     {
         StartCoroutine(RotationCycle());
+    }
+
+    public void NewGameAnimation()
+    {
+        Ship.position = transform.position;
     }
 
     void Update()
@@ -42,6 +49,11 @@ public class Ship_Script : MonoBehaviour
                 Solar_Panel1.localRotation = Quaternion.Euler(0f, 0f, targetAngleZ);
                 isRotating = false;
             }
+        }
+
+        if (NewGame == true)
+        {
+
         }
     }
 
