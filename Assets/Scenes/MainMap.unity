@@ -719,8 +719,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxStamina: 100
   currentStamina: 0
-  staminaDrain: 10
-  staminaRegen: 15
+  staminaDrain: 13
+  staminaRegen: 10
   staminaRegenIdle: 25
   player: {fileID: 28315790}
   staminaSlider: {fileID: 1621630112}
@@ -2733,8 +2733,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 80, y: 10}
-  m_SizeDelta: {x: 140, y: 20}
+  m_AnchoredPosition: {x: 121.41, y: 16.192993}
+  m_SizeDelta: {x: 242.82, y: 32.386}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &167056322
 PrefabInstance:
@@ -3452,8 +3452,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 75.00001, y: 10}
-  m_SizeDelta: {x: 150, y: 10}
+  m_AnchoredPosition: {x: 121.40986, y: 18.6931}
+  m_SizeDelta: {x: 242.8197, y: 27.3862}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &236374214
 MonoBehaviour:
@@ -3468,7 +3468,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -18796,8 +18796,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 75.681, y: 10}
-  m_SizeDelta: {x: 140, y: 10}
+  m_AnchoredPosition: {x: 121.63809, y: 18.693}
+  m_SizeDelta: {x: 231.9162, y: 27.386}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &1242796552 stripped
 Transform:
@@ -24563,6 +24563,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1621630111}
   - component: {fileID: 1621630112}
+  - component: {fileID: 1621630113}
   m_Layer: 5
   m_Name: StaminaSlider
   m_TagString: Untagged
@@ -24589,8 +24590,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 102, y: 30}
-  m_SizeDelta: {x: 164, y: 20}
+  m_AnchoredPosition: {x: 151.0326, y: 41.186523}
+  m_SizeDelta: {x: 255.9522, y: 42.3731}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1621630112
 MonoBehaviour:
@@ -24643,6 +24644,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1621630113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1621630110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59cf046d65d5ac84b959190cea13fe38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fillColor: {r: 1, g: 1, b: 1, a: 1}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &1622125670 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 434982, guid: 6812e31ceb91fc04da03973c6b1054cd, type: 3}
