@@ -363,13 +363,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   residential_module: {fileID: 6652515}
   Solar_Panel1: {fileID: 551618495}
-  Ship: {fileID: 0}
+  flameButton: {fileID: 2019223314}
   minDelay: 1
   maxDelay: 3
   minAngle: 30
   maxAngle: 180
   residential_module_Rotate_Speed: 5
   rotationSpeed: 2
+  animator: {fileID: 1382904214}
 --- !u!1 &429250339
 GameObject:
   m_ObjectHideFlags: 0
@@ -1133,7 +1134,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1641015085
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,11 +1,13 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
+using System;
 
 public class Ship_Script : MonoBehaviour
 {
     public Transform residential_module;
     public Transform Solar_Panel1;
-    public Transform Ship;
+    public Button flameButton;
 
     public float minDelay = 1f;
     public float maxDelay = 3f;
@@ -18,19 +20,38 @@ public class Ship_Script : MonoBehaviour
     private bool NewGame = false;
     private float targetAngleZ;
 
+    public Animator animator;
+
     void Start()
     {
         StartCoroutine(RotationCycle());
+        flameButton.onClick.AddListener(() => {
+            Debug.Log(" нопка нажата Ч запускаем анимацию");
+            animator.SetTrigger("PlayNewGame");
+        });
     }
 
-    public void NewGameAnimation()
+    void PlayFlame()
     {
-        Ship.position = transform.position;
+        Debug.Log("FlameButtonTrigger: нажата кнопка");
+
+        if (animator != null)
+        {
+            Debug.Log("FlameButtonTrigger: запускаем анимацию FlameStart");
+            animator.Play("NewGameShip", 0, 0f);
+        }
+        else
+        {
+            Debug.LogError("FlameButtonTrigger: Animator не назначен!");
+        }
     }
 
     void Update()
     {
         residential_module.Rotate(0f, 0f, residential_module_Rotate_Speed * Time.deltaTime);
+
+        float curveSpeed = animator.GetFloat("AnimSpeed");
+        animator.speed = curveSpeed;
 
         if (isRotating && Solar_Panel1 != null)
         {
@@ -61,11 +82,11 @@ public class Ship_Script : MonoBehaviour
     {
         while (true)
         {
-            float delay = Random.Range(minDelay, maxDelay);
+            float delay = UnityEngine.Random.Range(minDelay, maxDelay);
             yield return new WaitForSeconds(delay);
 
             float currentZ = residential_module.localEulerAngles.z;
-            float angleToAdd = Random.Range(minAngle, maxAngle);
+            float angleToAdd = UnityEngine.Random.Range(minAngle, maxAngle);
             targetAngleZ = (currentZ + angleToAdd) % 360f;
 
             isRotating = true;
