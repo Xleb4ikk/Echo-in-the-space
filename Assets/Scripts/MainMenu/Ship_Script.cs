@@ -4,12 +4,14 @@ using System.Collections;
 public class Ship_Script : MonoBehaviour
 {
     public Transform residential_module;
+    public Transform Solar_Panel1;
 
     public float minDelay = 1f;
     public float maxDelay = 3f;
     public float minAngle = 30f;
     public float maxAngle = 180f;
-    public float rotationSpeed = 90f; // градусов в секунду
+    public float residential_module_Rotate_Speed = 0.5f; // градусов в секунду
+    public float rotationSpeed = 0.5f; // градусов в секунду
 
     private bool isRotating = false;
     private float targetAngleZ;
@@ -17,28 +19,27 @@ public class Ship_Script : MonoBehaviour
     void Start()
     {
         StartCoroutine(RotationCycle());
-        Debug.Log("Update метод начал работать после задержкиddsdsdafdsgsghsdgh");
     }
 
     void Update()
     {
-        //residential_module.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
+        residential_module.Rotate(0f, 0f, residential_module_Rotate_Speed * Time.deltaTime);
 
-        if (isRotating && residential_module != null)
+        if (isRotating && Solar_Panel1 != null)
         {
-            float currentZ = residential_module.localEulerAngles.z;
+            float currentZ = Solar_Panel1.localEulerAngles.z;
             float angleDiff = Mathf.DeltaAngle(currentZ, targetAngleZ);
             float step = rotationSpeed * Time.deltaTime;
 
             if (Mathf.Abs(angleDiff) > 0.1f)
             {
                 float rotationThisFrame = Mathf.Clamp(angleDiff, -step, step);
-                residential_module.Rotate(0f, 0f, rotationThisFrame);
+                Solar_Panel1.Rotate(0f, 0f, rotationThisFrame);
             }
             else
             {
                 // Устанавливаем только Z, обнуляем X и Y
-                residential_module.localRotation = Quaternion.Euler(0f, 0f, targetAngleZ);
+                Solar_Panel1.localRotation = Quaternion.Euler(0f, 0f, targetAngleZ);
                 isRotating = false;
             }
         }
