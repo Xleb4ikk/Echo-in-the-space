@@ -27,16 +27,16 @@ public class LightController : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        // Проверяем, вышел ли игрок из триггера
-        if (other.CompareTag("Player"))
-        {
-            // Включаем все дочерние источники света
-            foreach (Light light in childLights)
-            {
-                light.enabled = true;
-            }
-        }
-    }
+    // private void OnTriggerExit(Collider other)
+    // {
+    //     // Проверяем, вышел ли игрок из триггера
+    //     if (other.CompareTag("Player"))
+    //     {
+    //         // Включаем все дочерние источники света
+    //         foreach (Light light in childLights)
+    //         {
+    //             light.enabled = true;
+    //         }
+    //     }
+    // }
 } 
