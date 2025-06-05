@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class AnimationContriler_Script : MonoBehaviour
 {
-    [Header("Главное Меню")]
+    [Header("Ui Элементы")]
     public GameObject mainMenuPanel;
+
+    //[Header("Контролеры Анимаций")]
 
     // Вызывается из Animation Event
     public void ShowMainMenu()
