@@ -10,158 +10,209 @@ public class LightOptimizer : MonoBehaviour
     public float transitionSpeed = 2f; // Скорость перехода света
     public float visibilityCheckInterval = 0.2f; // Интервал проверки видимости
     public float maxVisibilityDistance = 20f; // Максимальная дистанция проверки видимости
-    public LayerMask obstacleLayer; // Слой для препятствий
+    public float minVisibilityDistance = 5f; // Минимальная дистанция, на которой свет начинает затухать
 
     [Header("Optimization Settings")]
     [SerializeField] private int raysPerLight = 8; // Количество лучей для проверки каждого источника света
     [SerializeField] private float lightVisibilityThreshold = 0.3f; // Порог видимости (0-1)
     [SerializeField] private bool debugRays = false; // Отображать лучи в редакторе
+    [SerializeField] private bool ignoreTransparent = true; // Игнорировать прозрачные материалы
+    [SerializeField] private bool debugMode = true; // Добавляем режим отладки
 
-    [Header("Zone Settings")]
-    [SerializeField] private bool autoFindZones = true;
-    [SerializeField] private List<LightZone> lightZones = new List<LightZone>();
+    [Header("Player Settings")]
+    [SerializeField] private Transform playerTransform; // Ссылка на трансформ игрока
+    [SerializeField] private bool autoFollowPlayer = true; // Автоматически следовать за игроком
 
     private Dictionary<Light, float> originalIntensities = new Dictionary<Light, float>();
     private Dictionary<Light, float> targetIntensities = new Dictionary<Light, float>();
     private List<Light> allLights = new List<Light>();
     private float visibilityCheckTimer;
     private Transform playerCamera;
-    private LightZone currentZone;
 
     private void Start()
     {
-        if (autoFindZones)
+        // Находим камеру игрока
+        playerCamera = Camera.main?.transform;
+        if (playerCamera == null)
         {
-            FindAllZones();
+            Debug.LogError("[LightOptimizer] Main camera not found!");
+            return;
+        }
+
+        // Если не указан трансформ игрока и включено автоследование
+        if (playerTransform == null && autoFollowPlayer)
+        {
+            // Пытаемся найти игрока по тегу
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                playerTransform = player.transform;
+                // Делаем LightOptimizer дочерним объектом игрока
+                transform.SetParent(playerTransform);
+                transform.localPosition = Vector3.zero;
+                if (debugMode)
+                {
+                    Debug.Log("[LightOptimizer] Automatically attached to player");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[LightOptimizer] Player not found! Please assign player manually or tag your player with 'Player' tag.");
+            }
         }
 
         // Находим все источники света в сцене
         Light[] lights = FindObjectsOfType<Light>();
+        if (lights.Length == 0)
+        {
+            Debug.LogWarning("[LightOptimizer] No lights found in the scene!");
+        }
+
         foreach (Light light in lights)
         {
-            if (light.type != LightType.Directional) // Пропускаем directional lights
+            if (light.type != LightType.Directional)
             {
                 allLights.Add(light);
                 originalIntensities[light] = light.intensity;
-                targetIntensities[light] = 0f;
-                light.enabled = true;
-                light.intensity = 0f;
+                targetIntensities[light] = 0f; // Начинаем с выключенного света
+                
+                if (debugMode)
+                {
+                    Debug.Log($"[LightOptimizer] Added light: {light.name}, Original intensity: {light.intensity}");
+                }
             }
         }
 
-        // Находим камеру игрока
-        playerCamera = Camera.main.transform;
+        if (debugMode)
+        {
+            Debug.Log($"[LightOptimizer] Initialized with {allLights.Count} lights");
+        }
     }
 
     private void Update()
     {
-        if (playerCamera == null) return;
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main?.transform;
+            if (playerCamera == null) return;
+        }
 
         visibilityCheckTimer += Time.deltaTime;
         if (visibilityCheckTimer >= visibilityCheckInterval)
         {
             visibilityCheckTimer = 0f;
-            UpdateCurrentZone();
             CheckLightsVisibility();
         }
 
         UpdateLightIntensities();
     }
 
-    private void InitializeLights()
+    private bool IsValidObstacle(RaycastHit hit)
     {
-        originalIntensities.Clear();
-        targetIntensities.Clear();
+        if (hit.collider == null) return false;
 
-        foreach (var zone in lightZones)
+        // Проверяем, не является ли объект источником света
+        if (hit.collider.GetComponent<Light>() != null)
+            return false;
+
+        // Проверяем наличие рендерера
+        Renderer renderer = hit.collider.GetComponent<Renderer>();
+        if (renderer == null) return false;
+
+        if (ignoreTransparent)
         {
-            foreach (var light in zone.GetZoneLights())
+            // Проверяем материал на прозрачность
+            Material material = renderer.material;
+            if (material != null)
             {
-                if (light && !originalIntensities.ContainsKey(light))
-                {
-                    originalIntensities[light] = light.intensity;
-                    targetIntensities[light] = 0f;
-                    light.enabled = true;
-                    light.intensity = 0f;
-                }
-            }
-        }
-    }
+                // Проверяем режим прозрачности материала
+                if (material.GetTag("RenderType", false) == "Transparent")
+                    return false;
 
-    private void UpdateCurrentZone()
-    {
-        Vector3 cameraPos = playerCamera.position;
-        LightZone newZone = null;
-
-        foreach (var zone in lightZones)
-        {
-            if (zone.IsPointInZone(cameraPos))
-            {
-                newZone = zone;
-                break;
+                // Проверяем альфа-канал
+                Color color = material.color;
+                if (color.a < 0.9f)
+                    return false;
             }
         }
 
-        if (newZone != currentZone)
-        {
-            currentZone = newZone;
-            // При смене зоны можно добавить дополнительную логику
-        }
+        return true;
     }
 
     private void CheckLightsVisibility()
     {
-        Vector3 cameraPos = playerCamera.position;
+        if (allLights.Count == 0)
+        {
+            if (debugMode) Debug.LogWarning("[LightOptimizer] No lights to check!");
+            return;
+        }
+
+        Vector3 checkPosition = playerTransform != null ? playerTransform.position : playerCamera.position;
 
         foreach (Light light in allLights)
         {
             if (!light) continue;
 
-            float distance = Vector3.Distance(cameraPos, light.transform.position);
+            float distance = Vector3.Distance(checkPosition, light.transform.position);
+            
+            // Если свет находится дальше максимальной дистанции
             if (distance > maxVisibilityDistance)
             {
                 targetIntensities[light] = 0f;
                 continue;
             }
 
-            // Проверяем видимость источника света с помощью нескольких лучей
+            // Базовая видимость в зависимости от расстояния
+            float distanceRatio = Mathf.Clamp01((distance - minVisibilityDistance) / (maxVisibilityDistance - minVisibilityDistance));
+            float baseVisibility = 1f - distanceRatio;
+
+            // Проверяем видимость источника света с помощью лучей
             float visibleRays = 0;
             Vector3 lightPos = light.transform.position;
-            float lightRadius = Mathf.Max(0.1f, light.range * 0.1f); // Используем радиус света для проверки
+            float lightRadius = Mathf.Max(0.1f, light.range * 0.1f);
 
             for (int i = 0; i < raysPerLight; i++)
             {
-                // Генерируем случайную точку вокруг источника света
                 Vector3 randomOffset = Random.insideUnitSphere * lightRadius;
                 Vector3 checkPoint = lightPos + randomOffset;
+                Vector3 directionToLight = (checkPoint - checkPosition).normalized;
 
-                // Направление от камеры к точке проверки
-                Vector3 directionToLight = (checkPoint - cameraPos).normalized;
-
-                // Проверяем препятствия
-                bool rayHit = Physics.Raycast(cameraPos, directionToLight, out RaycastHit hit, distance, obstacleLayer);
+                bool rayHit = Physics.Raycast(checkPosition, directionToLight, out RaycastHit hit, distance);
 
                 if (debugRays)
                 {
-                    // Визуализация лучей в редакторе
-                    Debug.DrawLine(cameraPos, checkPoint, 
-                        rayHit ? Color.red : Color.green, 
-                        visibilityCheckInterval);
+                    Color rayColor = !rayHit ? Color.green : 
+                                   (IsValidObstacle(hit) ? Color.red : Color.yellow);
+                    Debug.DrawLine(checkPosition, checkPoint, rayColor, visibilityCheckInterval);
                 }
 
-                // Если луч не попал в препятствие или попал в сам источник света
-                if (!rayHit || hit.distance >= distance - lightRadius)
+                if (!rayHit || !IsValidObstacle(hit) || hit.distance >= distance - lightRadius)
                 {
                     visibleRays++;
                 }
             }
 
-            // Вычисляем процент видимости
             float visibilityRatio = visibleRays / raysPerLight;
-            
-            // Если видимость выше порога, считаем свет видимым
-            targetIntensities[light] = visibilityRatio >= lightVisibilityThreshold ? 
-                originalIntensities[light] * visibilityRatio : 0f;
+            float finalVisibility = baseVisibility * visibilityRatio;
+
+            // Применяем порог видимости
+            if (finalVisibility >= lightVisibilityThreshold)
+            {
+                targetIntensities[light] = originalIntensities[light] * finalVisibility;
+            }
+            else
+            {
+                targetIntensities[light] = 0f;
+            }
+
+            if (debugMode && Mathf.Abs(light.intensity - targetIntensities[light]) > 0.1f)
+            {
+                Debug.Log($"[LightOptimizer] Light {light.name}: Distance={distance:F1}, " +
+                         $"Visible rays={visibleRays}/{raysPerLight}, " +
+                         $"Base visibility={baseVisibility:F2}, " +
+                         $"Final visibility={finalVisibility:F2}, " +
+                         $"Target intensity={targetIntensities[light]:F2}");
+            }
         }
     }
 
@@ -183,53 +234,6 @@ public class LightOptimizer : MonoBehaviour
         }
     }
 
-    public void FindAllZones()
-    {
-        lightZones.Clear();
-        LightZone[] zones = FindObjectsOfType<LightZone>();
-        lightZones.AddRange(zones);
-        Debug.Log($"Found {lightZones.Count} light zones");
-    }
-
-    // Добавить новую зону
-    public void AddZone(LightZone zone)
-    {
-        if (zone && !lightZones.Contains(zone))
-        {
-            lightZones.Add(zone);
-            // Инициализируем источники света из новой зоны
-            foreach (var light in zone.GetZoneLights())
-            {
-                if (light && !originalIntensities.ContainsKey(light))
-                {
-                    originalIntensities[light] = light.intensity;
-                    targetIntensities[light] = 0f;
-                    light.enabled = true;
-                    light.intensity = 0f;
-                }
-            }
-        }
-    }
-
-    // Удалить зону
-    public void RemoveZone(LightZone zone)
-    {
-        if (zone && lightZones.Contains(zone))
-        {
-            lightZones.Remove(zone);
-            // Восстанавливаем оригинальные настройки света
-            foreach (var light in zone.GetZoneLights())
-            {
-                if (light && originalIntensities.ContainsKey(light))
-                {
-                    light.intensity = originalIntensities[light];
-                    originalIntensities.Remove(light);
-                    targetIntensities.Remove(light);
-                }
-            }
-        }
-    }
-
 #if UNITY_EDITOR
     [CustomEditor(typeof(LightOptimizer))]
     public class LightOptimizerEditor : Editor
@@ -238,26 +242,28 @@ public class LightOptimizer : MonoBehaviour
         {
             DrawDefaultInspector();
 
-            LightOptimizer optimizer = (LightOptimizer)target;
-
-            EditorGUILayout.Space();
-            if (GUILayout.Button("Find All Zones"))
-            {
-                optimizer.FindAllZones();
-            }
-
-            if (GUILayout.Button("Reinitialize Lights"))
-            {
-                optimizer.InitializeLights();
-            }
-
             EditorGUILayout.Space();
             EditorGUILayout.HelpBox(
-                "Rays Per Light: Больше лучей = точнее проверка, но больше нагрузка\n" +
-                "Visibility Threshold: Минимальный процент видимых лучей для активации света\n" +
-                "Debug Rays: Показывать лучи в редакторе (зеленый = видимый, красный = блокирован)",
+                "Player Settings:\n" +
+                "- Assign Player Transform или включите Auto Follow Player\n" +
+                "- При Auto Follow Player скрипт автоматически прикрепится к игроку\n\n" +
+                "Light Settings:\n" +
+                "- Min Distance: Расстояние, на котором свет начинает затухать\n" +
+                "- Max Distance: Расстояние, на котором свет полностью гаснет\n\n" +
+                "Debug Settings:\n" +
+                "- Debug Rays: Показывать лучи в редакторе\n" +
+                "  - Зеленый = нет препятствий\n" +
+                "  - Красный = есть препятствие\n" +
+                "  - Желтый = прозрачное препятствие\n" +
+                "- Debug Mode: Включить отладочные сообщения",
                 MessageType.Info
             );
+
+            LightOptimizer optimizer = (LightOptimizer)target;
+            if (GUILayout.Button("Reinitialize Lights"))
+            {
+                optimizer.Start();
+            }
         }
     }
 #endif
