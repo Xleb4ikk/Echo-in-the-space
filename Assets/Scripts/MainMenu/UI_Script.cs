@@ -8,15 +8,15 @@ using UnityEngine.UI;
 
 public class UI_Script : MonoBehaviour
 {
-    [Header("Скрипты")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
     public Ship_Script ship_script;
 
-    [Header("Кнопки")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅ")]
     public Button NewGame_Button;
     public Button Settings_Button;
     public Button Exit_Button;
 
-    [Header("Тексты")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅ")]
     public TextMeshProUGUI NewGame_Button_Text;
     public TextMeshProUGUI Settings_Button_Text;
     public TextMeshProUGUI Exit_Button_Text;
@@ -25,12 +25,12 @@ public class UI_Script : MonoBehaviour
     public Image Darkening;
     public CanvasGroup Canvas;
 
-    [Header("Настройки начала игры")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ")]
     public float WaitingDarkening = 2f;
     public float durationDarkening = 3f;
     public float transparentDarkening = 255f;
 
-    [Header("Настройки запуска игры")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ")]
     public float WaitfadeDurationIn = 1f;
     public float fadeDurationIn = 1.5f;
     public float WaitfadeDurationOut = 1f;
