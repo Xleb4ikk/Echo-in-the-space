@@ -12,11 +12,17 @@ public class AlarmControler : MonoBehaviour
     [Header("alarm освещение")]
     [SerializeField] private List<Light> AlarmLightSpotList;
 
+    [Header("alarm материал")]
     [SerializeField] private float materialMinEmission = 0.2f;
     [SerializeField] private float materialMaxEmission = 3f;
 
     [SerializeField] private Material sharedMaterial;
     [SerializeField] private Color baseEmissionColor = Color.red;
+
+    [Header("alarm звуковые источники")]
+    [SerializeField] private List<AudioSource> alarmAudioSources;
+
+    private float alarmTimer = 0f;
 
     bool AlarmStatus = true;
 
@@ -35,13 +41,17 @@ public class AlarmControler : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current.hKey.wasPressedThisFrame)
         {
             ToggleAlarm();
         }
         if (AlarmStatus)
         {
             PulseAlarmLights();
+        }
+        else
+        {
+            StopAlarmSounds();
         }
     }
 
@@ -81,6 +91,39 @@ public class AlarmControler : MonoBehaviour
             sharedMaterial.EnableKeyword("_EMISSION");
             sharedMaterial.SetColor("_EmissionColor", baseEmissionColor * emissionIntensity);
         }
+
+        UpdateAlarmSounds();
     }
 
+    private void UpdateAlarmSounds()
+    {
+        if (alarmAudioSources == null || alarmAudioSources.Count == 0)
+            return;
+
+        alarmTimer -= Time.deltaTime;
+
+        if (alarmTimer <= 0f)
+        {
+            foreach (var audioSource in alarmAudioSources)
+            {
+                if (audioSource != null)
+                    audioSource.Play();
+            }
+
+            // Берём длину первого клипа — предполагаем, что у всех одинаковый
+            if (alarmAudioSources[0] != null && alarmAudioSources[0].clip != null)
+                alarmTimer = alarmAudioSources[0].clip.length;
+        }
+    }
+
+    private void StopAlarmSounds()
+    {
+        foreach (var audioSource in alarmAudioSources)
+        {
+            if (audioSource != null && audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+        }
+    }
 }

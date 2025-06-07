@@ -49,7 +49,7 @@ public class PlayerInteractionDoor : MonoBehaviour
         Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         RaycastHit hit;
 
-        Debug.DrawRay(ray.origin, ray.direction * rayDistance, Color.red);
+        //Debug.DrawRay(ray.origin, ray.direction * rayDistance, Color.red);
 
         if (Physics.Raycast(ray, out hit, rayDistance, interactableLayer))
         {
