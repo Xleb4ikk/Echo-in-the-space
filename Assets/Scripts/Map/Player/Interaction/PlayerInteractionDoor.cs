@@ -1,35 +1,52 @@
-﻿using Mono.Cecil.Cil;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem; // важно!
+using UnityEngine.InputSystem;
 
 public class PlayerInteractionDoor : MonoBehaviour
 {
-
-    public Animator doorAnimation;
+    [Header("Ссылки")]
+    [SerializeField] private Animator doorAnimation;
 
     [Header("Настройки Raycast")]
     [SerializeField] private float rayDistance = 5f;
     [SerializeField] private LayerMask interactableLayer;
+    private Transform cameraTransform;
 
     [Header("Состояние двери")]
-    private bool openDoor = false;
+    private bool isOpen = false;
+    private bool isAnimating = false;
+
+    [Header("Звуки")]
+    public AudioClip clip; // прикрепите файл в инспекторе
+    public AudioSource audioSource;
+    [SerializeField, Range(0f, 1f)] private float volume = 0.5f;
+
+
+    private void Start()
+    {
+        audioSource.clip = clip;
+        audioSource.volume = volume;
+        if (Camera.main != null)
+        {
+            cameraTransform = Camera.main.transform;
+        }
+        else
+        {
+            Debug.LogError("Не найдена основная камера (Main Camera)!");
+        }
+    }
 
     private void Update()
     {
-        DoorInteraction();
+        if (cameraTransform == null) return;
+
+        HandleDoorInteraction();
+        
     }
 
-    private void DoorInteraction()
+    private void HandleDoorInteraction()
     {
-        Transform cam = Camera.main?.transform;
-
-        if (cam == null)
-        {
-            return;
-        }
-
-        Ray ray = new Ray(cam.position, cam.forward);
+        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         RaycastHit hit;
 
         Debug.DrawRay(ray.origin, ray.direction * rayDistance, Color.red);
@@ -38,45 +55,51 @@ public class PlayerInteractionDoor : MonoBehaviour
         {
             if (hit.collider.CompareTag("Door"))
             {
-                float distanceToDoor = Vector3.Distance(cam.position, hit.point);
-
-                if (Keyboard.current.eKey.wasPressedThisFrame)
+                if (Keyboard.current.eKey.wasPressedThisFrame && !isAnimating)
                 {
-
-                    if (!openDoor)
+                    if (!isOpen)
                     {
                         Debug.Log("🟢 Открываем дверь");
-                        StartCoroutine(OpenDoor());
+                        OpenDoor();
                     }
                     else
                     {
                         Debug.Log("🔴 Закрываем дверь");
-                        StartCoroutine(CloseDoor());
+                        CloseDoor();
                     }
                 }
             }
         }
     }
 
-    private IEnumerator OpenDoor()
+    private void OpenDoor()
     {
-        openDoor = true;
+        isAnimating = true;
         doorAnimation.SetBool("character_nearby", true);
-        Debug.Log("🚪 Дверь открывается...");
-        yield return new WaitForSeconds(1f); // Заглушка времени открытия
+        PlaySound();
+        Debug.Log("🚪 Анимация открытия двери...");
+        isOpen = true;
+        isAnimating = false;
     }
 
-    private IEnumerator CloseDoor()
+    private void CloseDoor()
     {
+        isAnimating = true;
         doorAnimation.SetBool("character_nearby", false);
-        openDoor = false;
-        yield return new WaitForSeconds(1f); // Заглушка времени закрытия
+        PlaySound();
+        Debug.Log("🚪 Анимация закрытия двери...");
+        isOpen = false;
+        isAnimating = false;
     }
 
-    // Визуализация луча в редакторе
+    public void PlaySound()
+    {
+        audioSource.Play();
+    }
+
     private void OnDrawGizmos()
     {
-        if (Camera.main == null) return;
+        if (!Application.isPlaying || Camera.main == null) return;
 
         Gizmos.color = Color.green;
         Gizmos.DrawLine(Camera.main.transform.position,
