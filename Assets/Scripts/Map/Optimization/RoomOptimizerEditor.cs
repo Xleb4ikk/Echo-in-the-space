@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.Linq;
 
 [CustomEditor(typeof(RoomOptimizer))]
 public class RoomOptimizerEditor : Editor
@@ -10,7 +11,6 @@ public class RoomOptimizerEditor : Editor
     private SerializedProperty rooms;
     private SerializedProperty portalConnections;
     private SerializedProperty player;
-    private SerializedProperty playerDetectionMask;
     private SerializedProperty portalTriggerRadius;
     private SerializedProperty debugMode;
     
@@ -20,7 +20,6 @@ public class RoomOptimizerEditor : Editor
         rooms = serializedObject.FindProperty("rooms");
         portalConnections = serializedObject.FindProperty("portalConnections");
         player = serializedObject.FindProperty("player");
-        playerDetectionMask = serializedObject.FindProperty("playerDetectionMask");
         portalTriggerRadius = serializedObject.FindProperty("portalTriggerRadius");
         debugMode = serializedObject.FindProperty("debugMode");
     }
@@ -29,6 +28,33 @@ public class RoomOptimizerEditor : Editor
     {
         serializedObject.Update();
         
+        // Получаем ссылку на компонент
+        optimizer = (RoomOptimizer)target;
+        
+        // Отображаем базовые настройки
+        DrawGeneralSettings();
+        
+        // Отображаем раздел настройки комнат
+        DrawRoomsSection();
+        
+        // Отображаем раздел настройки порталов
+        DrawConnectionsSection();
+        
+        // Отображаем кнопку для проверки источников света
+        DrawLightCheckerButton();
+        
+        // Применяем изменения
+        serializedObject.ApplyModifiedProperties();
+        
+        // Если что-то изменилось, помечаем объект как "грязный"
+        if (GUI.changed)
+        {
+            EditorUtility.SetDirty(target);
+        }
+    }
+    
+    private void DrawGeneralSettings()
+    {
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Room Optimizer", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("This component manages the transition between rooms using a two-portal system.\n" +
@@ -37,10 +63,26 @@ public class RoomOptimizerEditor : Editor
         
         EditorGUILayout.Space();
         EditorGUILayout.PropertyField(player);
-        EditorGUILayout.PropertyField(playerDetectionMask);
+        
+        // Добавляем выбор начальной активной комнаты
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Initial Active Room", GUILayout.Width(120));
+        int initialIndex = optimizer.initialActiveRoom != null ? optimizer.rooms.IndexOf(optimizer.initialActiveRoom) : -1;
+        string[] roomNames = optimizer.rooms.Select(r => r != null ? r.roomName : "None").ToArray();
+        int newIndex = EditorGUILayout.Popup(initialIndex, roomNames);
+        if (newIndex != initialIndex && newIndex >= 0 && newIndex < optimizer.rooms.Count)
+        {
+            optimizer.initialActiveRoom = optimizer.rooms[newIndex];
+            EditorUtility.SetDirty(optimizer);
+        }
+        EditorGUILayout.EndHorizontal();
+        
         EditorGUILayout.PropertyField(portalTriggerRadius);
         EditorGUILayout.PropertyField(debugMode);
-        
+    }
+    
+    private void DrawRoomsSection()
+    {
         // Комнаты
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Rooms", EditorStyles.boldLabel);
@@ -51,7 +93,6 @@ public class RoomOptimizerEditor : Editor
             rooms.arraySize++;
             SerializedProperty newRoom = rooms.GetArrayElementAtIndex(rooms.arraySize - 1);
             newRoom.FindPropertyRelative("roomName").stringValue = "Room " + rooms.arraySize;
-            newRoom.FindPropertyRelative("roomSize").vector3Value = new Vector3(10f, 3f, 10f);
             serializedObject.ApplyModifiedProperties();
         }
         
@@ -62,9 +103,8 @@ public class RoomOptimizerEditor : Editor
         {
             SerializedProperty room = rooms.GetArrayElementAtIndex(i);
             SerializedProperty roomName = room.FindPropertyRelative("roomName");
-            SerializedProperty roomSize = room.FindPropertyRelative("roomSize");
+            SerializedProperty roomBounds = room.FindPropertyRelative("roomBounds");
             SerializedProperty roomLights = room.FindPropertyRelative("roomLights");
-            SerializedProperty roomWalls = room.FindPropertyRelative("roomWalls");
             SerializedProperty roomCenter = room.FindPropertyRelative("roomCenter");
             
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -82,7 +122,7 @@ public class RoomOptimizerEditor : Editor
             
             EditorGUILayout.PropertyField(roomName);
             EditorGUILayout.PropertyField(roomCenter);
-            EditorGUILayout.PropertyField(roomSize);
+            EditorGUILayout.PropertyField(roomBounds);
             
             // Источники света
             EditorGUILayout.Space();
@@ -146,8 +186,18 @@ public class RoomOptimizerEditor : Editor
                         RaycastHit hit;
                         if (Physics.Raycast(centerTransform.position, Vector3.down, out hit, 100f))
                         {
-                            // Устанавливаем Y-позицию в точку удара плюс половина высоты комнаты
-                            float roomHeight = roomSize.vector3Value.y;
+                            // Use a default room height instead of trying to access localScale from SerializedProperty
+                            float roomHeight = 3f; // Default room height
+                            
+                            if (roomBounds.objectReferenceValue != null)
+                            {
+                                Transform boundsTransform = roomBounds.objectReferenceValue as Transform;
+                                if (boundsTransform != null)
+                                {
+                                    roomHeight = boundsTransform.localScale.y;
+                                }
+                            }
+                            
                             centerTransform.position = new Vector3(
                                 centerTransform.position.x,
                                 hit.point.y + roomHeight * 0.5f,
@@ -232,7 +282,6 @@ public class RoomOptimizerEditor : Editor
             
             // Стены комнаты
             EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(roomWalls);
             
             // Кнопка для создания центра комнаты
             EditorGUILayout.Space();
@@ -272,196 +321,145 @@ public class RoomOptimizerEditor : Editor
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space();
         }
-        
-        // Соединения порталов
+    }
+    
+    private void DrawConnectionsSection()
+    {
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Room Connections", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Portal Connections", EditorStyles.boldLabel);
+        
+        // Добавляем пояснение, как работают порталы
+        EditorGUILayout.HelpBox("Для каждого соединения между комнатами настройте два портала:\n" +
+                              "1. Подготовительный портал (Prep Portal) - активирует свет в целевой комнате\n" +
+                              "2. Переходной портал (Trans Portal) - выключает свет в исходной комнате", 
+                              MessageType.Info);
+        
+        // Отображение списка соединений
+        EditorGUILayout.PropertyField(portalConnections);
+        
+        // Кнопка для настройки коллайдеров всех порталов
+        if (GUILayout.Button("Setup All Portal Colliders", GUILayout.Height(30)))
+        {
+            serializedObject.ApplyModifiedProperties();
+            
+            foreach (var connection in optimizer.portalConnections)
+            {
+                optimizer.SetupPortalColliders(connection);
+            }
+            
+            serializedObject.Update();
+            EditorUtility.SetDirty(target);
+        }
         
         // Кнопка для добавления нового соединения
         if (GUILayout.Button("Add Portal Connection"))
         {
+            // Добавляем новое соединение
+            int connectionIndex = portalConnections.arraySize;
             portalConnections.arraySize++;
-            SerializedProperty newConnection = portalConnections.GetArrayElementAtIndex(portalConnections.arraySize - 1);
-            newConnection.FindPropertyRelative("connectionName").stringValue = "Connection " + portalConnections.arraySize;
-            newConnection.FindPropertyRelative("transitionDelay").floatValue = 0.5f;
+            
+            // Применяем изменения и работаем напрямую с объектом
             serializedObject.ApplyModifiedProperties();
-        }
-        
-        // Кнопка для автоматического создания соединений между комнатами
-        if (GUILayout.Button("Auto-Generate Connections"))
-        {
-            AutoGenerateConnections();
+            
+            // Создаем новое соединение напрямую с объектом RoomOptimizer
+            if (optimizer.rooms.Count >= 2)
+            {
+                optimizer.portalConnections[connectionIndex].connectionName = "Connection " + (connectionIndex + 1);
+                optimizer.portalConnections[connectionIndex].sourceRoom = optimizer.rooms[0];
+                optimizer.portalConnections[connectionIndex].destinationRoom = optimizer.rooms[1];
+            }
+            
+            // Обновляем serializedObject
+            serializedObject.Update();
+            EditorUtility.SetDirty(target);
         }
         
         EditorGUILayout.Space();
         
-        // Отображение и редактирование соединений комнат
-        for (int i = 0; i < portalConnections.arraySize; i++)
+        // Кнопка для автоматического создания соединений
+        if (optimizer.rooms.Count >= 2)
         {
-            SerializedProperty connection = portalConnections.GetArrayElementAtIndex(i);
-            SerializedProperty connectionName = connection.FindPropertyRelative("connectionName");
-            SerializedProperty sourceRoom = connection.FindPropertyRelative("sourceRoom");
-            SerializedProperty destinationRoom = connection.FindPropertyRelative("destinationRoom");
-            SerializedProperty preparationPortal = connection.FindPropertyRelative("preparationPortal");
-            SerializedProperty transitionPortal = connection.FindPropertyRelative("transitionPortal");
-            SerializedProperty transitionDelay = connection.FindPropertyRelative("transitionDelay");
-            
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            
-            // Заголовок соединения с возможностью удаления
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(connectionName.stringValue, EditorStyles.boldLabel);
-            if (GUILayout.Button("Remove", GUILayout.Width(80)))
+            if (GUILayout.Button("Auto-Generate Portal Connections", GUILayout.Height(30)))
             {
-                portalConnections.DeleteArrayElementAtIndex(i);
                 serializedObject.ApplyModifiedProperties();
-                break;
-            }
-            EditorGUILayout.EndHorizontal();
-            
-            EditorGUILayout.PropertyField(connectionName);
-            
-            // Комнаты
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Rooms:", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(sourceRoom, new GUIContent("Source Room"));
-            EditorGUILayout.PropertyField(destinationRoom, new GUIContent("Destination Room"));
-            
-            // Порталы
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Portals:", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(preparationPortal, new GUIContent("Preparation Portal"));
-            EditorGUILayout.PropertyField(transitionPortal, new GUIContent("Transition Portal"));
-            
-            // Настройки
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Settings:", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(transitionDelay);
-            
-            // Кнопки быстрого создания порталов
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create Preparation Portal"))
-            {
-                // Создаем новый объект для подготовительного портала
-                GameObject portalObj = CreatePortalObject($"PrepPortal_{connectionName.stringValue}", Color.cyan);
                 
-                // Размещаем портал на пути между комнатами
-                if (sourceRoom.objectReferenceValue != null && destinationRoom.objectReferenceValue != null)
-                {
-                    // Получаем комнаты напрямую из списка оптимизатора
-                    int sourceIndex = GetRoomIndex(sourceRoom);
-                    int destIndex = GetRoomIndex(destinationRoom);
-                    
-                    if (sourceIndex >= 0 && destIndex >= 0)
-                    {
-                        var source = optimizer.rooms[sourceIndex];
-                        var destination = optimizer.rooms[destIndex];
-                        
-                        if (source.roomCenter != null && destination.roomCenter != null)
-                        {
-                            // Размещаем портал на 1/3 пути между комнатами
-                            portalObj.transform.position = Vector3.Lerp(
-                                source.roomCenter.position, 
-                                destination.roomCenter.position, 
-                                0.33f
-                            );
-                        }
-                    }
-                }
+                // Создаем соединения между комнатами
+                AutoGenerateConnections();
                 
-                preparationPortal.objectReferenceValue = portalObj.transform;
-                serializedObject.ApplyModifiedProperties();
+                serializedObject.Update();
+                EditorUtility.SetDirty(target);
             }
-            
-            if (GUILayout.Button("Create Transition Portal"))
-            {
-                // Создаем новый объект для переходного портала
-                GameObject portalObj = CreatePortalObject($"TransPortal_{connectionName.stringValue}", Color.magenta);
-                
-                // Размещаем портал на пути между комнатами
-                if (sourceRoom.objectReferenceValue != null && destinationRoom.objectReferenceValue != null)
-                {
-                    // Получаем комнаты напрямую из списка оптимизатора
-                    int sourceIndex = GetRoomIndex(sourceRoom);
-                    int destIndex = GetRoomIndex(destinationRoom);
-                    
-                    if (sourceIndex >= 0 && destIndex >= 0)
-                    {
-                        var source = optimizer.rooms[sourceIndex];
-                        var destination = optimizer.rooms[destIndex];
-                        
-                        if (source.roomCenter != null && destination.roomCenter != null)
-                        {
-                            // Размещаем портал на 2/3 пути между комнатами
-                            portalObj.transform.position = Vector3.Lerp(
-                                source.roomCenter.position, 
-                                destination.roomCenter.position, 
-                                0.66f
-                            );
-                        }
-                    }
-                }
-                
-                transitionPortal.objectReferenceValue = portalObj.transform;
-                serializedObject.ApplyModifiedProperties();
-            }
-            EditorGUILayout.EndHorizontal();
-            
-            // Кнопка для создания обоих порталов одновременно
-            if (GUILayout.Button("Create Both Portals"))
-            {
-                if (sourceRoom.objectReferenceValue != null && destinationRoom.objectReferenceValue != null)
-                {
-                    // Получаем комнаты напрямую из списка оптимизатора
-                    int sourceIndex = GetRoomIndex(sourceRoom);
-                    int destIndex = GetRoomIndex(destinationRoom);
-                    
-                    if (sourceIndex >= 0 && destIndex >= 0)
-                    {
-                        var source = optimizer.rooms[sourceIndex];
-                        var destination = optimizer.rooms[destIndex];
-                        
-                        if (source.roomCenter != null && destination.roomCenter != null)
-                        {
-                            // Создаем подготовительный портал
-                            GameObject prepPortalObj = CreatePortalObject($"PrepPortal_{connectionName.stringValue}", Color.cyan);
-                            prepPortalObj.transform.position = Vector3.Lerp(
-                                source.roomCenter.position, 
-                                destination.roomCenter.position, 
-                                0.33f
-                            );
-                            preparationPortal.objectReferenceValue = prepPortalObj.transform;
-                            
-                            // Создаем переходной портал
-                            GameObject transPortalObj = CreatePortalObject($"TransPortal_{connectionName.stringValue}", Color.magenta);
-                            transPortalObj.transform.position = Vector3.Lerp(
-                                source.roomCenter.position, 
-                                destination.roomCenter.position, 
-                                0.66f
-                            );
-                            transitionPortal.objectReferenceValue = transPortalObj.transform;
-                            
-                            serializedObject.ApplyModifiedProperties();
-                        }
-                    }
-                }
-            }
-            
-            EditorGUILayout.EndVertical();
-            
-            EditorGUILayout.Space();
-        }
-        
-        serializedObject.ApplyModifiedProperties();
-        
-        // Отображение подсказки для настройки игрока
-        if (player.objectReferenceValue == null)
-        {
-            EditorGUILayout.HelpBox("Player reference is not set. The optimizer will try to find a GameObject with the 'Player' tag at runtime.", MessageType.Warning);
         }
     }
-    
+
+    private void DrawLightCheckerButton()
+    {
+        GUILayout.Space(10);
+        EditorGUILayout.LabelField("Maintenance Tools", EditorStyles.boldLabel);
+        
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Check & Fix All Lights"))
+        {
+            optimizer.CheckAndFixLights();
+        }
+        
+        if (GUILayout.Button("Show Instructions"))
+        {
+            optimizer.ShowInstructions();
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        if (GUILayout.Button("Enable Debug Mode"))
+        {
+            optimizer.debugMode = true;
+            EditorUtility.SetDirty(optimizer);
+        }
+        
+        if (GUILayout.Button("Test Light Switch"))
+        {
+            TestLightSwitch();
+        }
+    }
+
+    private void TestLightSwitch()
+    {
+        if (optimizer == null || optimizer.rooms == null || optimizer.rooms.Count == 0) 
+        {
+            Debug.LogError("No rooms to test!");
+            return;
+        }
+        
+        // Выбираем первую комнату для теста
+        var testRoom = optimizer.rooms[0];
+        if (testRoom == null || testRoom.roomLights.Count == 0)
+        {
+            Debug.LogError("No lights in the first room to test!");
+            return;
+        }
+        
+        // Проверяем текущее состояние света
+        bool allOn = true;
+        foreach (var light in testRoom.roomLights)
+        {
+            if (light != null && !light.enabled)
+            {
+                allOn = false;
+                break;
+            }
+        }
+        
+        // Переключаем все источники света на противоположное состояние
+        foreach (var light in testRoom.roomLights)
+        {
+            if (light != null)
+            {
+                light.enabled = !allOn;
+            }
+        }
+        
+        Debug.Log($"Test: Switching all lights in room '{testRoom.roomName}' to {(!allOn ? "ON" : "OFF")}");
+    }
+
     // Находит индекс комнаты в списке rooms по SerializedProperty
     private int GetRoomIndex(SerializedProperty roomProperty)
     {
@@ -498,39 +496,39 @@ public class RoomOptimizerEditor : Editor
     
     private GameObject CreatePortalObject(string name, Color color)
     {
+        // Создаем новый объект для портала
         GameObject portalObj = new GameObject(name);
         portalObj.transform.SetParent(optimizer.transform);
         
-        // Добавляем сферический коллайдер-триггер
-        SphereCollider collider = portalObj.AddComponent<SphereCollider>();
-        collider.radius = portalTriggerRadius.floatValue;
-        collider.isTrigger = true;
+        // Добавляем визуальное представление для удобства
+        GameObject visualObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        visualObj.name = "PortalVisual";
+        visualObj.transform.SetParent(portalObj.transform);
+        visualObj.transform.localPosition = Vector3.zero;
+        visualObj.transform.localScale = new Vector3(0.5f, 2f, 0.1f);
         
-        // Добавляем визуальный маркер
-        GameObject visualMarker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        visualMarker.name = "VisualMarker";
-        visualMarker.transform.SetParent(portalObj.transform);
-        visualMarker.transform.localPosition = Vector3.zero;
-        visualMarker.transform.localScale = Vector3.one * 0.3f;
+        // Удаляем коллайдер с визуального представления
+        DestroyImmediate(visualObj.GetComponent<Collider>());
         
-        // Удаляем коллайдер с визуального маркера
-        DestroyImmediate(visualMarker.GetComponent<Collider>());
-        
-        // Делаем маркер полупрозрачным
-        Renderer renderer = visualMarker.GetComponent<Renderer>();
+        // Настраиваем материал
+        Renderer renderer = visualObj.GetComponent<Renderer>();
         if (renderer != null)
         {
-            Material material = new Material(Shader.Find("Standard"));
-            material.color = new Color(color.r, color.g, color.b, 0.5f);
-            material.SetFloat("_Mode", 3); // Transparent mode
-            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            material.SetInt("_ZWrite", 0);
-            material.DisableKeyword("_ALPHATEST_ON");
-            material.EnableKeyword("_ALPHABLEND_ON");
-            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            material.renderQueue = 3000;
-            renderer.material = material;
+            // Создаем полупрозрачный материал
+            color.a = 0.5f;
+            Material portalMaterial = new Material(Shader.Find("Standard"));
+            portalMaterial.color = color;
+            renderer.sharedMaterial = portalMaterial;
+            
+            // Делаем материал полупрозрачным
+            portalMaterial.SetFloat("_Mode", 3);
+            portalMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            portalMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            portalMaterial.SetInt("_ZWrite", 0);
+            portalMaterial.DisableKeyword("_ALPHATEST_ON");
+            portalMaterial.EnableKeyword("_ALPHABLEND_ON");
+            portalMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            portalMaterial.renderQueue = 3000;
         }
         
         return portalObj;
@@ -538,93 +536,104 @@ public class RoomOptimizerEditor : Editor
     
     private void AutoGenerateConnections()
     {
-        if (rooms.arraySize < 2)
+        // Проверяем достаточное количество комнат
+        if (optimizer.rooms.Count < 2)
         {
-            EditorUtility.DisplayDialog("Error", "You need at least 2 rooms to generate connections", "OK");
+            EditorUtility.DisplayDialog("Error", "Нужно минимум 2 комнаты для создания соединений", "OK");
             return;
         }
         
-        // Находим все существующие пары комнат
-        HashSet<string> existingPairs = new HashSet<string>();
-        for (int i = 0; i < portalConnections.arraySize; i++)
+        // Очищаем существующие соединения
+        if (EditorUtility.DisplayDialog("Warning", 
+            "Эта операция удалит все существующие соединения. Продолжить?", 
+            "Да", "Отмена"))
         {
-            SerializedProperty connection = portalConnections.GetArrayElementAtIndex(i);
-            SerializedProperty sourceRoom = connection.FindPropertyRelative("sourceRoom");
-            SerializedProperty destinationRoom = connection.FindPropertyRelative("destinationRoom");
+            optimizer.portalConnections.Clear();
             
-            if (sourceRoom.objectReferenceValue != null && destinationRoom.objectReferenceValue != null)
+            // Создаем соединения между соседними комнатами
+            for (int i = 0; i < optimizer.rooms.Count - 1; i++)
             {
-                int sourceIndex = GetRoomIndex(sourceRoom);
-                int destIndex = GetRoomIndex(destinationRoom);
-                
-                if (sourceIndex >= 0 && destIndex >= 0)
-                {
-                    existingPairs.Add($"{sourceIndex}_{destIndex}");
-                }
+                // Создаем соединение между текущей и следующей комнатой
+                CreateConnectionBetweenRooms(optimizer.rooms[i], optimizer.rooms[i+1]);
             }
+            
+            // Соединяем последнюю комнату с первой для образования "кольца" при желании
+            if (optimizer.rooms.Count > 2 && 
+                EditorUtility.DisplayDialog("Create Ring", 
+                "Создать соединение между последней и первой комнатой?", 
+                "Да", "Нет"))
+            {
+                CreateConnectionBetweenRooms(optimizer.rooms[optimizer.rooms.Count-1], optimizer.rooms[0]);
+            }
+            
+            Debug.Log($"[RoomOptimizer] Created {optimizer.portalConnections.Count} portal connections");
         }
-        
-        // Создаем соединения для всех возможных пар комнат
-        int connectionsAdded = 0;
-        
-        for (int i = 0; i < rooms.arraySize; i++)
+    }
+    
+    private void CreateConnectionBetweenRooms(RoomOptimizer.Room sourceRoom, RoomOptimizer.Room destRoom)
+    {
+        if (sourceRoom == null || destRoom == null || 
+            sourceRoom.roomCenter == null || destRoom.roomCenter == null)
         {
-            for (int j = 0; j < rooms.arraySize; j++)
-            {
-                if (i == j) continue; // Пропускаем соединение комнаты с самой собой
-                
-                string pairKey = $"{i}_{j}";
-                if (existingPairs.Contains(pairKey)) continue; // Пропускаем уже существующие соединения
-                
-                // Создаем новое соединение
-                portalConnections.arraySize++;
-                SerializedProperty newConnection = portalConnections.GetArrayElementAtIndex(portalConnections.arraySize - 1);
-                
-                // Получаем данные комнат
-                SerializedProperty srcRoom = rooms.GetArrayElementAtIndex(i);
-                SerializedProperty dstRoom = rooms.GetArrayElementAtIndex(j);
-                SerializedProperty srcName = srcRoom.FindPropertyRelative("roomName");
-                SerializedProperty dstName = dstRoom.FindPropertyRelative("roomName");
-                
-                newConnection.FindPropertyRelative("connectionName").stringValue = 
-                    $"{srcName.stringValue} to {dstName.stringValue}";
-                
-                // Устанавливаем ссылки на комнаты (здесь используем индексы)
-                newConnection.FindPropertyRelative("sourceRoom").objectReferenceInstanceIDValue = 
-                    srcRoom.objectReferenceInstanceIDValue;
-                    
-                newConnection.FindPropertyRelative("destinationRoom").objectReferenceInstanceIDValue = 
-                    dstRoom.objectReferenceInstanceIDValue;
-                    
-                newConnection.FindPropertyRelative("transitionDelay").floatValue = 0.5f;
-                
-                // Создаем порталы
-                SerializedProperty srcCenter = srcRoom.FindPropertyRelative("roomCenter");
-                SerializedProperty dstCenter = dstRoom.FindPropertyRelative("roomCenter");
-                
-                if (srcCenter.objectReferenceValue != null && dstCenter.objectReferenceValue != null)
-                {
-                    Transform sourceTransform = srcCenter.objectReferenceValue as Transform;
-                    Transform destTransform = dstCenter.objectReferenceValue as Transform;
-                    
-                    // Создаем подготовительный портал
-                    GameObject prepPortalObj = CreatePortalObject($"PrepPortal_{srcName.stringValue}_to_{dstName.stringValue}", Color.cyan);
-                    prepPortalObj.transform.position = Vector3.Lerp(sourceTransform.position, destTransform.position, 0.33f);
-                    newConnection.FindPropertyRelative("preparationPortal").objectReferenceValue = prepPortalObj.transform;
-                    
-                    // Создаем переходной портал
-                    GameObject transPortalObj = CreatePortalObject($"TransPortal_{srcName.stringValue}_to_{dstName.stringValue}", Color.magenta);
-                    transPortalObj.transform.position = Vector3.Lerp(sourceTransform.position, destTransform.position, 0.66f);
-                    newConnection.FindPropertyRelative("transitionPortal").objectReferenceValue = transPortalObj.transform;
-                }
-                
-                connectionsAdded++;
-                existingPairs.Add(pairKey);
-            }
+            return;
         }
         
-        serializedObject.ApplyModifiedProperties();
-        EditorUtility.DisplayDialog("Auto-Generate Connections", $"Added {connectionsAdded} new connections between rooms.", "OK");
+        string connectionName = $"{sourceRoom.roomName}_to_{destRoom.roomName}";
+        
+        // Создаем порталы
+        GameObject prepPortalObj = CreatePortalObject($"PrepPortal_{connectionName}", Color.green);
+        GameObject transPortalObj = CreatePortalObject($"TransPortal_{connectionName}", Color.red);
+        
+        // Размещаем порталы между комнатами
+        Vector3 direction = (destRoom.roomCenter.position - sourceRoom.roomCenter.position).normalized;
+        float distance = Vector3.Distance(sourceRoom.roomCenter.position, destRoom.roomCenter.position);
+        
+        // Размещаем порталы
+        prepPortalObj.transform.position = sourceRoom.roomCenter.position + direction * (distance * 0.33f);
+        transPortalObj.transform.position = sourceRoom.roomCenter.position + direction * (distance * 0.66f);
+        
+        // Разворачиваем порталы перпендикулярно направлению
+        prepPortalObj.transform.forward = direction;
+        transPortalObj.transform.forward = direction;
+            
+        // Создаем соединение
+        RoomOptimizer.PortalConnection connection = new RoomOptimizer.PortalConnection
+        {
+            connectionName = connectionName,
+            sourceRoom = sourceRoom,
+            destinationRoom = destRoom,
+            preparationPortal = prepPortalObj.transform,
+            transitionPortal = transPortalObj.transform,
+            useColliders = true
+        };
+        
+        optimizer.portalConnections.Add(connection);
+        optimizer.SetupPortalColliders(connection);
+        
+        // Создаем обратное соединение
+        string reverseConnectionName = $"{destRoom.roomName}_to_{sourceRoom.roomName}";
+        
+        GameObject reversePrepPortal = CreatePortalObject($"PrepPortal_{reverseConnectionName}", Color.cyan);
+        GameObject reverseTransPortal = CreatePortalObject($"TransPortal_{reverseConnectionName}", Color.magenta);
+        
+        reversePrepPortal.transform.position = destRoom.roomCenter.position - direction * (distance * 0.33f);
+        reverseTransPortal.transform.position = destRoom.roomCenter.position - direction * (distance * 0.66f);
+        
+        reversePrepPortal.transform.forward = -direction;
+        reverseTransPortal.transform.forward = -direction;
+        
+        RoomOptimizer.PortalConnection reverseConnection = new RoomOptimizer.PortalConnection
+        {
+            connectionName = reverseConnectionName,
+            sourceRoom = destRoom,
+            destinationRoom = sourceRoom,
+            preparationPortal = reversePrepPortal.transform,
+            transitionPortal = reverseTransPortal.transform,
+            useColliders = true
+        };
+        
+        optimizer.portalConnections.Add(reverseConnection);
+        optimizer.SetupPortalColliders(reverseConnection);
     }
 
     // Заменяем метод OnSceneGUI для правильной работы с перемещением в сцене
