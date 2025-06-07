@@ -21,12 +21,6 @@ public class AlarmControler : MonoBehaviour
 
     void Start()
     {
-        foreach (var rend in targetRenderer)
-        {
-            Material mat = rend.material;
-            mat.EnableKeyword("_EMISSION");
-            materials.Add(mat);
-        }
         SetLightsForAlarm(true);
     }
 
