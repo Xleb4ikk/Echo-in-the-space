@@ -693,6 +693,7 @@ GameObject:
   - component: {fileID: 28315789}
   - component: {fileID: 28315790}
   - component: {fileID: 28315791}
+  - component: {fileID: 28315792}
   m_Layer: 0
   m_Name: player
   m_TagString: Player
@@ -891,6 +892,24 @@ MonoBehaviour:
   staminaRegenIdle: 25
   player: {fileID: 28315790}
   staminaSlider: {fileID: 1621630112}
+--- !u!114 &28315792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 28315782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d662bb52b1038244f9245681dbe464da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footstepSound: {fileID: 8300000, guid: ff86e34778d80b54abced39d2dfa4034, type: 3}
+  volume: 0.746
+  walkPitch: 1
+  sprintPitch: 1.7
+  stepInterval: 0.62
+  forceDebugMode: 1
 --- !u!1001 &28536343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6531,6 +6550,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1948730917}
+  - {fileID: 1766053919}
   m_Father: {fileID: 499232921}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &258339208
@@ -18050,9 +18070,10 @@ MonoBehaviour:
   - {fileID: 1567372288}
   - {fileID: 742885863}
   - {fileID: 1527974653}
-  targetRenderer:
-  - {fileID: 0}
-  mat: {fileID: 2100000, guid: c5c5f67fd4d2b234d8fe56076bc703fa, type: 2}
+  materialMinEmission: 0.2
+  materialMaxEmission: 3
+  sharedMaterial: {fileID: 0}
+  baseEmissionColor: {r: 1, g: 0, b: 0, a: 1}
   pulseSpeed: 10
   minIntensity: 10
   maxIntensity: 50
@@ -48894,6 +48915,75 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6812e31ceb91fc04da03973c6b1054cd, type: 3}
+--- !u!1 &1766053918
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1766053919}
+  - component: {fileID: 1766053921}
+  - component: {fileID: 1766053920}
+  m_Layer: 0
+  m_Name: MusicOff
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1766053919
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766053918}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 17, y: 1, z: -89}
+  m_LocalScale: {x: 1, y: 2.0470448, z: 9.3151}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 256180350}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1766053920
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766053918}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1766053921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766053918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fcee1467df81a34382ef90751c16de8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ambientAudioManager: {fileID: 1849111034}
+  newMusicClip: {fileID: 8300000, guid: caeee5e7edfe84c49b220bc1d84ced59, type: 3}
+  volume: 0.776
 --- !u!4 &1767057749 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 434982, guid: 6812e31ceb91fc04da03973c6b1054cd, type: 3}
