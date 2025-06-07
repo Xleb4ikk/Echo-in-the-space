@@ -10,15 +10,22 @@ public class PlayerInteractionDoor : MonoBehaviour
     [Header("Настройки Raycast")]
     [SerializeField] private float rayDistance = 5f;
     [SerializeField] private LayerMask interactableLayer;
+    private Transform cameraTransform;
 
     [Header("Состояние двери")]
     private bool isOpen = false;
     private bool isAnimating = false;
 
-    private Transform cameraTransform;
+    [Header("Звуки")]
+    public AudioClip clip; // прикрепите файл в инспекторе
+    public AudioSource audioSource;
+    [SerializeField, Range(0f, 1f)] private float volume = 0.5f;
+
 
     private void Start()
     {
+        audioSource.clip = clip;
+        audioSource.volume = volume;
         if (Camera.main != null)
         {
             cameraTransform = Camera.main.transform;
@@ -34,6 +41,7 @@ public class PlayerInteractionDoor : MonoBehaviour
         if (cameraTransform == null) return;
 
         HandleDoorInteraction();
+        
     }
 
     private void HandleDoorInteraction()
@@ -68,6 +76,7 @@ public class PlayerInteractionDoor : MonoBehaviour
     {
         isAnimating = true;
         doorAnimation.SetBool("character_nearby", true);
+        PlaySound();
         Debug.Log("🚪 Анимация открытия двери...");
         isOpen = true;
         isAnimating = false;
@@ -77,9 +86,15 @@ public class PlayerInteractionDoor : MonoBehaviour
     {
         isAnimating = true;
         doorAnimation.SetBool("character_nearby", false);
+        PlaySound();
         Debug.Log("🚪 Анимация закрытия двери...");
         isOpen = false;
         isAnimating = false;
+    }
+
+    public void PlaySound()
+    {
+        audioSource.Play();
     }
 
     private void OnDrawGizmos()
