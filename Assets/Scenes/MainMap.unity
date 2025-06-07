@@ -14930,8 +14930,12 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6580822, guid: ac7a01ca06ca9044eb15b32cb7a936f8, type: 3}
+      propertyPath: m_Size.y
+      value: 3.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 6580822, guid: ac7a01ca06ca9044eb15b32cb7a936f8, type: 3}
       propertyPath: m_Size.z
-      value: 0.22
+      value: 0.24
       objectReference: {fileID: 0}
     - target: {fileID: 6580822, guid: ac7a01ca06ca9044eb15b32cb7a936f8, type: 3}
       propertyPath: m_Enabled
@@ -14956,6 +14960,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 127260, guid: ac7a01ca06ca9044eb15b32cb7a936f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 573951125}
+    - targetCorrespondingSourceObject: {fileID: 127260, guid: ac7a01ca06ca9044eb15b32cb7a936f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 573951130}
   m_SourcePrefab: {fileID: 100100000, guid: ac7a01ca06ca9044eb15b32cb7a936f8, type: 3}
 --- !u!4 &558618567 stripped
 Transform:
@@ -15212,6 +15219,18 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 435530, guid: ac7a01ca06ca9044eb15b32cb7a936f8, type: 3}
   m_PrefabInstance: {fileID: 558433466}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &573951130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 573951120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 429acb04df8d6be45b9decaac7493cb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &574323092 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 469584, guid: 2216270888a4ced48b33b7b5641611e6, type: 3}
@@ -17958,7 +17977,8 @@ MonoBehaviour:
   - {fileID: 1567372288}
   - {fileID: 742885863}
   - {fileID: 1527974653}
-  targetRenderer: {fileID: 0}
+  targetRenderer:
+  - {fileID: 0}
   mat: {fileID: 2100000, guid: c5c5f67fd4d2b234d8fe56076bc703fa, type: 2}
   pulseSpeed: 10
   minIntensity: 10
@@ -49668,9 +49688,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0f7fa6fbd1cd1549a53836591fefa84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  portalTriggerRadius: 1.5
+  debugMode: 1
+  initialActiveRoom:
+    roomName: New Room
+    roomCenter: {fileID: 0}
+    roomBounds: {fileID: 0}
+    roomLights: []
   rooms:
   - roomName: Room 1
-    roomSize: {x: 87.1, y: 5.38, z: 29.6}
+    roomCenter: {fileID: 35724791}
+    roomBounds: {fileID: 0}
     roomLights:
     - {fileID: 1944756341}
     - {fileID: 793423548}
@@ -49709,15 +49738,7 @@ MonoBehaviour:
     - {fileID: 1044227278}
     - {fileID: 260209365}
     - {fileID: 708855425}
-    roomWalls: []
-    roomCenter: {fileID: 35724791}
   portalConnections: []
-  player: {fileID: 0}
-  playerDetectionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  portalTriggerRadius: 1.5
-  debugMode: 1
 --- !u!1001 &1843368704
 PrefabInstance:
   m_ObjectHideFlags: 0

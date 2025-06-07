@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class AlarmControler : MonoBehaviour
 {
-    [Header("Источники освещения")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
     [SerializeField] private List<Light> LightPointList;
     [SerializeField] private List<Light> AlarmLightSpotList;
     [SerializeField] private List<Renderer> targetRenderer;
@@ -21,12 +21,6 @@ public class AlarmControler : MonoBehaviour
 
     void Start()
     {
-        foreach (var rend in targetRenderer)
-        {
-            Material mat = rend.material;
-            mat.EnableKeyword("_EMISSION");
-            materials.Add(mat);
-        }
         SetLightsForAlarm(true);
     }
 
@@ -64,7 +58,7 @@ public class AlarmControler : MonoBehaviour
 
     private void PulseAlarmLights()
     {
-        float t = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f; // колебание от 0 до 1
+        float t = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 0 пїЅпїЅ 1
         float intensity = Mathf.Lerp(minIntensity, maxIntensity, t);
 
         foreach (var light in AlarmLightSpotList)
