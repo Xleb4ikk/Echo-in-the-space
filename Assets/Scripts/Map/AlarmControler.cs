@@ -7,17 +7,26 @@ using UnityEngine.InputSystem;
 public class AlarmControler : MonoBehaviour
 {
     [Header("»сточники освещени€")]
-    [SerializeField] public List<Light> LightPointList;
-    [SerializeField] public List<Light> AlarmLightSpotList;
+    [SerializeField] private List<Light> LightPointList;
+    [SerializeField] private List<Light> AlarmLightSpotList;
+    [SerializeField] private List<Renderer> targetRenderer;
+
+    [SerializeField] private Material mat;
 
     bool AlarmStatus = true;
 
-    public float pulseSpeed = 2f;         // скорость мерцани€
-    public float minIntensity = 0.2f;     // минимальна€ €ркость
-    public float maxIntensity = 2f;       // максимальна€ €ркость
+    public float pulseSpeed = 2f;
+    public float minIntensity = 0.2f;
+    public float maxIntensity = 2f;
 
     void Start()
     {
+        foreach (var rend in targetRenderer)
+        {
+            Material mat = rend.material;
+            mat.EnableKeyword("_EMISSION");
+            materials.Add(mat);
+        }
         SetLightsForAlarm(true);
     }
 
