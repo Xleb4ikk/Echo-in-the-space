@@ -20,34 +20,32 @@ public class FootstepSound : MonoBehaviour
     private bool isMoving = false;
     private float stepTimer = 0f;
 
-    // Ссылки на системы ввода
-    private InputSystem_Actions inputActions;
-    private Vector2 moveInput;
-
-    private void Awake()
-    {
-        inputActions = new InputSystem_Actions();
-    }
-
-    private void OnEnable()
-    {
-        inputActions.Player.Enable();
-    }
-
-    private void OnDisable()
-    {
-        inputActions.Player.Disable();
-    }
+    // Ссылка на скрипт Player
+    private Player playerScript;
 
     private void Start()
     {
         // Создаем два отдельных источника звука для ходьбы и бега
         CreateAudioSources();
         
+        // Получаем ссылку на компонент Player
+        playerScript = GetComponent<Player>();
+        if (playerScript == null)
+        {
+            // Если компонент не на этом объекте, ищем его в родителе или верхнем объекте
+            playerScript = GetComponentInParent<Player>();
+            if (playerScript == null && transform.root != null)
+            {
+                playerScript = transform.root.GetComponentInChildren<Player>();
+            }
+        }
+        
         if (forceDebugMode)
         {
             Debug.Log("FootstepSound: Инициализация завершена");
             Debug.Log($"Скорость звука при ходьбе: {walkPitch}, при беге: {sprintPitch}");
+            if (playerScript == null)
+                Debug.LogWarning("FootstepSound: Не найден компонент Player");
         }
     }
 
@@ -84,29 +82,34 @@ public class FootstepSound : MonoBehaviour
 
     private void Update()
     {
-        // Проверяем нажатия клавиш
-        CheckInput();
+        // Проверяем состояние движения и спринта
+        CheckMovementState();
         
         // Управляем звуком шагов
         ManageFootsteps();
     }
 
-    private void CheckInput()
+    private void CheckMovementState()
     {
-        // Считываем ввод из новой системы ввода
-        moveInput = inputActions.Player.Move.ReadValue<Vector2>();
-        bool shiftPressed = inputActions.Player.Sprint.ReadValue<float>() > 0.5f;
+        // Если не удалось найти скрипт Player, выходим
+        if (playerScript == null)
+        {
+            isMoving = false;
+            isSprinting = false;
+            return;
+        }
         
-        // Определяем, движется ли игрок
-        isMoving = moveInput.magnitude > 0.1f;
+        // Получаем состояние движения напрямую из скрипта Player
+        isMoving = playerScript.MoveInput.magnitude > 0.1f;
         
-        // Определяем, спринтует ли игрок
-        isSprinting = isMoving && shiftPressed;
+        // Получаем состояние спринта напрямую из скрипта Player
+        // В скрипте Player уже учтена проверка стамины
+        isSprinting = playerScript.IsSprinting;
         
         // Выводим отладочные сообщения
         if (forceDebugMode && isMoving)
         {
-            Debug.Log($"Движение: {isMoving}, Спринт: {isSprinting}, Input: {moveInput}");
+            Debug.Log($"Движение: {isMoving}, Спринт: {isSprinting}, Input: {playerScript.MoveInput}");
         }
     }
 
