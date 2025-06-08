@@ -12,6 +12,9 @@ public class AlarmControler : MonoBehaviour
     [Header("alarm освещение")]
     [SerializeField] private List<Light> AlarmLightSpotList;
 
+    [Header("alarm звуковые источники")]
+    [SerializeField] private List<AudioSource> alarmAudioSources;
+
     [Header("alarm материал")]
     [SerializeField] private float materialMinEmission = 0.2f;
     [SerializeField] private float materialMaxEmission = 3f;
@@ -19,8 +22,8 @@ public class AlarmControler : MonoBehaviour
     [SerializeField] private Material sharedMaterial;
     [SerializeField] private Color baseEmissionColor = Color.red;
 
-    [Header("alarm звуковые источники")]
-    [SerializeField] private List<AudioSource> alarmAudioSources;
+    [Header("Мониторы тревоги")]
+    
 
     private float alarmTimer = 0f;
 
