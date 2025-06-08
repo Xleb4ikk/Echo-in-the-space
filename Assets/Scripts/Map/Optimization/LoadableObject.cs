@@ -30,13 +30,23 @@ namespace Map.Optimization
                     if (renderer != null)
                     {
                         BoxCollider collider = gameObject.AddComponent<BoxCollider>();
-                        collider.center = renderer.bounds.center - transform.position;
-                        collider.size = renderer.bounds.size;
+
+                        Vector3 size = renderer.bounds.size;
+                        Vector3 center = renderer.bounds.center - transform.position;
+
+                        // Смещаем центр вниз на половину высоты
+                        center.y -= size.y / 2f;
+
+                        collider.size = size;
+                        collider.center = center;
                     }
                     else
                     {
                         BoxCollider collider = gameObject.AddComponent<BoxCollider>();
                         collider.size = Vector3.one;
+
+                        // По умолчанию сместить вниз на 0.5
+                        collider.center = new Vector3(0f, -0.5f, 0f);
                     }
                 }
             }
@@ -61,7 +71,6 @@ namespace Map.Optimization
             }
         }
 
-        // Для ObjectLoader: получить BoundingSphere этого объекта
         public BoundingSphere GetBoundingSphere()
         {
             Collider collider = GetComponent<Collider>();
@@ -82,4 +91,4 @@ namespace Map.Optimization
         }
 #endif
     }
-} 
+}

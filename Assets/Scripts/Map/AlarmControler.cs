@@ -1,8 +1,11 @@
 using NUnit.Framework;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem;
+using UnityEngine.Video;
 
 public class AlarmControler : MonoBehaviour
 {
@@ -20,19 +23,41 @@ public class AlarmControler : MonoBehaviour
     [SerializeField] private float materialMaxEmission = 3f;
 
     [SerializeField] private Material sharedMaterial;
+    [SerializeField] private Material sharedMaterial2;
     [SerializeField] private Color baseEmissionColor = Color.red;
 
+    [SerializeField] private Color baseMaterialColorColor;
+    float intensity = 2;
+
     [Header("Мониторы тревоги")]
-    
+    public VideoPlayer MainManitor;
+    public VideoPlayer LeftManitor;
+    public VideoPlayer RightManitor;
+
+    [Header("Мониторы Настройки")]
+    public VideoClip DangerOn;
+    public VideoClip DangerOff;
+    public VideoClip DangerLeftRight;
+
+    [Header("Настройки пульсации света")]
+    public float pulseSpeed = 2f;
+    public float minIntensity = 0.2f;
+    public float maxIntensity = 2f;
+
+    [Header("Тригер")]
+    public Collider triggerZone;
+    public bool checkEnabled = true; // ← Управляющий флаг
+
+    [Header("Игрок")]
+    public Transform playerTransform;
+
+    public bool IsPlayerInside { get; private set; }
 
     private float alarmTimer = 0f;
 
     bool AlarmStatus = true;
 
-    public float pulseSpeed = 2f;
-    public float minIntensity = 0.2f;
-    public float maxIntensity = 2f;
-
+    
     void Start()
     {
         if (sharedMaterial != null)
@@ -40,10 +65,14 @@ public class AlarmControler : MonoBehaviour
             sharedMaterial.EnableKeyword("_EMISSION"); // обязательно включить Emission
         }
         SetLightsForAlarm(true);
+        ToggleMonitorAlarm();
     }
 
     void Update()
     {
+        if (!checkEnabled || triggerZone == null || playerTransform == null)
+            return;
+
         if (Keyboard.current.hKey.wasPressedThisFrame)
         {
             ToggleAlarm();
@@ -52,10 +81,45 @@ public class AlarmControler : MonoBehaviour
         {
             PulseAlarmLights();
         }
-        else
+
+        if (triggerZone != null && playerTransform != null)
         {
-            StopAlarmSounds();
+            // Проверка, находится ли игрок внутри границ триггера
+            IsPlayerInside = triggerZone.bounds.Contains(playerTransform.position);
+
+            if (IsPlayerInside)
+                if (Keyboard.current.eKey.wasPressedThisFrame)
+                {
+                    FixAlarm();
+                    
+                }
         }
+    }
+
+    private void ToggleMonitorAlarm()
+    {
+        MainManitor.clip = DangerOn;
+        LeftManitor.clip = DangerLeftRight;
+        RightManitor.clip = DangerLeftRight;
+    }
+
+    private void ToggleMonitorSucces()
+    {
+        MainManitor.clip = DangerOff;
+        LeftManitor.clip = DangerOff;
+        RightManitor.clip = DangerOff;
+    }
+
+    private void FixAlarm()
+    {
+        SetLightsForAlarm(false);
+        ToggleAlarm();
+        ToggleMonitorSucces();
+        StopAlarmSounds();
+        Color finalColor = baseMaterialColorColor * intensity;
+        sharedMaterial2.EnableKeyword("_EMISSION");
+        sharedMaterial2.SetColor("_EmissionColor", finalColor);
+        triggerZone.enabled = false;
     }
 
     private void ToggleAlarm()
@@ -63,6 +127,7 @@ public class AlarmControler : MonoBehaviour
         AlarmStatus = !AlarmStatus;
         SetLightsForAlarm(AlarmStatus);
     }
+    
 
     private void SetLightsForAlarm(bool isAlarm)
     {
@@ -95,6 +160,13 @@ public class AlarmControler : MonoBehaviour
             sharedMaterial.SetColor("_EmissionColor", baseEmissionColor * emissionIntensity);
         }
 
+        if (AlarmStatus && sharedMaterial2 != null)
+        {
+            float emissionIntensity = Mathf.Lerp(materialMinEmission, materialMaxEmission, t);
+            sharedMaterial2.EnableKeyword("_EMISSION");
+            sharedMaterial2.SetColor("_EmissionColor", baseEmissionColor * emissionIntensity);
+        }
+
         UpdateAlarmSounds();
     }
 
@@ -113,7 +185,6 @@ public class AlarmControler : MonoBehaviour
                     audioSource.Play();
             }
 
-            // Берём длину первого клипа — предполагаем, что у всех одинаковый
             if (alarmAudioSources[0] != null && alarmAudioSources[0].clip != null)
                 alarmTimer = alarmAudioSources[0].clip.length;
         }
