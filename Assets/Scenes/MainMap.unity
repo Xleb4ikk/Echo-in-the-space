@@ -899,11 +899,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d662bb52b1038244f9245681dbe464da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  footstepSound: {fileID: 8300000, guid: ff86e34778d80b54abced39d2dfa4034, type: 3}
-  volume: 0.746
+  footstepSound: {fileID: 8300000, guid: d1b83960603213344bc97686fdee0970, type: 3}
+  volume: 0.36
   walkPitch: 1
-  sprintPitch: 1.7
-  stepInterval: 0.62
+  sprintPitch: 1.3
+  stepInterval: 0.53
   forceDebugMode: 1
 --- !u!1001 &28536343
 PrefabInstance:
@@ -18224,6 +18224,7 @@ MonoBehaviour:
   materialMaxEmission: 3
   sharedMaterial: {fileID: 0}
   baseEmissionColor: {r: 1, g: 0, b: 0, a: 1}
+  alarmAudioSources: []
   pulseSpeed: 10
   minIntensity: 10
   maxIntensity: 50
