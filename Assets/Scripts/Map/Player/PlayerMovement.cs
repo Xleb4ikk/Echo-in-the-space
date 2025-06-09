@@ -4,9 +4,9 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour
 {
     public float speed = 5f;
-    public float sprintMultiplier = 1.7f; // 70% быстрее
-    public float gravity = -9.81f;  // гравитация
-    public float jumpHeight = 1.5f; // опционально для прыжков
+    public float sprintMultiplier = 1.7f;
+    public float gravity = -9.81f;
+    public float jumpHeight = 1.5f;
 
     private CharacterController controller;
     private InputSystem_Actions inputActions;
@@ -17,6 +17,8 @@ public class Player : MonoBehaviour
     private bool isGrounded;
 
     private PlayerStamina playerStamina;
+
+    public bool canMove = true;
 
     void Awake()
     {
@@ -49,52 +51,59 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        isGrounded = controller.isGrounded;
-
-        if (isGrounded && velocityY < 0)
+        if (!canMove)
         {
-            velocityY = -2f; // небольшой отскок вниз, чтобы "держаться" на земле
-        }
-
-        // Применяем гравитацию
-        velocityY += gravity * Time.deltaTime;
-
-        Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
-
-        // Добавляем вертикальное движение
-        move.y = velocityY;
-
-        if (isSprinting && playerStamina != null && playerStamina.currentStamina <= 0f)
-        {
+            moveInput = Vector2.zero;
             isSprinting = false;
         }
 
-        // Выбираем скорость: обычная или спринт
+        isGrounded = controller.isGrounded;
+
+        if (isGrounded && velocityY < 0)
+            velocityY = -2f;
+
+        velocityY += gravity * Time.deltaTime;
+
+        Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
+        move.y = velocityY;
+
+        if (isSprinting && playerStamina != null && playerStamina.currentStamina <= 0f)
+            isSprinting = false;
+
         float currentSpeed = isSprinting ? speed * sprintMultiplier : speed;
 
-        // Двигаем контроллер
         controller.Move(move * currentSpeed * Time.deltaTime);
     }
 
     private void OnMove(InputAction.CallbackContext context)
     {
+        if (!canMove)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         moveInput = context.ReadValue<Vector2>();
     }
 
     private void OnSprint(InputAction.CallbackContext context)
     {
-        // Получаем ссылку на компонент PlayerStamina
+        if (!canMove)
+        {
+            isSprinting = false;
+            return;
+        }
+
         var stamina = GetComponent<PlayerStamina>();
-        // Если стамина есть и закончилась — не даём бежать
         if (stamina != null && stamina.currentStamina <= 0f)
         {
             isSprinting = false;
             return;
         }
+
         isSprinting = context.ReadValueAsButton();
     }
 
     public bool IsSprinting => isSprinting;
-
     public Vector2 MoveInput => moveInput;
 }

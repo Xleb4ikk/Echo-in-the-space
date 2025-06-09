@@ -10,6 +10,8 @@ public class PlayerCamera : MonoBehaviour
     private Vector2 lookInput;
     private float xRotation = 0f;
 
+    public bool canMove = true;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
@@ -38,6 +40,8 @@ public class PlayerCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!canMove) return;
+
         float mouseX = lookInput.x * mouseSensitivity;
         float mouseY = lookInput.y * mouseSensitivity;
 
