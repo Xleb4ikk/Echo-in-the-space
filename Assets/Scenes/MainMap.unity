@@ -21086,6 +21086,9 @@ MonoBehaviour:
   continueButton: {fileID: 420517849}
   exitButton: {fileID: 838842203}
   pauseMusicClip: {fileID: 8300000, guid: 0f9ce7ea75583f8438e938db6aac65a7, type: 3}
+  buttonHoverSound: {fileID: 8300000, guid: 1931f514c4e310b4d9e6ca884becc68a, type: 3}
+  buttonClickSound: {fileID: 8300000, guid: 4c1ba99f12ef62f458b2574c32664f7a, type: 3}
+  buttonSoundVolume: 0.87
   cameraControlScripts:
   - {fileID: 28315790}
   - {fileID: 330585550}
