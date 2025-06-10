@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class Pause : MonoBehaviour
 {
@@ -12,7 +14,13 @@ public class Pause : MonoBehaviour
     
     // Аудио
     [SerializeField] private AudioClip pauseMusicClip;
+    [SerializeField] private AudioClip buttonHoverSound;  // Звук при наведении
+    [SerializeField] private AudioClip buttonClickSound;  // Звук при клике
+    
+    [SerializeField] private float buttonSoundVolume = 0.5f;
+    
     private AudioSource pauseMusicSource;
+    private AudioSource buttonSoundSource;  // Отдельный источник для звуков кнопок
     
     // Добавим ссылку на компоненты управления камерой
     [SerializeField] private MonoBehaviour[] cameraControlScripts;
@@ -26,11 +34,15 @@ public class Pause : MonoBehaviour
     
     private void Awake()
     {
-        // Создаем источник звука для паузы
+        // Создаем источники звука
         pauseMusicSource = gameObject.AddComponent<AudioSource>();
         pauseMusicSource.clip = pauseMusicClip;
         pauseMusicSource.loop = true;
         pauseMusicSource.playOnAwake = false;
+        
+        // Источник для звуков кнопок
+        buttonSoundSource = gameObject.AddComponent<AudioSource>();
+        buttonSoundSource.playOnAwake = false;
     }
     
     private void Start()
@@ -43,6 +55,8 @@ public class Pause : MonoBehaviour
             settingsPanel.SetActive(false);
         
         // Настройка обработчиков событий
+        SetupButtonSounds();
+        
         continueButton.onClick.AddListener(CloseSettings);
         exitButton.onClick.AddListener(ReturnToMainMenu);
         
@@ -51,6 +65,49 @@ public class Pause : MonoBehaviour
         {
             // Попытка найти типичные скрипты управления камерой
             cameraControlScripts = FindObjectsOfType<MonoBehaviour>();
+        }
+    }
+    
+    private void SetupButtonSounds()
+    {
+        // Находим все кнопки в меню паузы
+        Button[] allButtons = settingsPanel.GetComponentsInChildren<Button>(true);
+        
+        foreach (Button button in allButtons)
+        {
+            // Добавляем обработчик для звука клика
+            button.onClick.AddListener(() => PlayButtonClickSound());
+            
+            // Добавляем EventTrigger для звука наведения
+            EventTrigger eventTrigger = button.gameObject.GetComponent<EventTrigger>();
+            if (eventTrigger == null)
+                eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+            
+            // Создаем новую запись для события наведения
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerEnter;
+            
+            // Добавляем обработчик события
+            entry.callback.AddListener((data) => { PlayButtonHoverSound(); });
+            
+            // Добавляем запись в триггер
+            eventTrigger.triggers.Add(entry);
+        }
+    }
+    
+    private void PlayButtonHoverSound()
+    {
+        if (buttonHoverSound != null && buttonSoundSource != null)
+        {
+            buttonSoundSource.PlayOneShot(buttonHoverSound, buttonSoundVolume);
+        }
+    }
+    
+    private void PlayButtonClickSound()
+    {
+        if (buttonClickSound != null && buttonSoundSource != null)
+        {
+            buttonSoundSource.PlayOneShot(buttonClickSound, buttonSoundVolume);
         }
     }
     
