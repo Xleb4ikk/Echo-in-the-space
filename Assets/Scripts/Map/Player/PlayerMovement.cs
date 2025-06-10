@@ -27,6 +27,9 @@ public class Player : MonoBehaviour
 
     void OnEnable()
     {
+        if (inputActions == null)
+            inputActions = new InputSystem_Actions();
+            
         inputActions.Player.Enable();
         inputActions.Player.Move.performed += OnMove;
         inputActions.Player.Move.canceled += OnMove;
@@ -36,11 +39,14 @@ public class Player : MonoBehaviour
 
     void OnDisable()
     {
-        inputActions.Player.Move.performed -= OnMove;
-        inputActions.Player.Move.canceled -= OnMove;
-        inputActions.Player.Sprint.performed -= OnSprint;
-        inputActions.Player.Sprint.canceled -= OnSprint;
-        inputActions.Player.Disable();
+        if (inputActions != null)
+        {
+            inputActions.Player.Move.performed -= OnMove;
+            inputActions.Player.Move.canceled -= OnMove;
+            inputActions.Player.Sprint.performed -= OnSprint;
+            inputActions.Player.Sprint.canceled -= OnSprint;
+            inputActions.Player.Disable();
+        }
     }
 
     void Start()

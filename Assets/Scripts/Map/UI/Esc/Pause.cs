@@ -7,12 +7,17 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.Collections;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.UI;
 
 public class Pause : MonoBehaviour
 {
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private Button continueButton;
     [SerializeField] private Button exitButton;
+    
+    // Добавляем кнопку и панель настроек
+    [SerializeField] private Button settingsButton;
+    [SerializeField] private GameObject settingsMenuPanel;
     
     // Аудио
     [SerializeField] private AudioClip pauseMusicClip;
@@ -51,6 +56,9 @@ public class Pause : MonoBehaviour
     [SerializeField] private Player playerMovement;
     [SerializeField] private PlayerCamera playerCamera;
     
+    // Добавляем ссылку на скрипт настроек
+    private Settings settingsScript;
+    
     private void Awake()
     {
         // Создаем источники звука
@@ -62,22 +70,46 @@ public class Pause : MonoBehaviour
         // Источник для звуков кнопок
         buttonSoundSource = gameObject.AddComponent<AudioSource>();
         buttonSoundSource.playOnAwake = false;
+        
+        // Находим скрипт настроек
+        if (settingsMenuPanel != null)
+        {
+            settingsScript = settingsMenuPanel.GetComponent<Settings>();
+        }
     }
     
     private void Start()
     {
+        // Проверяем наличие EventSystem с InputSystemUIInputModule
+        EnsureInputSystemUIModule();
+        
         // Скрываем ОБЕ панели при старте игры
         if (blurPanel != null)
             blurPanel.SetActive(false);
         
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
+            
+        // Скрываем панель настроек при старте
+        if (settingsMenuPanel != null)
+            settingsMenuPanel.SetActive(false);
         
         // Настройка обработчиков событий
         SetupButtonSounds();
         
         continueButton.onClick.AddListener(CloseSettings);
         exitButton.onClick.AddListener(ReturnToMainMenu);
+        
+        // Добавляем обработчик для кнопки настроек
+        if (settingsButton != null)
+        {
+            Debug.Log("Кнопка настроек найдена, добавляем обработчик");
+            settingsButton.onClick.AddListener(OpenSettingsMenu);
+        }
+        else
+        {
+            Debug.LogError("Кнопка настроек (settingsButton) не назначена в инспекторе!");
+        }
         
         // Если не заданы скрипты управления камерой, попробуем найти их автоматически
         if (cameraControlScripts == null || cameraControlScripts.Length == 0)
@@ -94,6 +126,66 @@ public class Pause : MonoBehaviour
             playerCamera = FindObjectOfType<PlayerCamera>();
     }
     
+    // Метод для проверки и настройки EventSystem
+    private void EnsureInputSystemUIModule()
+    {
+        EventSystem eventSystem = EventSystem.current;
+        if (eventSystem != null)
+        {
+            // Проверяем, есть ли InputSystemUIInputModule
+            InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+            if (inputModule == null)
+            {
+                // Удаляем StandaloneInputModule, если есть
+                StandaloneInputModule oldModule = eventSystem.GetComponent<StandaloneInputModule>();
+                if (oldModule != null)
+                {
+                    Debug.Log("Удаляем устаревший StandaloneInputModule");
+                    DestroyImmediate(oldModule);
+                }
+                
+                // Добавляем InputSystemUIInputModule
+                inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+                Debug.Log("Добавлен InputSystemUIInputModule для EventSystem");
+            }
+        }
+        else
+        {
+            Debug.LogError("EventSystem не найден на сцене! UI не будет работать!");
+        }
+    }
+    
+    // Добавляем метод для открытия меню настроек
+    public void OpenSettingsMenu()
+    {
+        // Отладочное сообщение
+        Debug.Log("Нажата кнопка настроек!");
+        
+        // Воспроизводим звук клика
+        PlayButtonClickSound();
+        
+        // Проверяем наличие панелей
+        if (settingsPanel == null)
+            Debug.LogError("settingsPanel не назначен в инспекторе!");
+            
+        if (settingsMenuPanel == null)
+            Debug.LogError("settingsMenuPanel не назначен в инспекторе!");
+        
+        // Скрываем основную панель паузы
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(false);
+            Debug.Log("Основная панель паузы скрыта");
+        }
+            
+        // Показываем панель настроек
+        if (settingsMenuPanel != null)
+        {
+            settingsMenuPanel.SetActive(true);
+            Debug.Log("Панель настроек показана");
+        }
+    }
+    
     private void SetupButtonSounds()
     {
         // Находим все кнопки в меню паузы
@@ -108,17 +200,30 @@ public class Pause : MonoBehaviour
             EventTrigger eventTrigger = button.gameObject.GetComponent<EventTrigger>();
             if (eventTrigger == null)
                 eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+                
+            // Проверяем, есть ли уже триггер для PointerEnter
+            bool hasPointerEnterTrigger = false;
+            foreach (EventTrigger.Entry entry in eventTrigger.triggers)
+            {
+                if (entry.eventID == EventTriggerType.PointerEnter)
+                {
+                    hasPointerEnterTrigger = true;
+                    break;
+                }
+            }
             
-            // Создаем новую запись для события наведения
-            EventTrigger.Entry entry = new EventTrigger.Entry();
-            entry.eventID = EventTriggerType.PointerEnter;
-            
-            // Добавляем обработчик события
-            entry.callback.AddListener((data) => { PlayButtonHoverSound(); });
-            
-            // Добавляем запись в триггер
-            eventTrigger.triggers.Add(entry);
+            // Добавляем триггер, если его еще нет
+            if (!hasPointerEnterTrigger)
+            {
+                EventTrigger.Entry entry = new EventTrigger.Entry();
+                entry.eventID = EventTriggerType.PointerEnter;
+                entry.callback.AddListener((data) => { PlayButtonHoverSound(); });
+                eventTrigger.triggers.Add(entry);
+            }
         }
+        
+        // Убедимся, что на сцене есть InputSystemUIInputModule
+        EnsureInputSystemUIModule();
     }
     
     private void PlayButtonHoverSound()
@@ -143,7 +248,17 @@ public class Pause : MonoBehaviour
         Keyboard keyboard = Keyboard.current;
         if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
         {
-            if (isSettingsOpen)
+            // Если открыто меню настроек, возвращаемся в основное меню паузы
+            if (settingsMenuPanel != null && settingsMenuPanel.activeSelf)
+            {
+                // Скрываем панель настроек
+                settingsMenuPanel.SetActive(false);
+                
+                // Показываем основную панель паузы
+                if (settingsPanel != null)
+                    settingsPanel.SetActive(true);
+            }
+            else if (isSettingsOpen)
                 CloseSettings();
             else
                 OpenSettings();
@@ -213,6 +328,18 @@ public class Pause : MonoBehaviour
     
     public void CloseSettings()
     {
+        // Убедимся, что панель настроек также закрыта
+        if (settingsMenuPanel != null && settingsMenuPanel.activeSelf)
+        {
+            // Если у нас есть скрипт настроек, сохраняем настройки перед закрытием
+            if (settingsScript != null)
+            {
+                settingsScript.SaveSettings();
+            }
+            
+            settingsMenuPanel.SetActive(false);
+        }
+        
         // Восстанавливаем время
         Time.timeScale = 1f;
         
@@ -261,10 +388,13 @@ public class Pause : MonoBehaviour
     private void DisableAllControls()
     {
         // Отключаем все указанные скрипты движения
-        foreach (var script in playerControlScripts)
+        if (playerControlScripts != null)
         {
-            if (script != null)
-                script.enabled = false;
+            foreach (var script in playerControlScripts)
+            {
+                if (script != null)
+                    script.enabled = false;
+            }
         }
         
         // Отдельно отключаем камеру
@@ -275,10 +405,13 @@ public class Pause : MonoBehaviour
     private void EnableAllControls()
     {
         // Включаем все указанные скрипты движения
-        foreach (var script in playerControlScripts)
+        if (playerControlScripts != null)
         {
-            if (script != null)
-                script.enabled = true;
+            foreach (var script in playerControlScripts)
+            {
+                if (script != null)
+                    script.enabled = true;
+            }
         }
         
         // Отдельно включаем камеру
@@ -292,5 +425,12 @@ public class Pause : MonoBehaviour
         Time.timeScale = 1f;
         // Загрузка сцены главного меню
         SceneManager.LoadScene("MainMenu");
+    }
+    
+    // Добавляем метод для показа основной панели паузы
+    public void ShowPausePanel()
+    {
+        if (settingsPanel != null)
+            settingsPanel.SetActive(true);
     }
 }
