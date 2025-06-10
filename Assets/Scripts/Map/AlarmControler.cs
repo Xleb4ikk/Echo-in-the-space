@@ -57,42 +57,49 @@ public class AlarmControler : MonoBehaviour
 
     bool AlarmStatus = true;
 
+    public bool AlarmEnabled = true;
     
     void Start()
     {
-        if (sharedMaterial != null)
+        if (AlarmEnabled == true)
         {
-            sharedMaterial.EnableKeyword("_EMISSION"); // обязательно включить Emission
+            if (sharedMaterial != null)
+            {
+                sharedMaterial.EnableKeyword("_EMISSION"); // обязательно включить Emission
+            }
+            SetLightsForAlarm(true);
+            ToggleMonitorAlarm();
         }
-        SetLightsForAlarm(true);
-        ToggleMonitorAlarm();
     }
 
     void Update()
     {
-        if (!checkEnabled || triggerZone == null || playerTransform == null)
-            return;
-
-        if (Keyboard.current.hKey.wasPressedThisFrame)
+        if (AlarmEnabled == true)
         {
-            ToggleAlarm();
-        }
-        if (AlarmStatus)
-        {
-            PulseAlarmLights();
-        }
+            if (!checkEnabled || triggerZone == null || playerTransform == null)
+                return;
 
-        if (triggerZone != null && playerTransform != null)
-        {
-            // Проверка, находится ли игрок внутри границ триггера
-            IsPlayerInside = triggerZone.bounds.Contains(playerTransform.position);
+            if (Keyboard.current.hKey.wasPressedThisFrame)
+            {
+                ToggleAlarm();
+            }
+            if (AlarmStatus)
+            {
+                PulseAlarmLights();
+            }
 
-            if (IsPlayerInside)
-                if (Keyboard.current.eKey.wasPressedThisFrame)
-                {
-                    FixAlarm();
-                    
-                }
+            if (triggerZone != null && playerTransform != null)
+            {
+                // Проверка, находится ли игрок внутри границ триггера
+                IsPlayerInside = triggerZone.bounds.Contains(playerTransform.position);
+
+                if (IsPlayerInside)
+                    if (Keyboard.current.eKey.wasPressedThisFrame)
+                    {
+                        FixAlarm();
+
+                    }
+            }
         }
     }
 
