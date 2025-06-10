@@ -220,6 +220,14 @@ public class Pause : MonoBehaviour
         if (pauseMusicSource != null)
             pauseMusicSource.Stop();
         
+        // Восстанавливаем все аудио источники, которые были на паузе
+        AudioSource[] allAudio = FindObjectsOfType<AudioSource>();
+        foreach (AudioSource audio in allAudio)
+        {
+            if (audio != pauseMusicSource && audio != buttonSoundSource && !audio.isPlaying)
+                audio.UnPause();
+        }
+        
         // Восстанавливаем управление игроком напрямую вместо корутин
         EnableAllControls();
         
