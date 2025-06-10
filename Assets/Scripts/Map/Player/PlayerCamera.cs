@@ -20,6 +20,10 @@ public class PlayerCamera : MonoBehaviour
 
     void OnEnable()
     {
+        // Проверяем, что inputActions инициализирован
+        if (inputActions == null)
+            inputActions = new InputSystem_Actions();
+            
         inputActions.Player.Enable();
         inputActions.Player.Look.performed += OnLook;
         inputActions.Player.Look.canceled += OnLook;
@@ -27,9 +31,13 @@ public class PlayerCamera : MonoBehaviour
 
     void OnDisable()
     {
-        inputActions.Player.Look.performed -= OnLook;
-        inputActions.Player.Look.canceled -= OnLook;
-        inputActions.Player.Disable();
+        // Проверяем, что inputActions инициализирован
+        if (inputActions != null)
+        {
+            inputActions.Player.Look.performed -= OnLook;
+            inputActions.Player.Look.canceled -= OnLook;
+            inputActions.Player.Disable();
+        }
     }
 
     void Start()
