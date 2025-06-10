@@ -14,7 +14,17 @@ public class UIPromptManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Сохраняем объект между уровнями
+            
+            // Проверяем, является ли объект корневым в иерархии
+            if (transform.parent != null)
+            {
+                // Если объект не корневой, создаем новый корневой объект
+                Debug.Log("UIPromptManager: Преобразование в корневой объект для DontDestroyOnLoad");
+                transform.SetParent(null);
+            }
+            
+            // Теперь можно безопасно вызвать DontDestroyOnLoad
+            DontDestroyOnLoad(gameObject);
         }
         else
         {

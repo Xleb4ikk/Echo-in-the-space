@@ -9,17 +9,29 @@ using UnityEngine.InputSystem.UI;
 
 public class Settings : MonoBehaviour
 {
+    [Header("Ссылки на объекты UI")]
+    public GameObject settingsPanel;
+    public Slider volumeSlider; // Переименовано в общий слайдер громкости вместо musicVolumeSlider
+    public Button backButton;
+    
+    [Header("Ссылки на аудио")]
+    public AudioMixer audioMixer;
+    public AudioSource uiAudioSource;
+    
+    [Header("Системные компоненты")]
+    private Pause pauseScript;
+    
+    // Компоненты для управления слайдерами
+    private RectTransform volumeSliderHandle; // Переименовано в общий ползунок
+    private float prevVolumeValue = 0.75f; // Общее значение громкости
+    
     [Header("Настройки звука")]
-    [SerializeField] private AudioMixer audioMixer;
     [SerializeField] private Slider musicVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
     
     [Header("Настройки графики")]
     [SerializeField] private TMP_Dropdown qualityDropdown;
     [SerializeField] private Toggle fullscreenToggle;
-    
-    [Header("Навигация")]
-    [SerializeField] private Button backButton;
     
     [Header("Звуки интерфейса")]
     [SerializeField] private AudioClip buttonHoverSound;
@@ -30,26 +42,66 @@ public class Settings : MonoBehaviour
     [SerializeField] private RectTransform musicSliderHandle;
     [SerializeField] private RectTransform sfxSliderHandle;
     
-    private AudioSource uiAudioSource;
-    private Pause pauseScript;
+    private static Settings Instance;
     
-    // Переменные для прямого управления слайдерами
-    private Slider activeSlider = null;
-    private bool wasMouseDown = false;
-    private float prevMusicValue;
-    private float prevSFXValue;
+    private string activeMusicParameterName = "MusicVolume";
+    private string activeSFXParameterName = "SFXVolume";
     
     private void Awake()
     {
-        // Создаем источник звука для UI
-        uiAudioSource = gameObject.AddComponent<AudioSource>();
-        uiAudioSource.playOnAwake = false;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        // Проверим наличие AudioMixer
+        if (audioMixer == null)
+        {
+            Debug.LogWarning("AudioMixer не назначен в настройках! Попытка найти аудиомиксер в ресурсах...");
+            
+            // Пытаемся найти аудиомиксер в ресурсах
+            audioMixer = Resources.Load<AudioMixer>("MainMixer");
+            
+            if (audioMixer == null)
+            {
+                // Проверяем другие пути
+                audioMixer = Resources.Load<AudioMixer>("Audio/MainMixer");
+            }
+            
+            if (audioMixer == null)
+            {
+                // Еще одна попытка с другим именем
+                audioMixer = Resources.Load<AudioMixer>("Mixers/AudioMixer");
+            }
+            
+            if (audioMixer != null)
+            {
+                Debug.Log("AudioMixer успешно найден в ресурсах!");
+            }
+            else
+            {
+                Debug.LogError("Не удалось найти AudioMixer в ресурсах. Функции регулировки звука будут недоступны.");
+            }
+        }
+        
+        // Пытаемся найти UI AudioSource, если он не задан
+        if (uiAudioSource == null)
+        {
+            uiAudioSource = GetComponent<AudioSource>();
+            
+            if (uiAudioSource == null && Camera.main != null)
+            {
+                uiAudioSource = Camera.main.GetComponent<AudioSource>();
+            }
+        }
         
         // Находим ссылку на скрипт паузы
-        pauseScript = GetComponentInParent<Pause>();
-        if (pauseScript == null)
-            pauseScript = FindObjectOfType<Pause>();
-            
+        pauseScript = FindObjectOfType<Pause>();
+        
         // Проверяем наличие EventSystem
         if (FindObjectOfType<EventSystem>() == null)
         {
@@ -59,7 +111,7 @@ public class Settings : MonoBehaviour
         // Отключаем стандартные интеракции слайдеров
         if (musicVolumeSlider != null)
         {
-            prevMusicValue = musicVolumeSlider.value;
+            prevVolumeValue = musicVolumeSlider.value;
             
             // Если не назначен handle, используем первый дочерний элемент
             if (musicSliderHandle == null && musicVolumeSlider.transform.childCount > 0)
@@ -74,7 +126,7 @@ public class Settings : MonoBehaviour
         
         if (sfxVolumeSlider != null)
         {
-            prevSFXValue = sfxVolumeSlider.value;
+            prevVolumeValue = sfxVolumeSlider.value;
             
             // Если не назначен handle, используем первый дочерний элемент
             if (sfxSliderHandle == null && sfxVolumeSlider.transform.childCount > 0)
@@ -86,6 +138,15 @@ public class Settings : MonoBehaviour
                 }
             }
         }
+
+        // Если settingsPanel равен null, используем этот gameObject
+        if (settingsPanel == null)
+        {
+            settingsPanel = gameObject;
+        }
+        
+        // Логируем статус инициализации
+        Debug.Log("Settings: Awake");
     }
     
     private void OnEnable()
@@ -102,8 +163,8 @@ public class Settings : MonoBehaviour
         CheckUIElements();
         
         // Сбрасываем состояние
-        activeSlider = null;
-        wasMouseDown = false;
+        volumeSliderHandle = null;
+        prevVolumeValue = 0.75f;
         
         // Восстанавливаем ползунки
         RestoreSliderHandles();
@@ -112,15 +173,36 @@ public class Settings : MonoBehaviour
     private void OnDisable()
     {
         // Сбрасываем состояние перетаскивания
-        activeSlider = null;
-        wasMouseDown = false;
+        volumeSliderHandle = null;
+        prevVolumeValue = 0.75f;
     }
     
     private void Update()
     {
-        // Проверяем видимость ползунков и восстанавливаем их при необходимости
-        if ((musicVolumeSlider != null && musicSliderHandle != null && !musicSliderHandle.gameObject.activeInHierarchy) ||
-            (sfxVolumeSlider != null && sfxSliderHandle != null && !sfxSliderHandle.gameObject.activeInHierarchy))
+        // Проверяем, открыто ли меню настроек
+        bool isActive = (settingsPanel != null) ? settingsPanel.activeInHierarchy : gameObject.activeInHierarchy;
+        if (!isActive)
+            return;
+
+        // Проверяем, инициализированы ли слайдеры
+        if (volumeSlider == null)
+            return;
+        
+        // Проверяем, нужно ли восстановить ползунки
+        bool needToRestoreHandles = false;
+        
+        if (musicSliderHandle != null && !musicSliderHandle.gameObject.activeInHierarchy)
+        {
+            needToRestoreHandles = true;
+        }
+        
+        if (sfxSliderHandle != null && !sfxSliderHandle.gameObject.activeInHierarchy)
+        {
+            needToRestoreHandles = true;
+        }
+        
+        // Если ползунки невидимы, восстанавливаем их
+        if (needToRestoreHandles)
         {
             RestoreSliderHandles();
         }
@@ -133,52 +215,38 @@ public class Settings : MonoBehaviour
         bool isMouseDown = Mouse.current.leftButton.isPressed;
         
         // Если кнопка мыши была нажата в этом кадре
-        if (isMouseDown && !wasMouseDown)
+        if (isMouseDown && !isMouseDown)
         {
             // Проверяем, попали ли мы по слайдеру
-            if (IsPointOverSlider(musicVolumeSlider, mousePosition))
+            if (IsPointOverSlider(volumeSlider, mousePosition))
             {
-                activeSlider = musicVolumeSlider;
-                UpdateSliderFromMousePosition(activeSlider, mousePosition);
+                volumeSliderHandle = volumeSlider.GetComponent<RectTransform>();
+                UpdateSliderFromMousePosition(volumeSlider, mousePosition);
                 PlaySliderSound();
-                Debug.Log("Начато управление музыкальным слайдером");
-            }
-            else if (IsPointOverSlider(sfxVolumeSlider, mousePosition))
-            {
-                activeSlider = sfxVolumeSlider;
-                UpdateSliderFromMousePosition(activeSlider, mousePosition);
-                PlaySliderSound();
-                Debug.Log("Начато управление слайдером звуков");
+                Debug.Log("Начато управление слайдером громкости");
             }
         }
         // Если мышь перемещается при зажатой кнопке
-        else if (isMouseDown && activeSlider != null)
+        else if (isMouseDown && volumeSliderHandle != null)
         {
-            UpdateSliderFromMousePosition(activeSlider, mousePosition);
+            UpdateSliderFromMousePosition(volumeSlider, mousePosition);
         }
         // Если кнопка мыши была отпущена в этом кадре
-        else if (!isMouseDown && wasMouseDown && activeSlider != null)
+        else if (!isMouseDown && isMouseDown && volumeSliderHandle != null)
         {
             // Проверяем, изменилось ли значение
-            if (activeSlider == musicVolumeSlider && Mathf.Abs(prevMusicValue - activeSlider.value) > 0.01f)
+            if (Mathf.Abs(prevVolumeValue - volumeSlider.value) > 0.01f)
             {
-                PlaySliderSound();
-                prevMusicValue = activeSlider.value;
-            }
-            else if (activeSlider == sfxVolumeSlider && Mathf.Abs(prevSFXValue - activeSlider.value) > 0.01f)
-            {
-                PlaySliderSound();
-                prevSFXValue = activeSlider.value;
+                // Применяем новое значение громкости
+                SetVolume(volumeSlider.value);
+                prevVolumeValue = volumeSlider.value;
             }
             
             // После завершения перетаскивания убеждаемся, что ползунки видимы
             RestoreSliderHandles();
             
-            activeSlider = null;
+            volumeSliderHandle = null;
         }
-        
-        // Запоминаем состояние мыши для следующего кадра
-        wasMouseDown = isMouseDown;
     }
     
     private bool IsPointOverSlider(Slider slider, Vector2 screenPoint)
@@ -186,113 +254,156 @@ public class Settings : MonoBehaviour
         if (slider == null)
             return false;
         
+        // Получаем RectTransform слайдера
         RectTransform sliderRect = slider.GetComponent<RectTransform>();
         if (sliderRect == null)
             return false;
         
-        // Преобразуем координаты экрана в локальные координаты
-        Vector2 localPoint;
+        // Создаем список частей слайдера для проверки нажатия
+        List<RectTransform> sliderParts = new List<RectTransform>();
+        
+        // Добавляем основные части
+        sliderParts.Add(sliderRect); // Сам слайдер
+        
+        if (slider.fillRect != null)
+            sliderParts.Add(slider.fillRect); // Область заполнения
+        
+        if (slider.handleRect != null)
+            sliderParts.Add(slider.handleRect); // Ползунок
+        
+        // Также ищем "Sliding Area" и "Handle Slide Area"
+        Transform slidingArea = slider.transform.Find("Sliding Area");
+        if (slidingArea != null)
+            sliderParts.Add(slidingArea.GetComponent<RectTransform>());
+        
+        Transform handleSlideArea = slider.transform.Find("Handle Slide Area");
+        if (handleSlideArea != null)
+            sliderParts.Add(handleSlideArea.GetComponent<RectTransform>());
+        
+        // Находим активную камеру Canvas
         Camera eventCamera = null;
-        Canvas canvas = GetComponentInParent<Canvas>();
+        Canvas canvas = slider.GetComponentInParent<Canvas>();
         if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera)
             eventCamera = canvas.worldCamera;
         
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(sliderRect, screenPoint, eventCamera, out localPoint))
+        // Проверяем каждую часть слайдера
+        foreach (RectTransform part in sliderParts)
         {
-            // Проверяем, находится ли точка внутри прямоугольника слайдера
-            return sliderRect.rect.Contains(localPoint);
+            if (part == null)
+                continue;
+            
+            // Преобразуем координаты экрана в локальные координаты
+            Vector2 localPoint;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(part, screenPoint, eventCamera, out localPoint))
+            {
+                // Проверяем, находится ли точка внутри прямоугольника
+                if (part.rect.Contains(localPoint))
+                {
+                    Debug.Log($"Нажатие на часть слайдера {slider.name}: {part.name}");
+                    return true;
+                }
+            }
+        }
+        
+        // Дополнительная проверка - расширяем область нажатия слайдера
+        Vector2 expandedLocalPoint;
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(sliderRect, screenPoint, eventCamera, out expandedLocalPoint))
+        {
+            // Расширяем область нажатия на 20 пикселей вокруг слайдера
+            Rect expandedRect = sliderRect.rect;
+            expandedRect.xMin -= 20;
+            expandedRect.xMax += 20;
+            expandedRect.yMin -= 20;
+            expandedRect.yMax += 20;
+            
+            if (expandedRect.Contains(expandedLocalPoint))
+            {
+                Debug.Log($"Нажатие в расширенной области слайдера {slider.name}");
+                return true;
+            }
         }
         
         return false;
     }
     
-    private void UpdateSliderFromMousePosition(Slider slider, Vector2 screenPoint)
+    private void UpdateSliderFromMousePosition(Slider slider, Vector2 mousePosition)
     {
         if (slider == null)
             return;
         
+        // Получаем RectTransform слайдера
         RectTransform sliderRect = slider.GetComponent<RectTransform>();
         if (sliderRect == null)
             return;
         
-        // Преобразуем координаты экрана в локальные координаты
-        Vector2 localPoint;
+        // Находим SlideArea - область перемещения ползунка
+        RectTransform slideArea = null;
+        Transform slideAreaTransform = slider.transform.Find("Sliding Area");
+        if (slideAreaTransform == null)
+            slideAreaTransform = slider.transform.Find("SlideArea");
+        if (slideAreaTransform == null)
+            slideAreaTransform = slider.transform.Find("Slide Area");
+        
+        if (slideAreaTransform != null)
+            slideArea = slideAreaTransform.GetComponent<RectTransform>();
+        
+        // Если не нашли SlideArea, используем сам слайдер
+        if (slideArea == null)
+            slideArea = sliderRect;
+        
+        // Находим активную камеру Canvas
         Camera eventCamera = null;
-        Canvas canvas = GetComponentInParent<Canvas>();
+        Canvas canvas = slider.GetComponentInParent<Canvas>();
         if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera)
             eventCamera = canvas.worldCamera;
         
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(sliderRect, screenPoint, eventCamera, out localPoint))
+        // Преобразуем позицию мыши в локальные координаты SlideArea
+        Vector2 localPoint;
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(slideArea, mousePosition, eventCamera, out localPoint))
         {
-            // Получаем ссылку на область, которая содержит слайдер
-            RectTransform fillArea = slider.fillRect != null ? slider.fillRect.parent.GetComponent<RectTransform>() : null;
-            
-            if (fillArea == null)
-                return;
-            
-            // Получаем ширину области заполнения, а не всего слайдера
-            float fillAreaWidth = fillArea.rect.width;
-            float fillAreaHeight = fillArea.rect.height;
-            
-            // Переводим локальные координаты в координаты относительно области заполнения
-            Vector2 fillLocalPoint;
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(fillArea, screenPoint, eventCamera, out fillLocalPoint))
-                return;
-            
-            // Ограничиваем локальную точку размерами области заполнения
-            fillLocalPoint.x = Mathf.Clamp(fillLocalPoint.x, -fillAreaWidth * 0.5f, fillAreaWidth * 0.5f);
-            fillLocalPoint.y = Mathf.Clamp(fillLocalPoint.y, -fillAreaHeight * 0.5f, fillAreaHeight * 0.5f);
+            // Получаем размеры области
+            float width = slideArea.rect.width;
+            float height = slideArea.rect.height;
             
             // Вычисляем нормализованное значение в зависимости от направления слайдера
-            float normalizedValue;
+            float normalizedValue = 0f;
             
             if (slider.direction == Slider.Direction.LeftToRight)
             {
-                normalizedValue = (fillLocalPoint.x + fillAreaWidth * 0.5f) / fillAreaWidth;
+                // Ограничиваем localPoint границами SlideArea
+                localPoint.x = Mathf.Clamp(localPoint.x, -width/2, width/2);
+                // Преобразуем координату в нормализованное значение
+                normalizedValue = (localPoint.x + width/2) / width;
             }
             else if (slider.direction == Slider.Direction.RightToLeft)
             {
-                normalizedValue = 1 - (fillLocalPoint.x + fillAreaWidth * 0.5f) / fillAreaWidth;
+                localPoint.x = Mathf.Clamp(localPoint.x, -width/2, width/2);
+                normalizedValue = 1f - ((localPoint.x + width/2) / width);
             }
             else if (slider.direction == Slider.Direction.BottomToTop)
             {
-                normalizedValue = (fillLocalPoint.y + fillAreaHeight * 0.5f) / fillAreaHeight;
+                localPoint.y = Mathf.Clamp(localPoint.y, -height/2, height/2);
+                normalizedValue = (localPoint.y + height/2) / height;
             }
             else // TopToBottom
             {
-                normalizedValue = 1 - (fillLocalPoint.y + fillAreaHeight * 0.5f) / fillAreaHeight;
+                localPoint.y = Mathf.Clamp(localPoint.y, -height/2, height/2);
+                normalizedValue = 1f - ((localPoint.y + height/2) / height);
             }
             
-            // Добавляем дополнительное ограничение
+            // Дополнительная проверка границ
             normalizedValue = Mathf.Clamp01(normalizedValue);
             
-            // Преобразуем нормализованное значение в значение слайдера
+            // Устанавливаем значение слайдера
             float newValue = Mathf.Lerp(slider.minValue, slider.maxValue, normalizedValue);
             
-            // Обновляем значение слайдера
             if (Mathf.Abs(slider.value - newValue) > 0.001f)
             {
+                Debug.Log($"Слайдер {slider.name}: новое значение={newValue} (нормализованное={normalizedValue})");
                 slider.value = newValue;
                 
-                // Вызываем соответствующую функцию в зависимости от типа слайдера
-                if (slider == musicVolumeSlider)
-                {
-                    SetMusicVolume(newValue);
-                }
-                else if (slider == sfxVolumeSlider)
-                {
-                    SetSFXVolume(newValue);
-                }
-            }
-            
-            // Обновляем позицию ползунка вручную, если ссылка на него есть
-            if (slider == musicVolumeSlider && musicSliderHandle != null)
-            {
-                UpdateSliderHandlePosition(musicSliderHandle, slider, normalizedValue);
-            }
-            else if (slider == sfxVolumeSlider && sfxSliderHandle != null)
-            {
-                UpdateSliderHandlePosition(sfxSliderHandle, slider, normalizedValue);
+                // Применяем изменение громкости в зависимости от слайдера
+                SetVolume(newValue);
             }
         }
     }
@@ -302,111 +413,162 @@ public class Settings : MonoBehaviour
         if (handle == null || slider == null)
             return;
         
-        // Убеждаемся, что ползунок видим
-        handle.gameObject.SetActive(true);
+        // Находим различные возможные области слайдера
+        RectTransform fillRect = slider.fillRect;
+        RectTransform handleSlideArea = null;
         
-        // Получаем родительский RectTransform ползунка (обычно это SlideArea)
-        RectTransform handleParent = handle.parent as RectTransform;
-        if (handleParent == null)
-            return;
+        // Пытаемся найти HandleSlideArea
+        Transform handleSlideAreaTransform = slider.transform.Find("Handle Slide Area");
+        if (handleSlideAreaTransform != null)
+            handleSlideArea = handleSlideAreaTransform.GetComponent<RectTransform>();
         
-        // Получаем размеры родителя ползунка
-        float parentWidth = handleParent.rect.width;
-        float parentHeight = handleParent.rect.height;
+        // Если не найдена HandleSlideArea, пробуем найти родительский объект ползунка
+        if (handleSlideArea == null && handle.parent != null)
+            handleSlideArea = handle.parent.GetComponent<RectTransform>();
         
-        // НЕ меняем настройки привязки (anchor), так как это может нарушить стандартное поведение
-        // Используем только позиционирование через anchoredPosition
+        // Если всё еще не найдена, используем самого родителя слайдера
+        if (handleSlideArea == null)
+            handleSlideArea = slider.GetComponent<RectTransform>();
         
-        // Используем стандартное поведение Unity для позиционирования ползунка
-        // Это сохранит корректное отображение слайдера в соответствии со стилем Unity UI
+        // Находим размеры и позицию области перемещения ползунка
+        float width = handleSlideArea.rect.width;
+        float height = handleSlideArea.rect.height;
         
+        // Если есть fillRect, используем его для уточнения размеров
+        if (fillRect != null && fillRect.parent != null)
+        {
+            RectTransform fillArea = fillRect.parent.GetComponent<RectTransform>();
+            if (fillArea != null)
+            {
+                width = fillArea.rect.width;
+                height = fillArea.rect.height;
+            }
+        }
+        
+        // Рассчитываем позицию ползунка в зависимости от направления слайдера
+        Vector2 newAnchoredPosition = handle.anchoredPosition;
+        
+        // Фиксируем якорь в центре для простоты расчетов
+        handle.anchorMin = new Vector2(0.5f, 0.5f);
+        handle.anchorMax = new Vector2(0.5f, 0.5f);
+        handle.pivot = new Vector2(0.5f, 0.5f);
+        
+        // Размер ползунка
+        float handleWidth = handle.rect.width;
+        float handleHeight = handle.rect.height;
+        
+        // Корректировки для разных направлений слайдера
         if (slider.direction == Slider.Direction.LeftToRight)
         {
-            // Рассчитываем новую позицию относительно родительского элемента
-            handle.anchorMin = new Vector2(normalizedValue, handle.anchorMin.y);
-            handle.anchorMax = new Vector2(normalizedValue, handle.anchorMax.y);
-            handle.anchoredPosition = new Vector2(0, handle.anchoredPosition.y);
+            // Расчет с учетом размера ползунка
+            float usableWidth = width - handleWidth;
+            float handleOffset = (normalizedValue - 0.5f) * usableWidth;
+            newAnchoredPosition.x = handleOffset;
         }
         else if (slider.direction == Slider.Direction.RightToLeft)
         {
-            handle.anchorMin = new Vector2(1 - normalizedValue, handle.anchorMin.y);
-            handle.anchorMax = new Vector2(1 - normalizedValue, handle.anchorMax.y);
-            handle.anchoredPosition = new Vector2(0, handle.anchoredPosition.y);
+            float usableWidth = width - handleWidth;
+            float handleOffset = (0.5f - normalizedValue) * usableWidth;
+            newAnchoredPosition.x = handleOffset;
         }
         else if (slider.direction == Slider.Direction.BottomToTop)
         {
-            handle.anchorMin = new Vector2(handle.anchorMin.x, normalizedValue);
-            handle.anchorMax = new Vector2(handle.anchorMax.x, normalizedValue);
-            handle.anchoredPosition = new Vector2(handle.anchoredPosition.x, 0);
+            float usableHeight = height - handleHeight;
+            float handleOffset = (normalizedValue - 0.5f) * usableHeight;
+            newAnchoredPosition.y = handleOffset;
         }
         else // TopToBottom
         {
-            handle.anchorMin = new Vector2(handle.anchorMin.x, 1 - normalizedValue);
-            handle.anchorMax = new Vector2(handle.anchorMax.x, 1 - normalizedValue);
-            handle.anchoredPosition = new Vector2(handle.anchoredPosition.x, 0);
+            float usableHeight = height - handleHeight;
+            float handleOffset = (0.5f - normalizedValue) * usableHeight;
+            newAnchoredPosition.y = handleOffset;
         }
         
-        // Обновляем заполнение слайдера, чтобы оно соответствовало положению ползунка
-        if (slider.fillRect != null)
-        {
-            // Обновляем размер области заполнения в соответствии с значением слайдера
-            slider.fillRect.gameObject.SetActive(true);
-        }
+        handle.anchoredPosition = newAnchoredPosition;
+        Debug.Log($"Обновлена позиция ползунка: {slider.name}, normalizedValue={normalizedValue}, новая позиция={newAnchoredPosition}");
+        
+        // Делаем ползунок видимым
+        handle.gameObject.SetActive(true);
     }
     
-    // Добавим метод, который будет восстанавливать слайдеры при необходимости
+    // Добавляем метод для восстановления ползунков
     private void RestoreSliderHandles()
     {
-        if (musicVolumeSlider != null && musicSliderHandle != null)
+        Debug.Log("Восстанавливаем ползунки слайдеров");
+        
+        // Восстанавливаем ползунок музыки
+        if (musicSliderHandle != null)
         {
-            // Убеждаемся, что ползунок видим
+            // Активируем объект
             musicSliderHandle.gameObject.SetActive(true);
             
-            // Обновляем его позицию
-            float normalizedValue = (musicVolumeSlider.value - musicVolumeSlider.minValue) / 
-                                   (musicVolumeSlider.maxValue - musicVolumeSlider.minValue);
-            UpdateSliderHandlePosition(musicSliderHandle, musicVolumeSlider, normalizedValue);
+            // Проверяем, есть ли у ползунка компонент Image
+            Image handleImage = musicSliderHandle.GetComponent<Image>();
+            if (handleImage == null)
+            {
+                handleImage = musicSliderHandle.gameObject.AddComponent<Image>();
+                handleImage.color = Color.white;
+            }
+            
+            // Убедимся, что ползунок виден
+            handleImage.enabled = true;
+            
+            // Устанавливаем размер, если он слишком мал
+            if (musicSliderHandle.sizeDelta.x < 10 || musicSliderHandle.sizeDelta.y < 10)
+            {
+                musicSliderHandle.sizeDelta = new Vector2(20, 20);
+            }
+            
+            // Обновляем позицию ползунка
+            UpdateSliderHandlePosition(musicSliderHandle, volumeSlider, volumeSlider.value);
+            
+            Debug.Log($"Восстановлен ползунок музыки: позиция={musicSliderHandle.anchoredPosition}, размер={musicSliderHandle.sizeDelta}");
         }
         
-        if (sfxVolumeSlider != null && sfxSliderHandle != null)
+        // Восстанавливаем ползунок SFX
+        if (sfxSliderHandle != null)
         {
-            // Убеждаемся, что ползунок видим
+            // Активируем объект
             sfxSliderHandle.gameObject.SetActive(true);
             
-            // Обновляем его позицию
-            float normalizedValue = (sfxVolumeSlider.value - sfxVolumeSlider.minValue) / 
-                                   (sfxVolumeSlider.maxValue - sfxVolumeSlider.minValue);
-            UpdateSliderHandlePosition(sfxSliderHandle, sfxVolumeSlider, normalizedValue);
+            // Проверяем, есть ли у ползунка компонент Image
+            Image handleImage = sfxSliderHandle.GetComponent<Image>();
+            if (handleImage == null)
+            {
+                handleImage = sfxSliderHandle.gameObject.AddComponent<Image>();
+                handleImage.color = Color.white;
+            }
+            
+            // Убедимся, что ползунок виден
+            handleImage.enabled = true;
+            
+            // Устанавливаем размер, если он слишком мал
+            if (sfxSliderHandle.sizeDelta.x < 10 || sfxSliderHandle.sizeDelta.y < 10)
+            {
+                sfxSliderHandle.sizeDelta = new Vector2(20, 20);
+            }
+            
+            // Обновляем позицию ползунка
+            UpdateSliderHandlePosition(sfxSliderHandle, sfxVolumeSlider, sfxVolumeSlider.value);
+            
+            Debug.Log($"Восстановлен ползунок SFX: позиция={sfxSliderHandle.anchoredPosition}, размер={sfxSliderHandle.sizeDelta}");
         }
     }
     
     private void CheckUIElements()
     {
         // Проверяем слайдеры
-        if (musicVolumeSlider != null)
+        if (volumeSlider != null)
         {
-            Debug.Log($"Музыкальный слайдер: активен={musicVolumeSlider.gameObject.activeInHierarchy}, " +
-                      $"интерактивен={musicVolumeSlider.interactable}, значение={musicVolumeSlider.value}");
+            Debug.Log($"Слайдер громкости: активен={volumeSlider.gameObject.activeInHierarchy}, " +
+                      $"интерактивен={volumeSlider.interactable}, значение={volumeSlider.value}");
             
             // Принудительно устанавливаем значение для проверки
-            musicVolumeSlider.value = 0.75f;
+            volumeSlider.value = 0.75f;
         }
         else
         {
-            Debug.LogError("Музыкальный слайдер не назначен!");
-        }
-        
-        if (sfxVolumeSlider != null)
-        {
-            Debug.Log($"Слайдер звуков: активен={sfxVolumeSlider.gameObject.activeInHierarchy}, " +
-                      $"интерактивен={sfxVolumeSlider.interactable}, значение={sfxVolumeSlider.value}");
-            
-            // Принудительно устанавливаем значение для проверки
-            sfxVolumeSlider.value = 0.75f;
-        }
-        else
-        {
-            Debug.LogError("Слайдер звуков не назначен!");
+            Debug.LogError("Слайдер громкости не назначен!");
         }
         
         // Проверяем выпадающий список качества
@@ -443,28 +605,396 @@ public class Settings : MonoBehaviour
         }
     }
     
-    private void Start()
+    private void InitializeComponents()
     {
-        // Проверяем и настраиваем EventSystem для работы с Input System
-        ConfigureInputSystem();
+        // Проверяем и находим панель настроек
+        if (settingsPanel == null)
+        {
+            settingsPanel = gameObject;
+            Debug.Log("Панель настроек установлена по умолчанию на текущий объект");
+        }
         
-        // Настраиваем элементы управления звуком
-        SetupAudioControls();
+        // Проверяем и находим слайдеры
+        if (volumeSlider == null)
+        {
+            volumeSlider = transform.Find("VolumeSlider")?.GetComponent<Slider>();
+            if (volumeSlider == null)
+            {
+                // Ищем по имени или тегу
+                var sliders = GetComponentsInChildren<Slider>();
+                foreach (var slider in sliders)
+                {
+                    if (slider.name.ToLower().Contains("volume") || slider.CompareTag("VolumeSlider"))
+                    {
+                        volumeSlider = slider;
+                        Debug.Log("Найден слайдер громкости: " + slider.name);
+                        break;
+                    }
+                }
+            }
+        }
         
-        // Настраиваем элементы управления графикой
-        SetupGraphicsControls();
+        if (sfxVolumeSlider != null)
+        {
+            sfxVolumeSlider = transform.Find("SFXVolumeSlider")?.GetComponent<Slider>();
+            if (sfxVolumeSlider == null)
+            {
+                // Ищем по имени или тегу
+                var sliders = GetComponentsInChildren<Slider>();
+                foreach (var slider in sliders)
+                {
+                    if (slider.name.ToLower().Contains("sfx") || slider.name.ToLower().Contains("effect") || 
+                        slider.CompareTag("SFXSlider"))
+                    {
+                        sfxVolumeSlider = slider;
+                        Debug.Log("Найден слайдер SFX: " + slider.name);
+                        break;
+                    }
+                }
+            }
+        }
         
-        // Настраиваем кнопку назад
-        if (backButton != null)
-            backButton.onClick.AddListener(() => { PlayButtonClickSound(); BackToPauseMenu(); });
+        // Проверяем и находим ползунки слайдеров - более агрессивный поиск
+        if (volumeSlider != null && musicSliderHandle == null)
+        {
+            // Пробуем найти стандартный ползунок Unity UI
+            Transform handleSlideArea = volumeSlider.transform.Find("Handle Slide Area");
+            if (handleSlideArea != null)
+            {
+                Transform handle = handleSlideArea.Find("Handle");
+                if (handle != null)
+                {
+                    musicSliderHandle = handle.GetComponent<RectTransform>();
+                    Debug.Log("Найден стандартный ползунок слайдера громкости");
+                }
+            }
+            
+            // Если не нашли по стандартному пути, ищем любой ползунок
+            if (musicSliderHandle == null)
+            {
+                foreach (Transform child in volumeSlider.GetComponentsInChildren<Transform>(true))
+                {
+                    if (child.name.ToLower().Contains("handle") || child.name.ToLower().Contains("knob") || 
+                        child.name.ToLower().Contains("thumb") || child.name.ToLower().Contains("dot"))
+                    {
+                        musicSliderHandle = child.GetComponent<RectTransform>();
+                        Debug.Log($"Найден альтернативный ползунок для слайдера громкости: {child.name}");
+                        break;
+                    }
+                }
+            }
+            
+            // Если всё еще не нашли, создаем новый ползунок
+            if (musicSliderHandle == null)
+            {
+                Debug.LogWarning("Не найден ползунок для слайдера громкости, создаем новый...");
+                GameObject newHandle = new GameObject("VolumeSliderHandle");
+                newHandle.transform.SetParent(volumeSlider.transform, false);
+                musicSliderHandle = newHandle.AddComponent<RectTransform>();
+                
+                // Добавляем изображение для видимости
+                Image img = newHandle.AddComponent<Image>();
+                img.color = Color.white;
+                
+                // Устанавливаем размер
+                musicSliderHandle.sizeDelta = new Vector2(20, 20);
+            }
+        }
         
-        // Добавляем звуки наведения на все кнопки
-        AddHoverSoundToButtons();
+        // То же самое для SFX слайдера
+        if (sfxVolumeSlider != null && sfxSliderHandle == null)
+        {
+            // Пробуем найти стандартный ползунок Unity UI
+            Transform handleSlideArea = sfxVolumeSlider.transform.Find("Handle Slide Area");
+            if (handleSlideArea != null)
+            {
+                Transform handle = handleSlideArea.Find("Handle");
+                if (handle != null)
+                {
+                    sfxSliderHandle = handle.GetComponent<RectTransform>();
+                    Debug.Log("Найден стандартный ползунок слайдера SFX");
+                }
+            }
+            
+            // Если не нашли по стандартному пути, ищем любой ползунок
+            if (sfxSliderHandle == null)
+            {
+                foreach (Transform child in sfxVolumeSlider.GetComponentsInChildren<Transform>(true))
+                {
+                    if (child.name.ToLower().Contains("handle") || child.name.ToLower().Contains("knob") || 
+                        child.name.ToLower().Contains("thumb") || child.name.ToLower().Contains("dot"))
+                    {
+                        sfxSliderHandle = child.GetComponent<RectTransform>();
+                        Debug.Log($"Найден альтернативный ползунок для слайдера SFX: {child.name}");
+                        break;
+                    }
+                }
+            }
+            
+            // Если всё еще не нашли, создаем новый ползунок
+            if (sfxSliderHandle == null)
+            {
+                Debug.LogWarning("Не найден ползунок для слайдера SFX, создаем новый...");
+                GameObject newHandle = new GameObject("SFXSliderHandle");
+                newHandle.transform.SetParent(sfxVolumeSlider.transform, false);
+                sfxSliderHandle = newHandle.AddComponent<RectTransform>();
+                
+                // Добавляем изображение для видимости
+                Image img = newHandle.AddComponent<Image>();
+                img.color = Color.white;
+                
+                // Устанавливаем размер
+                sfxSliderHandle.sizeDelta = new Vector2(20, 20);
+            }
+        }
         
-        // Загружаем сохраненные настройки
-        LoadSettings();
+        // Проверяем наличие UI AudioSource
+        if (uiAudioSource == null)
+        {
+            uiAudioSource = GetComponent<AudioSource>();
+            if (uiAudioSource == null)
+            {
+                // Создаем новый AudioSource
+                uiAudioSource = gameObject.AddComponent<AudioSource>();
+                uiAudioSource.playOnAwake = false;
+                Debug.Log("Создан новый AudioSource для UI звуков");
+            }
+        }
+        
+        // Выводим отладочную информацию
+        Debug.Log($"Инициализация компонентов: VolumeSlider={volumeSlider != null}, SFXSlider={sfxVolumeSlider != null}, " +
+                  $"VolumeHandle={musicSliderHandle != null}, SFXHandle={sfxSliderHandle != null}, AudioSource={uiAudioSource != null}");
+    }
+
+    // Use this for initialization
+    void Start()
+    {
+        Debug.Log("Settings: Start");
+        
+        // Инициализируем компоненты
+        InitializeComponents();
+        
+        // Проверяем аудиомиксер и его параметры
+        if (audioMixer != null)
+        {
+            Debug.Log("AudioMixer найден, проверяем параметры...");
+            DebugAudioMixerParameters();
+        }
+        else
+        {
+            Debug.LogError("КРИТИЧЕСКАЯ ОШИБКА: AudioMixer равен null в Start()!");
+        }
+        
+        // Загружаем сохраненные настройки из PlayerPrefs
+        LoadSavedSettings();
+        
+        // Если окно настроек открыто при старте, обновим ползунки
+        if (settingsPanel != null && settingsPanel.activeInHierarchy)
+        {
+            RestoreSliderHandles();
+        }
     }
     
+    // Добавляем метод для загрузки сохраненных настроек
+    private void LoadSavedSettings()
+    {
+        // Загружаем сохраненные значения громкости
+        float volume = PlayerPrefs.GetFloat("Volume", 0.75f);
+        
+        Debug.Log($"[LoadSavedSettings] Загружены настройки: Volume={volume}");
+        
+        // Устанавливаем загруженные значения
+        SetVolume(volume);
+        
+        // Если слайдеры уже инициализированы, устанавливаем их значения принудительно
+        if (volumeSlider != null)
+        {
+            volumeSlider.value = volume;
+            Debug.Log($"[LoadSavedSettings] Установлено значение слайдера громкости: {volume}");
+            
+            // Обновляем ползунок
+            if (musicSliderHandle != null)
+            {
+                musicSliderHandle.gameObject.SetActive(true);
+                UpdateSliderHandlePosition(musicSliderHandle, volumeSlider, volume);
+            }
+        }
+        
+        // Дополнительная проверка - применяем значение напрямую ко всем источникам звука в сцене
+        AdjustAllAudioSourcesVolume("All", volume);
+    }
+
+    // Настройка обработчиков событий для слайдеров
+    private void SetupSliderEvents()
+    {
+        if (volumeSlider != null)
+        {
+            // Добавляем обработчик изменения значения
+            volumeSlider.onValueChanged.RemoveAllListeners();
+            volumeSlider.onValueChanged.AddListener(SetVolume);
+            Debug.Log("Настроен обработчик для слайдера громкости");
+        }
+    }
+
+    // Улучшаем методы установки громкости для использования всех доступных подходов
+    public void SetVolume(float volume)
+    {
+        Debug.Log($"[SetVolume] Вызван с значением: {volume}");
+        
+        // Запоминаем значение
+        prevVolumeValue = volume;
+        bool handledByMixer = false;
+        
+        // 1. Пробуем использовать AudioMixer
+        if (audioMixer != null)
+        {
+            // Преобразуем линейное значение в логарифмическое для громкости
+            float dbValue = volume > 0.001f ? Mathf.Log10(volume) * 20 : -80f;
+            Debug.Log($"[SetVolume] Преобразованное значение: {dbValue} dB");
+            
+            // Пробуем установить громкость с разными именами параметров
+            string[] paramNames = { "Volume", "masterVolume", "MasterVolume", "Master", "MasterVol" };
+            
+            foreach (string paramName in paramNames)
+            {
+                if (audioMixer.SetFloat(paramName, dbValue))
+                {
+                    Debug.Log($"[SetVolume] УСПЕХ: Установлена громкость через параметр '{paramName}': {dbValue} dB");
+                    
+                    // Проверяем, действительно ли значение установлено
+                    float currentValue;
+                    if (audioMixer.GetFloat(paramName, out currentValue))
+                    {
+                        Debug.Log($"[SetVolume] Проверка: Текущее значение параметра '{paramName}': {currentValue} dB");
+                        handledByMixer = Mathf.Approximately(currentValue, dbValue);
+                    }
+                    
+                    break;
+                }
+            }
+            
+            if (!handledByMixer)
+            {
+                Debug.LogWarning("[SetVolume] AudioMixer не применил значение или вернул ошибку");
+            }
+        }
+        else
+        {
+            Debug.LogError("[SetVolume] AudioMixer равен null!");
+        }
+        
+        // 2. Если AudioMixer не помог, используем прямой контроль источников
+        if (!handledByMixer)
+        {
+            Debug.Log("[SetVolume] Переход к прямому контролю источников звука");
+            
+            // Используем AudioListener как общий регулятор для музыки
+            AudioListener.volume = volume;
+            Debug.Log($"[SetVolume] Установлена общая громкость AudioListener: {volume}");
+            
+            // Регулируем все аудио источники в сцене
+            AdjustAllAudioSourcesVolume("All", volume);
+        }
+        
+        // 3. Сохраняем настройку в PlayerPrefs независимо от результата
+        PlayerPrefs.SetFloat("Volume", volume);
+        PlayerPrefs.Save();
+        Debug.Log($"[SetVolume] Сохранено значение в PlayerPrefs: {volume}");
+        
+        // 4. Обновляем ползунок
+        if (musicSliderHandle != null)
+        {
+            musicSliderHandle.gameObject.SetActive(true);
+            UpdateSliderHandlePosition(musicSliderHandle, volumeSlider, volume);
+            Debug.Log($"[SetVolume] Обновлена позиция ползунка громкости");
+        }
+        else
+        {
+            Debug.LogWarning("[SetVolume] Ползунок громкости равен null!");
+        }
+        
+        // 5. Проверяем значение слайдера
+        if (volumeSlider != null)
+        {
+            volumeSlider.value = volume; // Принудительно устанавливаем значение слайдера
+            Debug.Log($"[SetVolume] Установлено значение слайдера громкости: {volume}");
+        }
+        else
+        {
+            Debug.LogWarning("[SetVolume] Слайдер громкости равен null!");
+        }
+        
+        // Воспроизводим звук изменения
+        PlaySliderSound();
+    }
+
+    // Упрощаем метод загрузки настроек
+    private void LoadSettings()
+    {
+        Debug.Log("Загрузка настроек...");
+        
+        // Загружаем настройки громкости
+        float volume = PlayerPrefs.GetFloat("Volume", 0.75f);
+        
+        // Устанавливаем значения слайдеров
+        if (volumeSlider != null)
+        {
+            volumeSlider.value = volume;
+            Debug.Log($"Установлено значение слайдера громкости: {volume}");
+        }
+        
+        // Применяем настройки звука
+        if (audioMixer != null)
+        {
+            ApplyVolumeSettings(volume);
+        }
+        
+        // Загружаем настройку полного экрана
+        bool isFullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
+        
+        // Применяем настройку полного экрана
+        Screen.fullScreen = isFullscreen;
+        
+        // Устанавливаем переключатель полного экрана
+        if (fullscreenToggle != null)
+        {
+            fullscreenToggle.isOn = isFullscreen;
+        }
+        
+        Debug.Log("Настройки успешно загружены");
+    }
+
+    // Добавляем вспомогательный метод для применения настроек громкости
+    private void ApplyVolumeSettings(float volume)
+    {
+        // Преобразуем линейные значения в логарифмические для громкости
+        float dbValue = volume > 0.001f ? Mathf.Log10(volume) * 20 : -80f;
+        
+        // Пробуем установить громкость музыки
+        bool set = false;
+        string[] paramNames = { "Volume", "masterVolume", "MasterVolume", "Master", "MasterVol" };
+        
+        foreach (string param in paramNames)
+        {
+            if (audioMixer.SetFloat(param, dbValue))
+            {
+                Debug.Log($"Применена громкость через параметр '{param}': {dbValue} dB");
+                set = true;
+                break;
+            }
+        }
+        
+        // Запасные варианты, если не удалось установить через AudioMixer
+        if (!set)
+        {
+            AudioListener.volume = volume;
+            Debug.Log($"Громкость музыки применена через AudioListener: {volume}");
+        }
+        
+        // Регулируем все аудио источники в сцене
+        AdjustAllAudioSourcesVolume("All", volume);
+    }
+
     // Настраиваем EventSystem для работы с Input System
     private void ConfigureInputSystem()
     {
@@ -535,21 +1065,6 @@ public class Settings : MonoBehaviour
         }
     }
     
-    private void SetupAudioControls()
-    {
-        if (musicVolumeSlider != null)
-        {
-            musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
-            Debug.Log("Добавлен обработчик для слайдера музыки");
-        }
-            
-        if (sfxVolumeSlider != null)
-        {
-            sfxVolumeSlider.onValueChanged.AddListener(SetSFXVolume);
-            Debug.Log("Добавлен обработчик для слайдера звуков");
-        }
-    }
-    
     private void SetupGraphicsControls()
     {
         // Настраиваем выпадающий список качества
@@ -581,11 +1096,11 @@ public class Settings : MonoBehaviour
     
     public void BackToPauseMenu()
     {
-        // Сохраняем настройки перед выходом
+        // Сохраняем настройки перед выходом из меню
         SaveSettings();
         
-        // Скрываем панель настроек
-        gameObject.SetActive(false);
+        // Используем новый метод закрытия настроек
+        CloseSettings();
         
         // Показываем основную панель паузы, если есть ссылка на скрипт паузы
         if (pauseScript != null)
@@ -595,29 +1110,6 @@ public class Settings : MonoBehaviour
     }
     
     #region Audio Settings
-    
-    public void SetMusicVolume(float volume)
-    {
-        if (audioMixer != null)
-        {
-            // Преобразуем линейное значение слайдера в логарифмическую шкалу для громкости
-            audioMixer.SetFloat("MusicVolume", Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20);
-        }
-        PlaySliderSound();
-    }
-    
-    public void SetSFXVolume(float volume)
-    {
-        if (audioMixer != null)
-        {
-            audioMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20);
-        }
-        PlaySliderSound();
-    }
-    
-    #endregion
-    
-    #region Graphics Settings
     
     public void SetQualityLevel(int qualityIndex)
     {
@@ -665,69 +1157,60 @@ public class Settings : MonoBehaviour
     
     public void SaveSettings()
     {
-        // Сохраняем настройки звука
-        if (audioMixer != null)
-        {
-            float musicVolume, sfxVolume;
-            audioMixer.GetFloat("MusicVolume", out musicVolume);
-            audioMixer.GetFloat("SFXVolume", out sfxVolume);
-            
-            PlayerPrefs.SetFloat("MusicVolume", musicVolume);
-            PlayerPrefs.SetFloat("SFXVolume", sfxVolume);
-        }
+        Debug.Log("Сохранение настроек...");
         
-        // Сохраняем настройки графики
-        PlayerPrefs.SetInt("QualityLevel", QualitySettings.GetQualityLevel());
-        PlayerPrefs.SetInt("Fullscreen", Screen.fullScreen ? 1 : 0);
+        // Получаем текущее значение слайдера
+        float volume = volumeSlider != null ? volumeSlider.value : 0.75f;
         
-        // Сохраняем изменения
+        // Сохраняем настройки в PlayerPrefs
+        PlayerPrefs.SetFloat("Volume", volume);
+        
+        // Убедимся, что настройки сохранены
         PlayerPrefs.Save();
-        Debug.Log("Настройки сохранены!");
+        
+        Debug.Log($"Настройки сохранены: Volume={volume}");
     }
     
-    private void LoadSettings()
+    private void SetSliderValueSafely(Slider slider, float value)
     {
-        // Загружаем настройки звука
-        if (audioMixer != null)
+        if (slider == null)
+            return;
+        
+        // Используем SetValueWithoutNotify для установки значения без вызова событий
+        slider.SetValueWithoutNotify(value);
+        
+        // Обновляем позицию ползунка вручную
+        if (slider == volumeSlider && musicSliderHandle != null)
         {
-            if (PlayerPrefs.HasKey("MusicVolume"))
-            {
-                float musicVolume = PlayerPrefs.GetFloat("MusicVolume");
-                audioMixer.SetFloat("MusicVolume", musicVolume);
-                if (musicVolumeSlider != null)
-                    musicVolumeSlider.value = Mathf.Pow(10, musicVolume / 20);
-            }
-            
-            if (PlayerPrefs.HasKey("SFXVolume"))
-            {
-                float sfxVolume = PlayerPrefs.GetFloat("SFXVolume");
-                audioMixer.SetFloat("SFXVolume", sfxVolume);
-                if (sfxVolumeSlider != null)
-                    sfxVolumeSlider.value = Mathf.Pow(10, sfxVolume / 20);
-            }
+            UpdateSliderHandlePosition(musicSliderHandle, slider, value);
         }
         
-        // Загружаем настройки графики
-        if (PlayerPrefs.HasKey("QualityLevel"))
-        {
-            int qualityLevel = PlayerPrefs.GetInt("QualityLevel");
-            QualitySettings.SetQualityLevel(qualityLevel);
-            if (qualityDropdown != null)
-                qualityDropdown.value = qualityLevel;
-        }
-        
-        if (PlayerPrefs.HasKey("Fullscreen"))
-        {
-            bool isFullscreen = PlayerPrefs.GetInt("Fullscreen") == 1;
-            Screen.fullScreen = isFullscreen;
-            if (fullscreenToggle != null)
-                fullscreenToggle.isOn = isFullscreen;
-        }
-        
-        Debug.Log("Настройки загружены!");
+        Debug.Log($"Безопасно установлено значение слайдера {slider.name}: {value}");
     }
-    
-    #endregion
+
+    // Метод для определения имен активных параметров аудиомиксера
+    private void CheckAudioMixerParameters()
+    {
+        if (audioMixer == null)
+            return;
+        
+        // Возможные имена параметров для музыки
+        string[] paramNames = { "Volume", "masterVolume", "MasterVolume", "Master", "MasterVol" };
+        
+        // Ищем активный параметр для музыки
+        foreach (string paramName in paramNames)
+        {
+            float testValue;
+            if (audioMixer.GetFloat(paramName, out testValue))
+            {
+                activeMusicParameterName = paramName;
+                Debug.Log($"Найден активный параметр для музыки: '{paramName}'");
+                break;
+            }
+        }
+        
+        Debug.Log($"Активный параметр аудиомиксера: Music='{activeMusicParameterName}'");
+    }
     
     // Публичный метод для проверки и исправления проблем с UI
     public void FixUIProblems()
@@ -761,21 +1244,15 @@ public class Settings : MonoBehaviour
         }
         
         // Проверяем состояние слайдеров
-        if (musicVolumeSlider != null)
+        if (volumeSlider != null)
         {
-            musicVolumeSlider.interactable = true;
-            Debug.Log($"Музыкальный слайдер: интерактивен={musicVolumeSlider.interactable}, значение={musicVolumeSlider.value}");
-        }
-        
-        if (sfxVolumeSlider != null)
-        {
-            sfxVolumeSlider.interactable = true;
-            Debug.Log($"Слайдер звуков: интерактивен={sfxVolumeSlider.interactable}, значение={sfxVolumeSlider.value}");
+            volumeSlider.interactable = true;
+            Debug.Log($"Слайдер громкости: интерактивен={volumeSlider.interactable}, значение={volumeSlider.value}");
         }
         
         // Сбрасываем состояние перетаскивания
-        activeSlider = null;
-        wasMouseDown = false;
+        volumeSliderHandle = null;
+        prevVolumeValue = 0.75f;
         
         Debug.Log("Проверка и исправление UI завершены!");
     }
@@ -785,4 +1262,173 @@ public class Settings : MonoBehaviour
     {
         FixUIProblems();
     }
-} 
+
+    private void SyncSlidersWithMixer()
+    {
+        if (audioMixer == null)
+            return;
+        
+        // Синхронизируем слайдер громкости
+        if (volumeSlider != null && !string.IsNullOrEmpty(activeMusicParameterName))
+        {
+            float dbValue;
+            if (audioMixer.GetFloat(activeMusicParameterName, out dbValue))
+            {
+                // Преобразуем логарифмическое значение в линейное для слайдера
+                float linearValue = dbValue <= -79.9f ? 0f : Mathf.Pow(10, dbValue / 20);
+                linearValue = Mathf.Clamp01(linearValue);
+                
+                // Устанавливаем значение слайдера безопасно
+                SetSliderValueSafely(volumeSlider, linearValue);
+                prevVolumeValue = linearValue;
+                
+                Debug.Log($"Синхронизирован слайдер громкости: {dbValue} dB -> {linearValue} (линейная)");
+            }
+        }
+    }
+
+    // Добавляем метод CreateMixerParameters
+    private void CreateMixerParameters()
+    {
+        if (audioMixer == null)
+            return;
+        
+        Debug.Log("Проверка параметров аудиомиксера...");
+        
+        // Проверяем наличие основных параметров
+        CheckAudioMixerParameters();
+        
+        // Если не найдены параметры, выводим инструкцию
+        if (string.IsNullOrEmpty(activeMusicParameterName))
+        {
+            Debug.LogWarning("Не найдены необходимые параметры в аудиомиксере!");
+            Debug.LogWarning("Инструкция по созданию параметров в Unity Editor:");
+            Debug.LogWarning("1. Найдите файл аудиомиксера в проекте (обычно в папке Assets/Audio или Assets/Resources)");
+            Debug.LogWarning("2. Откройте AudioMixer в Inspector");
+            Debug.LogWarning("3. Перейдите на вкладку 'Groups'");
+            Debug.LogWarning("4. Для каждой группы (Master, Music, SFX):");
+            Debug.LogWarning("   a. Выберите группу");
+            Debug.LogWarning("   b. В Inspector найдите параметр Volume");
+            Debug.LogWarning("   c. Щелкните правой кнопкой мыши и выберите 'Expose parameter'");
+            Debug.LogWarning("   d. Введите имя (например, 'Volume' или 'MasterVolume')");
+            Debug.LogWarning("5. Сохраните проект и перезапустите игру");
+        }
+    }
+
+    public void OpenSettings()
+    {
+        Debug.Log("[OpenSettings] Открытие настроек");
+        
+        // Если settingsPanel равен null, используем этот gameObject
+        if (settingsPanel == null)
+        {
+            settingsPanel = gameObject;
+        }
+        
+        settingsPanel.SetActive(true);
+        
+        // Проверяем аудиомиксер
+        if (audioMixer != null)
+        {
+            Debug.Log("[OpenSettings] Проверка параметров AudioMixer");
+            DebugAudioMixerParameters();
+        }
+        else
+        {
+            Debug.LogError("[OpenSettings] AudioMixer равен null!");
+        }
+        
+        // Загружаем настройки из PlayerPrefs
+        float volume = PlayerPrefs.GetFloat("Volume", 0.75f);
+        
+        Debug.Log($"[OpenSettings] Загружены сохраненные настройки: Volume={volume}");
+        
+        // Принудительно устанавливаем значение слайдера
+        if (volumeSlider != null)
+        {
+            volumeSlider.value = volume;
+            Debug.Log($"[OpenSettings] Установлено значение слайдера громкости: {volume}");
+            
+            // Обновляем ползунок
+            if (musicSliderHandle != null)
+            {
+                musicSliderHandle.gameObject.SetActive(true);
+                UpdateSliderHandlePosition(musicSliderHandle, volumeSlider, volume);
+            }
+        }
+        
+        // Восстанавливаем видимость ползунков
+        RestoreSliderHandles();
+        
+        // Применяем настройки напрямую к аудиоисточникам для надежности
+        AdjustAllAudioSourcesVolume("All", volume);
+        
+        Debug.Log("[OpenSettings] Настройки открыты и инициализированы");
+    }
+
+    // Добавляем метод для закрытия настроек, который гарантирует сохранение
+    public void CloseSettings()
+    {
+        // Сохраняем настройки перед закрытием
+        SaveSettings();
+        
+        // Скрываем панель
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(false);
+        }
+        
+        Debug.Log("Настройки закрыты");
+    }
+
+    // Добавляем отладочный метод для выявления проблем в Unity AudioMixer
+    private void DebugAudioMixerParameters()
+    {
+        if (audioMixer == null)
+        {
+            Debug.LogError("КРИТИЧЕСКАЯ ОШИБКА: AudioMixer равен null!");
+            return;
+        }
+        
+        Debug.Log("=== ОТЛАДКА АУДИО МИКСЕРА ===");
+        
+        // Список возможных имен параметров
+        string[] possibleParamNames = { "Volume", "masterVolume", "MasterVolume", "Master", "MasterVol" };
+        
+        // Проверяем музыкальные параметры
+        Debug.Log("Проверка параметров МУЗЫКИ:");
+        foreach (string param in possibleParamNames)
+        {
+            float value;
+            bool exists = audioMixer.GetFloat(param, out value);
+            Debug.Log($"  - Параметр '{param}': {(exists ? "СУЩЕСТВУЕТ" : "НЕ СУЩЕСТВУЕТ")} {(exists ? $"Значение: {value} dB" : "")}");
+        }
+        
+        Debug.Log("=== КОНЕЦ ОТЛАДКИ АУДИО МИКСЕРА ===");
+    }
+
+    // Обновляем метод для регулировки громкости всех AudioSource в сцене
+    private void AdjustAllAudioSourcesVolume(string type, float volume)
+    {
+        Debug.Log($"[AdjustAllAudioSourcesVolume] Регулировка громкости всех AudioSource на значение {volume}");
+        
+        // Найдем все AudioSource в сцене
+        AudioSource[] allAudioSources = GameObject.FindObjectsOfType<AudioSource>();
+        Debug.Log($"[AdjustAllAudioSourcesVolume] Найдено аудиоисточников: {allAudioSources.Length}");
+        
+        // Пройдемся по всем и изменим громкость
+        int adjustedCount = 0;
+        
+        foreach (AudioSource source in allAudioSources)
+        {
+            // Изменяем громкость всех источников, независимо от типа
+            source.volume = volume;
+            adjustedCount++;
+            Debug.Log($"[AdjustAllAudioSourcesVolume] Изменена громкость источника: {source.gameObject.name}");
+        }
+        
+        Debug.Log($"[AdjustAllAudioSourcesVolume] Изменено источников: {adjustedCount} из {allAudioSources.Length}");
+    }
+}
+
+#endregion 
