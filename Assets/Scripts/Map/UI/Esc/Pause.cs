@@ -213,7 +213,34 @@ public class Pause : MonoBehaviour
     
     public void CloseSettings()
     {
-        // Скрываем панели
+        // Восстанавливаем время
+        Time.timeScale = 1f;
+        
+        // Останавливаем музыку паузы
+        if (pauseMusicSource != null)
+            pauseMusicSource.Stop();
+        
+        // Восстанавливаем управление игроком напрямую вместо корутин
+        EnableAllControls();
+        
+        // Возвращаем управление игроку
+        if (playerMovement != null)
+        {
+            playerMovement.ResetInput();
+            playerMovement.canMove = true;
+        }
+        
+        if (playerCamera != null)
+        {
+            playerCamera.ResetInput();
+            playerCamera.canMove = true;
+        }
+        
+        // Скрываем курсор
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        
+        // Скрываем панели в последнюю очередь
         if (blurPanel != null)
             blurPanel.SetActive(false);
         
@@ -221,101 +248,8 @@ public class Pause : MonoBehaviour
             settingsPanel.SetActive(false);
         
         isSettingsOpen = false;
-        
-        // Скрываем курсор
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        
-        // Восстанавливаем время
-        Time.timeScale = 1f;
-        
-        // Полностью отключаем и заново подключаем компоненты игрока
-        StartCoroutine(ReinitializePlayerComponents());
-        
-        // Останавливаем музыку паузы
-        if (pauseMusicSource != null)
-            pauseMusicSource.Stop();
-        
-        // Дополнительно: принудительный сброс Input System
-        StartCoroutine(ResetInputSystem());
     }
     
-    private IEnumerator ReinitializePlayerComponents()
-    {
-        // Сохраняем ссылки на объекты, но не модифицируем их
-        GameObject playerObject = null;
-        
-        if (playerMovement != null)
-            playerObject = playerMovement.gameObject;
-        
-        // Если нашли объект игрока
-        if (playerObject != null)
-        {
-            // Выключаем/включаем объект для сброса состояния
-            bool wasActive = playerObject.activeSelf;
-            
-            // Временно отключаем
-            if (wasActive)
-                playerObject.SetActive(false);
-            
-            // Ждем кадр
-            yield return null;
-            
-            // Включаем обратно
-            if (wasActive)
-                playerObject.SetActive(true);
-            
-            // Ждем еще один кадр для инициализации
-            yield return null;
-            
-            // Теперь управляем движением через ссылки на компоненты
-            var allPlayers = FindObjectsOfType<Player>();
-            var allCameras = FindObjectsOfType<PlayerCamera>();
-            
-            // Включаем движение для всех найденных компонентов
-            foreach (var player in allPlayers)
-            {
-                if (player != null)
-                {
-                    player.ResetInput();
-                    player.canMove = true;
-                }
-            }
-            
-            foreach (var camera in allCameras)
-            {
-                if (camera != null)
-                {
-                    camera.ResetInput();
-                    camera.canMove = true;
-                }
-            }
-        }
-        
-        Debug.Log("Игрок переинициализирован");
-    }
-    
-    private IEnumerator ResetInputSystem()
-    {
-        // Получаем существующие экземпляры скриптов
-        Player player = playerMovement;
-        PlayerCamera camera = playerCamera;
-        
-        // Ждем один кадр
-        yield return null;
-        
-        // Принудительно отключаем и включаем Input System
-        if (player != null)
-        {
-            player.GetComponent<PlayerInput>()?.enabled = false;
-            player.GetComponent<PlayerInput>()?.enabled = true;
-        }
-        
-        // Дополнительная отладка
-        Debug.Log("Input System сброшен");
-    }
-    
-    // Простые методы включения/отключения контроллеров
     private void DisableAllControls()
     {
         // Отключаем все указанные скрипты движения
