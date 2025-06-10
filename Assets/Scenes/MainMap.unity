@@ -21090,10 +21090,17 @@ MonoBehaviour:
   buttonClickSound: {fileID: 8300000, guid: 4c1ba99f12ef62f458b2574c32664f7a, type: 3}
   buttonSoundVolume: 0.87
   cameraControlScripts:
-  - {fileID: 28315790}
   - {fileID: 330585550}
+  - {fileID: 28315790}
   blurPanel: {fileID: 2038000454}
   depthOfFieldVolume: {fileID: 0}
+  playerControlScripts:
+  - {fileID: 28315790}
+  cameraControlScript: {fileID: 330585550}
+  playerObject: {fileID: 28315782}
+  inputActions: {fileID: 0}
+  playerMovement: {fileID: 0}
+  playerCamera: {fileID: 0}
 --- !u!1001 &762271550
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -58,4 +58,10 @@ public class PlayerCamera : MonoBehaviour
     {
         lookInput = context.ReadValue<Vector2>();
     }
+
+    // Добавьте этот метод для сброса ввода камеры
+    public void ResetInput()
+    {
+        lookInput = Vector2.zero;
+    }
 }

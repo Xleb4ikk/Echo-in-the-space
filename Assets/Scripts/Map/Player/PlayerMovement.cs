@@ -106,4 +106,10 @@ public class Player : MonoBehaviour
 
     public bool IsSprinting => isSprinting;
     public Vector2 MoveInput => moveInput;
+
+    public void ResetInput()
+    {
+        moveInput = Vector2.zero;
+        isSprinting = false;
+    }
 }

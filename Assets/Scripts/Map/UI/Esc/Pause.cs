@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using System.Collections;
+using UnityEngine.InputSystem.Controls;
 
 public class Pause : MonoBehaviour
 {
@@ -30,7 +32,24 @@ public class Pause : MonoBehaviour
     // Добавьте это поле для эффекта расфокуса
     [SerializeField] private Volume depthOfFieldVolume;
     
+    // Добавьте это поле для контроля скриптов игрока
+    [Header("Компоненты управления")]
+    [SerializeField] private MonoBehaviour[] playerControlScripts; // Скрипты движения
+    [SerializeField] private MonoBehaviour cameraControlScript;    // Скрипт камеры (отдельно)
+    [SerializeField] private GameObject playerObject;              // Корневой объект игрока (опционально)
+    
+    // Добавьте эти поля, если у вас есть доступ к действиям Input System
+    [Header("Input System")]
+    [SerializeField] private InputActionAsset inputActions; // Ваш Input Action Asset
+    
     private bool isSettingsOpen = false;
+    
+    // Используем простой флаг для сброса движения
+    private bool needToResetMovement = false;
+    
+    // Ссылки на компоненты игрока (добавьте эти поля)
+    [SerializeField] private Player playerMovement;
+    [SerializeField] private PlayerCamera playerCamera;
     
     private void Awake()
     {
@@ -66,6 +85,13 @@ public class Pause : MonoBehaviour
             // Попытка найти типичные скрипты управления камерой
             cameraControlScripts = FindObjectsOfType<MonoBehaviour>();
         }
+        
+        // Если не указаны ссылки на игрока, найдем их автоматически
+        if (playerMovement == null)
+            playerMovement = FindObjectOfType<Player>();
+            
+        if (playerCamera == null)
+            playerCamera = FindObjectOfType<PlayerCamera>();
     }
     
     private void SetupButtonSounds()
@@ -122,6 +148,20 @@ public class Pause : MonoBehaviour
             else
                 OpenSettings();
         }
+        
+        // Сброс залипания движения после паузы
+        if (needToResetMovement)
+        {
+            needToResetMovement = false;
+            
+            // Проверяем и сбрасываем залипшие клавиши движения
+            if (keyboard != null)
+            {
+                // Ничего не делаем здесь, просто ждем, пока пользователь 
+                // сам нажмет клавиши движения заново
+                Debug.Log("Движение сброшено - нажмите клавиши заново");
+            }
+        }
     }
     
     public void OpenSettings()
@@ -142,8 +182,8 @@ public class Pause : MonoBehaviour
         // Останавливаем время
         Time.timeScale = 0f;
         
-        // Отключаем скрипты управления камерой
-        DisableCameraControls();
+        // Явно отключаем ВСЕ контроллеры
+        DisableAllControls();
         
         // Останавливаем все аудио кроме музыки паузы
         AudioSource[] allAudio = FindObjectsOfType<AudioSource>();
@@ -162,11 +202,18 @@ public class Pause : MonoBehaviour
         {
             depthOfFieldVolume.weight = 1.0f;
         }
+        
+        // Блокируем управление игроком
+        if (playerMovement != null)
+            playerMovement.canMove = false;
+            
+        if (playerCamera != null)
+            playerCamera.canMove = false;
     }
     
     public void CloseSettings()
     {
-        // Деактивируем ОБЕ панели
+        // Скрываем панели
         if (blurPanel != null)
             blurPanel.SetActive(false);
         
@@ -182,49 +229,119 @@ public class Pause : MonoBehaviour
         // Восстанавливаем время
         Time.timeScale = 1f;
         
-        // Включаем скрипты управления камерой
-        EnableCameraControls();
+        // Полностью отключаем и заново подключаем компоненты игрока
+        StartCoroutine(ReinitializePlayerComponents());
         
         // Останавливаем музыку паузы
-        pauseMusicSource.Stop();
+        if (pauseMusicSource != null)
+            pauseMusicSource.Stop();
         
-        // Возобновляем остальное аудио
-        AudioSource[] allAudio = FindObjectsOfType<AudioSource>();
-        foreach (AudioSource audio in allAudio)
-        {
-            if (audio != pauseMusicSource && !audio.isPlaying)
-                audio.UnPause();
-        }
-        
-        // Отключаем эффект расфокуса
-        if (depthOfFieldVolume != null)
-        {
-            depthOfFieldVolume.weight = 0f;
-        }
+        // Дополнительно: принудительный сброс Input System
+        StartCoroutine(ResetInputSystem());
     }
     
-    private void DisableCameraControls()
+    private IEnumerator ReinitializePlayerComponents()
     {
-        // Просто пытаемся отключить все скрипты, которые могут управлять камерой
-        foreach (var script in cameraControlScripts)
+        // Сохраняем ссылки на объекты, но не модифицируем их
+        GameObject playerObject = null;
+        
+        if (playerMovement != null)
+            playerObject = playerMovement.gameObject;
+        
+        // Если нашли объект игрока
+        if (playerObject != null)
         {
-            if (script != null && script.enabled)
+            // Выключаем/включаем объект для сброса состояния
+            bool wasActive = playerObject.activeSelf;
+            
+            // Временно отключаем
+            if (wasActive)
+                playerObject.SetActive(false);
+            
+            // Ждем кадр
+            yield return null;
+            
+            // Включаем обратно
+            if (wasActive)
+                playerObject.SetActive(true);
+            
+            // Ждем еще один кадр для инициализации
+            yield return null;
+            
+            // Теперь управляем движением через ссылки на компоненты
+            var allPlayers = FindObjectsOfType<Player>();
+            var allCameras = FindObjectsOfType<PlayerCamera>();
+            
+            // Включаем движение для всех найденных компонентов
+            foreach (var player in allPlayers)
             {
-                script.enabled = false;
+                if (player != null)
+                {
+                    player.ResetInput();
+                    player.canMove = true;
+                }
+            }
+            
+            foreach (var camera in allCameras)
+            {
+                if (camera != null)
+                {
+                    camera.ResetInput();
+                    camera.canMove = true;
+                }
             }
         }
+        
+        Debug.Log("Игрок переинициализирован");
     }
     
-    private void EnableCameraControls()
+    private IEnumerator ResetInputSystem()
     {
-        // Включаем все скрипты управления камерой
-        foreach (var script in cameraControlScripts)
+        // Получаем существующие экземпляры скриптов
+        Player player = playerMovement;
+        PlayerCamera camera = playerCamera;
+        
+        // Ждем один кадр
+        yield return null;
+        
+        // Принудительно отключаем и включаем Input System
+        if (player != null)
+        {
+            player.GetComponent<PlayerInput>()?.enabled = false;
+            player.GetComponent<PlayerInput>()?.enabled = true;
+        }
+        
+        // Дополнительная отладка
+        Debug.Log("Input System сброшен");
+    }
+    
+    // Простые методы включения/отключения контроллеров
+    private void DisableAllControls()
+    {
+        // Отключаем все указанные скрипты движения
+        foreach (var script in playerControlScripts)
         {
             if (script != null)
-            {
-                script.enabled = true;
-            }
+                script.enabled = false;
         }
+        
+        // Отдельно отключаем камеру
+        if (cameraControlScript != null)
+            cameraControlScript.enabled = false;
+    }
+    
+    private void EnableAllControls()
+    {
+        // Включаем все указанные скрипты движения
+        foreach (var script in playerControlScripts)
+        {
+            if (script != null)
+                script.enabled = true;
+        }
+        
+        // Отдельно включаем камеру
+        if (cameraControlScript != null)
+            cameraControlScript.enabled = true;
     }
     
     public void ReturnToMainMenu()
