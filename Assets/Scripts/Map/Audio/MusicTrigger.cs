@@ -2,73 +2,56 @@ using UnityEngine;
 
 public class MusicTrigger : MonoBehaviour
 {
-    [SerializeField] private AudioManager ambientAudioManager; // Ссылка на AudioManager
-    [SerializeField] private AudioClip newMusicClip; // Новая музыка
-    [SerializeField, Range(0f, 1f)] private float volume = 0.5f; // Громкость
-    
-    private AudioSource audioSource;
-    private BoxCollider triggerBox;
+    [Header("Ambient Settings")]
+    [SerializeField] private AudioSource ambientSource; // Сюда передай эмбиентный AudioSource
+
+    [Header("New Music Settings")]
+    [SerializeField] private AudioClip newMusicClip;
+    [SerializeField, Range(0f, 1f)] private float newMusicVolume = 0.8f;
+
+    private AudioSource musicSource;
     private bool isTriggered = false;
-    
+
     private void Start()
     {
-        // Получаем или создаем Box Collider
-        triggerBox = GetComponent<BoxCollider>();
-        if (triggerBox == null)
-        {
-            triggerBox = gameObject.AddComponent<BoxCollider>();
-        }
-        triggerBox.isTrigger = true;
-        
-        // Получаем или создаем Audio Source
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
-        
-        // Настраиваем Audio Source
-        audioSource.clip = newMusicClip;
-        audioSource.loop = true;
-        audioSource.playOnAwake = false;
-        audioSource.volume = volume;
+        // Добавляем AudioSource, если его нет
+        musicSource = GetComponent<AudioSource>();
+        if (musicSource == null)
+            musicSource = gameObject.AddComponent<AudioSource>();
+
+        // Настройка источника
+        musicSource.clip = newMusicClip;
+        musicSource.loop = true;
+        musicSource.playOnAwake = false;
+        musicSource.volume = 0f; // Начинаем с нулевой громкости
     }
-    
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !isTriggered)
+        if (isTriggered || !other.CompareTag("Player")) return;
+
+        // Останавливаем эмбиент и обнуляем громкость
+        if (ambientSource != null)
         {
-            // Полностью выключаем эмбиент музыку
-            if (ambientAudioManager != null)
-            {
-                // Находим и останавливаем все AudioSource у AudioManager
-                AudioSource[] audioSources = ambientAudioManager.GetComponents<AudioSource>();
-                foreach (AudioSource source in audioSources)
-                {
-                    source.Stop();
-                }
-                
-                // Также применяем ToggleMute для установки флага mute
-                ambientAudioManager.ToggleMute();
-                
-                // Устанавливаем громкость на 0 через AudioManager
-                ambientAudioManager.SetVolume(0);
-            }
-            
-            // Включаем новую музыку
-            if (newMusicClip != null)
-            {
-                audioSource.Play();
-            }
-            
-            isTriggered = true;
+            ambientSource.Stop();
+            ambientSource.volume = 0f;
         }
+
+        // Включаем новую музыку
+        if (newMusicClip != null)
+        {
+            musicSource.Play();
+            musicSource.volume = newMusicVolume;
+        }
+
+        isTriggered = true;
     }
-    
-    // Метод для изменения громкости
-    public void SetVolume(float newVolume)
+
+    // Метод для обновления громкости вручную, если нужно
+    public void SetVolume(float volume)
     {
-        volume = Mathf.Clamp01(newVolume);
-        audioSource.volume = volume;
+        newMusicVolume = Mathf.Clamp01(volume);
+        if (musicSource != null)
+            musicSource.volume = newMusicVolume;
     }
-} 
+}
