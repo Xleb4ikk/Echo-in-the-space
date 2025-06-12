@@ -250,10 +250,13 @@ public class DialogueTrigger : MonoBehaviour
         
         if (debugMode) Debug.Log("[DialogueTrigger] Начало печатания текста: " + line.text);
         
+        // Добавляем тег тени в начало текста
+        currentText = "<shadow color=black offset=\"0,0\">";
+        
         foreach (char letter in line.text.ToCharArray())
         {
             currentText += letter;
-            dialogueText.text = currentText;
+            dialogueText.text = currentText + "</shadow>"; // Закрываем тег тени
             
             // Воспроизводим звук печатания, если он есть и буква не пробел
             if (audioSource != null && line.typingSound != null && letter != ' ')
