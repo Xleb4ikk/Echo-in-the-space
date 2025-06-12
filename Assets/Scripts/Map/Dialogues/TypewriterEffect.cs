@@ -1,97 +1,87 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-using UnityEngine.InputSystem;
 
 public class TypewriterEffect : MonoBehaviour
 {
-    public TMP_Text dialogueText;  // Ссылка на текст диалога
-    public float delay = 0.05f;    // Скорость появления букв
-    public GameObject dialoguePanel; // Панель диалогового окна
+    [Header("Ссылки на общую панель")]
+    public GameObject dialoguePanel;
+    public TMP_Text dialogueText;
 
-    private string fullText;       // Полный текст
-    private string currentText = ""; // Текущий отображаемый текст
-    private int currentLine = 0;   // Текущая реплика
-    public string[] dialogueLines; // Массив диалогов
-    private bool isActive = false; // Флаг активности диалога
-    private Coroutine typingCoroutine; // Ссылка на корутину печатания
+    [Header("Настройки для этого триггера")]
+    public float delay = 0.05f;
+    public AudioClip typingSoundClip;
+    public string[] dialogueLines;
 
-    void Update()
-    {
-        // Проверяем левый клик мыши с помощью Input System
-        if (isActive && Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            if (IsTyping())
-            {
-                // Если текст печатается, показываем его полностью при нажатии
-                SkipTyping();
-            }
-            else
-            {
-                // Если печатание завершено, переходим к следующему диалогу
-                NextDialogue();
-            }
-        }
-    }
+    private string fullText;
+    private string currentText = "";
+    private int currentLine = 0;
+    private bool isActive = false;
+    private AudioSource audioSource;
 
-    public void Start()
-    {
-        if (dialogueLines != null && dialogueLines.Length > 0)
-        {
-            dialogueText.text = ""; // Очищаем текст при старте
-        }
-        
-        // Если не задана ссылка на диалоговую панель, пробуем найти её автоматически 
-        // (предполагая, что скрипт находится на родительском объекте диалоговой панели)
-        if (dialoguePanel == null)
-        {
-            dialoguePanel = gameObject;
-        }
-        
-        // Скрываем диалоговую панель при старте
-        HideDialoguePanel();
-    }
-
-    // Показать диалоговую панель
-    private void ShowDialoguePanel()
+    void Start()
     {
         if (dialoguePanel != null)
         {
-            dialoguePanel.SetActive(true);
-        }
-    }
-
-    // Скрыть диалоговую панель
-    private void HideDialoguePanel()
-    {
-        if (dialoguePanel != null)
-        {
+            audioSource = dialoguePanel.GetComponent<AudioSource>();
+            // Скрываем панель диалога при старте
             dialoguePanel.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("Dialogue panel reference is missing on " + gameObject.name);
+        }
+        
+        if (dialogueText == null)
+        {
+            Debug.LogError("Dialogue text reference is missing on " + gameObject.name);
         }
     }
 
     public void ActivateDialogue()
     {
+        Debug.Log("ActivateDialogue called on " + gameObject.name);
         if (!isActive && dialogueLines != null && dialogueLines.Length > 0)
         {
+            if (dialoguePanel == null || dialogueText == null)
+            {
+                Debug.LogError("Cannot activate dialogue: missing references on " + gameObject.name);
+                return;
+            }
+            
             isActive = true;
-            ShowDialoguePanel(); // Показываем диалоговую панель
-            StartDialogue(dialogueLines[0]); // Запускаем первый диалог
+            dialoguePanel.SetActive(true);
+            StartDialogue(dialogueLines[0]);
+        }
+        else
+        {
+            if (isActive)
+                Debug.Log("Dialogue is already active");
+            else if (dialogueLines == null || dialogueLines.Length == 0)
+                Debug.LogError("No dialogue lines set on " + gameObject.name);
         }
     }
 
-    public void StartDialogue(string text)
+    private void StartDialogue(string text)
     {
         fullText = text;
         currentText = "";
-        
-        // Останавливаем предыдущую корутину, если она еще активна
-        if (typingCoroutine != null)
+        dialogueText.text = "";
+        StartCoroutine(ShowText());
+    }
+
+    private IEnumerator ShowText()
+    {
+        for (int i = 0; i <= fullText.Length; i++)
         {
-            StopCoroutine(typingCoroutine);
+            currentText = fullText.Substring(0, i);
+            dialogueText.text = currentText;
+            if (i > 0 && fullText[i-1] != ' ' && audioSource != null && typingSoundClip != null)
+            {
+                audioSource.PlayOneShot(typingSoundClip);
+            }
+            yield return new WaitForSeconds(delay);
         }
-        
-        typingCoroutine = StartCoroutine(ShowText());
     }
 
     public void NextDialogue()
@@ -103,37 +93,8 @@ public class TypewriterEffect : MonoBehaviour
         }
         else
         {
-            dialogueText.text = ""; // Очищаем текст, если диалоги закончились
-            isActive = false; // Деактивируем после последнего диалога
-            HideDialoguePanel(); // Скрываем диалоговую панель
+            isActive = false;
+            dialoguePanel.SetActive(false);
         }
-    }
-
-    // Метод для мгновенного отображения всего текста
-    private void SkipTyping()
-    {
-        if (typingCoroutine != null)
-        {
-            StopCoroutine(typingCoroutine);
-            typingCoroutine = null;
-        }
-        
-        currentText = fullText;
-        dialogueText.text = fullText;
-    }
-
-    IEnumerator ShowText()
-    {
-        for (int i = 0; i <= fullText.Length; i++)
-        {
-            currentText = fullText.Substring(0, i);
-            dialogueText.text = currentText;
-            yield return new WaitForSeconds(delay);
-        }
-    }
-
-    private bool IsTyping()
-    {
-        return !string.IsNullOrEmpty(fullText) && currentText != fullText;
     }
 }

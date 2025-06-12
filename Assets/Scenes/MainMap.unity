@@ -437,7 +437,7 @@ GameObject:
   - component: {fileID: 10354551}
   - component: {fileID: 10354552}
   m_Layer: 0
-  m_Name: EnabledGeneratorReady
+  m_Name: Enabled Generator Ready
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17389,8 +17389,7 @@ GameObject:
   m_Component:
   - component: {fileID: 592400637}
   - component: {fileID: 592400640}
-  - component: {fileID: 592400639}
-  - component: {fileID: 592400638}
+  - component: {fileID: 592400641}
   m_Layer: 0
   m_Name: DialogueTrigger
   m_TagString: Untagged
@@ -17413,41 +17412,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 997591112}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &592400638
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 592400636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb8731f59a8302e488c20b5bd0a3e4ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueStarter: {fileID: 592400639}
-  isOneTimeOnly: 1
---- !u!114 &592400639
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 592400636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38c1e95f88cf33b4dacabc0b8973a913, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  typewriter: {fileID: 2144510949}
-  dialogueLines:
-  - "\u0417\u0430\u043A\u0440\u044B\u043B \u0435\u0433\u043E. \u0422\u0435\u043C\u043F\u0435\u0440\u0430\u0442\u0443\u0440\u0430
-    \u0432\u043E\u0442-\u0432\u043E\u0442 \u0443\u043F\u0430\u0434\u0435\u0442."
-  - "\u0422\u044B \u0432\u0435\u0434\u044C \u043D\u0435 \u0445\u043E\u0447\u0435\u0448\u044C
-    \u0441\u0438\u0434\u0435\u0442\u044C \u0438 \u0434\u0440\u043E\u0436\u0430\u0442\u044C
-    \u0432\u043E \u0432\u0440\u0435\u043C\u044F \u0448\u0442\u043E\u0440\u043C\u0430."
-  - "\u0412\u0440\u0435\u043C\u044F \u0448\u0442\u043E\u0440\u043C\u0430."
-  activationDelay: 0
 --- !u!65 &592400640
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17469,6 +17433,50 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &592400641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592400636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f26e9168e88d034ea689605d5c34481, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dialoguePanel: {fileID: 2144510944}
+  dialogueText: {fileID: 997140440}
+  speakerNameText: {fileID: 1321166852}
+  dialogueLines:
+  - text: "\u0421\u043B\u044B\u0448\u044C \u0445\u0443\u0439\u043D\u044F"
+    speakerName: "\u041F\u0438\u0434\u043E\u0440"
+    speakerNameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
+    typingSpeed: 1
+  - text: "\u0410 \u0442\u044B \u043F\u0438\u0434\u043E\u0440, \u0441\u043B\u0438\u0448\u044C"
+    speakerName: "\u0425\u0443\u0439\u043D\u044F"
+    speakerNameColor: {r: 1, g: 0, b: 0.015686275, a: 1}
+    typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
+    typingSpeed: 1
+  - text: "\u0423 \u0442\u0435\u0431\u044F \u0435\u0431\u043B\u0438\u0449\u0435 \u0449\u044F\u0441
+      \u0440\u0430\u0437\u043B\u0435\u0442\u0438\u0442\u0441\u044F"
+    speakerName: "\u041F\u0438\u0434\u043E\u0440"
+    speakerNameColor: {r: 1, g: 0.9215687, b: 0.015686275, a: 1}
+    typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
+    typingSpeed: 1
+  - text: "\u0422\u0435\u0431\u0435 \u043F\u0438\u0437\u0434\u0430 \u043C\u0440\u0430\u0437\u043E\u0442\u0430"
+    speakerName: "\u0425\u0443\u0439\u043D\u044F"
+    speakerNameColor: {r: 1, g: 0, b: 0.015686275, a: 1}
+    typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
+    typingSpeed: 0.11
+  defaultTypingDelay: 0.03
+  activationDelay: 1.01
+  playerObject: {fileID: 28315782}
+  playerTag: Player
+  activateOnStart: 0
+  activateOnTrigger: 1
+  debugMode: 1
 --- !u!1001 &593794135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -46472,7 +46480,7 @@ GameObject:
   - component: {fileID: 1483062131}
   - component: {fileID: 1483062130}
   m_Layer: 0
-  m_Name: LokeZoneTriger
+  m_Name: Reversal Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52860,7 +52868,7 @@ GameObject:
   - component: {fileID: 1668309908}
   - component: {fileID: 1668309909}
   m_Layer: 0
-  m_Name: DengerOff_Readi
+  m_Name: DengerOff Ready
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -65299,15 +65307,13 @@ GameObject:
   - component: {fileID: 2144510945}
   - component: {fileID: 2144510947}
   - component: {fileID: 2144510946}
-  - component: {fileID: 2144510949}
-  - component: {fileID: 2144510948}
   m_Layer: 0
   m_Name: DialoguePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2144510945
 RectTransform:
   m_ObjectHideFlags: 0
@@ -65367,43 +65373,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2144510944}
   m_CullTransparentMesh: 1
---- !u!114 &2144510948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2144510944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38c1e95f88cf33b4dacabc0b8973a913, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  typewriter: {fileID: 2144510949}
-  dialogueLines:
-  - "\u0417\u0430\u043A\u0440\u044B\u043B \u0435\u0433\u043E. \u0422\u0435\u043C\u043F\u0435\u0440\u0430\u0442\u0443\u0440\u0430
-    \u0432\u043E\u0442-\u0432\u043E\u0442 \u0443\u043F\u0430\u0434\u0435\u0442."
-  - "\u0422\u044B \u0432\u0435\u0434\u044C \u043D\u0435 \u0445\u043E\u0447\u0435\u0448\u044C
-    \u0441\u0438\u0434\u0435\u0442\u044C \u0438 \u0434\u0440\u043E\u0436\u0430\u0442\u044C
-    \u0432\u043E \u0432\u0440\u0435\u043C\u044F \u0448\u0442\u043E\u0440\u043C\u0430."
-  - "\u0412\u0440\u0435\u043C\u044F \u0448\u0442\u043E\u0440\u043C\u0430."
-  activationDelay: 0
---- !u!114 &2144510949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2144510944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 250b1a265a903504aa95ba8bbb2f4f70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueText: {fileID: 997140440}
-  delay: 0.05
-  dialoguePanel: {fileID: 0}
-  dialogueLines: []
 --- !u!1 &2144591890
 GameObject:
   m_ObjectHideFlags: 0
