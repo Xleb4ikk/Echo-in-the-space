@@ -3,31 +3,41 @@ using UnityEngine;
 public class DialogueStarter : MonoBehaviour
 {
     public TypewriterEffect typewriter;
-
-    // Массив диалогов
     public string[] dialogueLines = new string[]
     {
         "Закрыл его. Температура вот-вот упадет.",
         "Ты ведь не хочешь сидеть и дрожать во время шторма.",
         "Время шторма."
     };
-
-    // Опционально: время активации (в секундах)
-    public float activationDelay = 0f; // 0 = сразу, или задай нужное время
+    public float activationDelay = 0f;
 
     void Start()
     {
-        typewriter.dialogueLines = dialogueLines; // Передаем массив
+        if (typewriter == null)
+        {
+            Debug.LogError("TypewriterEffect reference is missing on " + gameObject.name);
+            return;
+        }
 
+        Debug.Log("Setting dialogue lines on " + gameObject.name);
+        typewriter.dialogueLines = dialogueLines;
+        
         if (activationDelay > 0)
         {
-            Invoke("ActivateDialogue", activationDelay); // Активация через время
+            Debug.Log("Will activate dialogue after " + activationDelay + " seconds");
+            Invoke("ActivateDialogue", activationDelay);
         }
     }
 
-    // Метод для активации диалога (например, из триггера)
     public void ActivateDialogue()
     {
+        if (typewriter == null)
+        {
+            Debug.LogError("Cannot activate dialogue: TypewriterEffect reference is missing on " + gameObject.name);
+            return;
+        }
+        
+        Debug.Log("Activating dialogue from DialogueStarter on " + gameObject.name);
         typewriter.ActivateDialogue();
     }
 }
