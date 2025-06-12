@@ -53,6 +53,7 @@ public class ActivateGenerator : MonoBehaviour
         PlayerMovementScript.canMove = false;
         CameraFade.FadeIn();
         yield return new WaitForSeconds(1);
+        FakeMonster.SetActive(true);
         Camera.SetActive(true);
         CameraFade.FadeOut();
         yield return new WaitForSeconds(1);
