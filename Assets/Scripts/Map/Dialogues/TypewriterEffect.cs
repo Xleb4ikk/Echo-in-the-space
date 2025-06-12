@@ -7,6 +7,7 @@ public class TypewriterEffect : MonoBehaviour
 {
     public TMP_Text dialogueText;  // Ссылка на текст диалога
     public float delay = 0.05f;    // Скорость появления букв
+    public GameObject dialoguePanel; // Панель диалогового окна
 
     private string fullText;       // Полный текст
     private string currentText = ""; // Текущий отображаемый текст
@@ -39,6 +40,34 @@ public class TypewriterEffect : MonoBehaviour
         {
             dialogueText.text = ""; // Очищаем текст при старте
         }
+        
+        // Если не задана ссылка на диалоговую панель, пробуем найти её автоматически 
+        // (предполагая, что скрипт находится на родительском объекте диалоговой панели)
+        if (dialoguePanel == null)
+        {
+            dialoguePanel = gameObject;
+        }
+        
+        // Скрываем диалоговую панель при старте
+        HideDialoguePanel();
+    }
+
+    // Показать диалоговую панель
+    private void ShowDialoguePanel()
+    {
+        if (dialoguePanel != null)
+        {
+            dialoguePanel.SetActive(true);
+        }
+    }
+
+    // Скрыть диалоговую панель
+    private void HideDialoguePanel()
+    {
+        if (dialoguePanel != null)
+        {
+            dialoguePanel.SetActive(false);
+        }
     }
 
     public void ActivateDialogue()
@@ -46,6 +75,7 @@ public class TypewriterEffect : MonoBehaviour
         if (!isActive && dialogueLines != null && dialogueLines.Length > 0)
         {
             isActive = true;
+            ShowDialoguePanel(); // Показываем диалоговую панель
             StartDialogue(dialogueLines[0]); // Запускаем первый диалог
         }
     }
@@ -75,6 +105,7 @@ public class TypewriterEffect : MonoBehaviour
         {
             dialogueText.text = ""; // Очищаем текст, если диалоги закончились
             isActive = false; // Деактивируем после последнего диалога
+            HideDialoguePanel(); // Скрываем диалоговую панель
         }
     }
 
