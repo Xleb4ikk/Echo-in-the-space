@@ -21,6 +21,9 @@ public class PlayerInteractionDoor : MonoBehaviour
     public AudioSource audioSource;
     [SerializeField, Range(0f, 1f)] private float volume = 0.5f;
 
+    [Header("Настройки взаимодействия")]
+    [SerializeField] private string interactableTag = "Door";
+
 
     private void Start()
     {
@@ -49,11 +52,10 @@ public class PlayerInteractionDoor : MonoBehaviour
         Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         RaycastHit hit;
 
-        //Debug.DrawRay(ray.origin, ray.direction * rayDistance, Color.red);
-
         if (Physics.Raycast(ray, out hit, rayDistance, interactableLayer))
         {
-            if (hit.collider.CompareTag("Door"))
+            // Проверяем тег, заданный в инспекторе
+            if (hit.collider.CompareTag(interactableTag) && hit.collider.gameObject == this.gameObject)
             {
                 if (Keyboard.current.eKey.wasPressedThisFrame && !isAnimating)
                 {
@@ -71,6 +73,7 @@ public class PlayerInteractionDoor : MonoBehaviour
             }
         }
     }
+
 
     private void OpenDoor()
     {
