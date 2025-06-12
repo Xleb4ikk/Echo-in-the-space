@@ -12,9 +12,22 @@ public class DialogueStarter : MonoBehaviour
         "Время шторма."
     };
 
+    // Опционально: время активации (в секундах)
+    public float activationDelay = 0f; // 0 = сразу, или задай нужное время
+
     void Start()
     {
         typewriter.dialogueLines = dialogueLines; // Передаем массив
-        typewriter.Start(); // Вызов публичного метода
+
+        if (activationDelay > 0)
+        {
+            Invoke("ActivateDialogue", activationDelay); // Активация через время
+        }
+    }
+
+    // Метод для активации диалога (например, из триггера)
+    public void ActivateDialogue()
+    {
+        typewriter.ActivateDialogue();
     }
 }

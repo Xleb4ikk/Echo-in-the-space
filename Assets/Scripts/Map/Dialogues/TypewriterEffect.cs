@@ -12,20 +12,40 @@ public class TypewriterEffect : MonoBehaviour
     private string currentText = ""; // Текущий отображаемый текст
     private int currentLine = 0;   // Текущая реплика
     public string[] dialogueLines; // Массив диалогов
+    private bool isActive = false; // Флаг активности диалога
+    private Coroutine typingCoroutine; // Ссылка на корутину печатания
 
     void Update()
     {
         // Проверяем левый клик мыши с помощью Input System
-        if (Mouse.current.leftButton.wasPressedThisFrame && !IsTyping())
+        if (isActive && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            NextDialogue();
+            if (IsTyping())
+            {
+                // Если текст печатается, показываем его полностью при нажатии
+                SkipTyping();
+            }
+            else
+            {
+                // Если печатание завершено, переходим к следующему диалогу
+                NextDialogue();
+            }
         }
     }
 
-    public void Start() // Убедимся, что метод публичный
+    public void Start()
     {
         if (dialogueLines != null && dialogueLines.Length > 0)
         {
+            dialogueText.text = ""; // Очищаем текст при старте
+        }
+    }
+
+    public void ActivateDialogue()
+    {
+        if (!isActive && dialogueLines != null && dialogueLines.Length > 0)
+        {
+            isActive = true;
             StartDialogue(dialogueLines[0]); // Запускаем первый диалог
         }
     }
@@ -34,7 +54,14 @@ public class TypewriterEffect : MonoBehaviour
     {
         fullText = text;
         currentText = "";
-        StartCoroutine(ShowText());
+        
+        // Останавливаем предыдущую корутину, если она еще активна
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+        }
+        
+        typingCoroutine = StartCoroutine(ShowText());
     }
 
     public void NextDialogue()
@@ -47,7 +74,21 @@ public class TypewriterEffect : MonoBehaviour
         else
         {
             dialogueText.text = ""; // Очищаем текст, если диалоги закончились
+            isActive = false; // Деактивируем после последнего диалога
         }
+    }
+
+    // Метод для мгновенного отображения всего текста
+    private void SkipTyping()
+    {
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+        }
+        
+        currentText = fullText;
+        dialogueText.text = fullText;
     }
 
     IEnumerator ShowText()
@@ -62,7 +103,6 @@ public class TypewriterEffect : MonoBehaviour
 
     private bool IsTyping()
     {
-        // Проверяем, идет ли анимация текста
         return !string.IsNullOrEmpty(fullText) && currentText != fullText;
     }
 }
