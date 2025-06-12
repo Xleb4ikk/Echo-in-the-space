@@ -19,6 +19,8 @@ public class ActivateGenerator : MonoBehaviour
     public CameraFade CameraFade;
     public GameObject FakeMonster;
     public GameObject RealMonster;
+    public GameObject AnimationDoor;
+    public GameObject RealDoor;
 
     public bool IsPlayerInside { get; private set; }
 
@@ -53,6 +55,8 @@ public class ActivateGenerator : MonoBehaviour
         PlayerMovementScript.canMove = false;
         CameraFade.FadeIn();
         yield return new WaitForSeconds(1);
+        RealDoor.SetActive(false);
+        AnimationDoor.SetActive(true);
         FakeMonster.SetActive(true);
         Camera.SetActive(true);
         CameraFade.FadeOut();

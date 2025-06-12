@@ -4,7 +4,7 @@
 QualitySettings:
   m_ObjectHideFlags: 0
   serializedVersion: 5
-  m_CurrentQuality: 2
+  m_CurrentQuality: 0
   m_QualitySettings:
   - serializedVersion: 4
     name: "\u041D\u0438\u0437\u043A\u0438\u0435"
@@ -33,8 +33,8 @@ QualitySettings:
     realtimeGICPUUsage: 25
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
-    lodBias: 10
-    maximumLODLevel: 2
+    lodBias: 1
+    maximumLODLevel: 1
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
     streamingMipmapsAddAllCameras: 1
@@ -179,8 +179,8 @@ QualitySettings:
     PS5: 0
     Server: 0
     Stadia: 0
-    Standalone: 0
-    WebGL: 0
+    Standalone: 1
+    WebGL: 1
     Windows Store Apps: 0
     XboxOne: 0
     iPhone: 0

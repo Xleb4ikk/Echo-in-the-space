@@ -3,11 +3,6 @@ using UnityEngine.InputSystem;
 
 public class TeleportOnKey : MonoBehaviour
 {
-    private void Update()
-    {
-        Debug.Log(transform.position);
-    }
-
     public void Teleport(Vector3 newPosition, float yRotationDegrees)
     {
         Debug.Log("Телепортирование...");
