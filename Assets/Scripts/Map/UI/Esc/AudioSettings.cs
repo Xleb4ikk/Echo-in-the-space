@@ -10,19 +10,40 @@ public class Settings : MonoBehaviour
 
     private void Start()
     {
+        // Проверяем и настраиваем каждый компонент отдельно
+        InitMusicSlider();
+        InitSFXSlider();
+    }
+
+    private void InitMusicSlider()
+    {
+        if (musicSlider == null)
+        {
+            Debug.LogWarning("AudioSettings: musicSlider не присвоен в инспекторе");
+            return;
+        }
+
         float musicVolume = PlayerPrefs.GetFloat("musicVolume", 1f);
-        float sfxVolume = PlayerPrefs.GetFloat("sfxVolume", 1f);
-
         musicSlider.value = musicVolume;
-        sfxSlider.value = sfxVolume;
-
         ApplyVolume("MusicVolume", musicVolume);
-        ApplyVolume("SFXVolume", sfxVolume);
 
         musicSlider.onValueChanged.AddListener((value) => {
             ApplyVolume("MusicVolume", value);
             PlayerPrefs.SetFloat("musicVolume", value);
         });
+    }
+
+    private void InitSFXSlider()
+    {
+        if (sfxSlider == null)
+        {
+            Debug.LogWarning("AudioSettings: sfxSlider не присвоен в инспекторе");
+            return;
+        }
+
+        float sfxVolume = PlayerPrefs.GetFloat("sfxVolume", 1f);
+        sfxSlider.value = sfxVolume;
+        ApplyVolume("SFXVolume", sfxVolume);
 
         sfxSlider.onValueChanged.AddListener((value) => {
             ApplyVolume("SFXVolume", value);
@@ -32,6 +53,12 @@ public class Settings : MonoBehaviour
 
     private void ApplyVolume(string parameterName, float volume)
     {
+        if (audioMixer == null)
+        {
+            Debug.LogWarning("AudioSettings: AudioMixer не присвоен");
+            return;
+        }
+        
         float dB = Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20;
         audioMixer.SetFloat(parameterName, dB);
     }

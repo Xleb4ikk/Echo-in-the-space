@@ -19,6 +19,12 @@ public class MonsterChase : MonoBehaviour
 
     void Update()
     {
+        // Выход, если игрок или NavMeshAgent не существуют
+        if (player == null || agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh)
+        {
+            return;
+        }
+
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         if (distanceToPlayer <= chaseRange)
@@ -29,12 +35,18 @@ public class MonsterChase : MonoBehaviour
         if (distanceToPlayer > stopChaseDistance)
         {
             isChasing = false;
-            agent.ResetPath();
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                agent.ResetPath();
+            }
         }
 
         if (isChasing)
         {
-            agent.SetDestination(player.position);
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                agent.SetDestination(player.position);
+            }
         }
 
         // Устанавливаем параметр анимации
