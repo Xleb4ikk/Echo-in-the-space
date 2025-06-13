@@ -7,6 +7,8 @@ TagManager:
   - Door
   - Door1
   - Door2
+  - Ladder
+  - Stairs
   layers:
   - Default
   - TransparentFX
