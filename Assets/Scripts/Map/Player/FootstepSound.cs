@@ -1,10 +1,15 @@
 using UnityEngine;
 
+
 public class FootstepSound : MonoBehaviour
 {
     [Header("Звуки")]
-    [SerializeField] private AudioClip footstepSound; // Звук шага
-    [SerializeField, Range(0f, 1f)] private float volume = 0.5f; // Громкость
+    [SerializeField] private AudioClip defaultFootstepSound;
+    [SerializeField] private AudioClip stairsFootstepSound;
+
+    [Header("Громкость шагов")]
+    [SerializeField, Range(0f, 1f)] private float defaultFootstepVolume = 0.5f;
+    [SerializeField, Range(0f, 1f)] private float stairsFootstepVolume = 0.5f;
 
     [Header("Настройки")]
     [SerializeField] private float walkPitch = 1.0f;
@@ -12,15 +17,16 @@ public class FootstepSound : MonoBehaviour
     [SerializeField] private float stepInterval = 0.5f;
     [SerializeField] private bool forceDebugMode = true;
 
-    [Header("Аудиоисточники (назначьте вручную)")]
+    [Header("Аудиоисточники")]
     [SerializeField] private AudioSource walkAudioSource;
     [SerializeField] private AudioSource sprintAudioSource;
 
-    // Внутренние состояния
+    // Состояния
     private Player playerScript;
     private bool isMoving = false;
     private bool isSprinting = false;
     private float stepTimer = 0f;
+    private bool onStairs = false;
 
     private void Start()
     {
@@ -33,7 +39,6 @@ public class FootstepSound : MonoBehaviour
                 Debug.LogWarning("Не найден компонент Player");
         }
 
-        // Настройка аудиоисточников
         SetupAudioSource(walkAudioSource, walkPitch);
         SetupAudioSource(sprintAudioSource, sprintPitch);
     }
@@ -42,11 +47,11 @@ public class FootstepSound : MonoBehaviour
     {
         if (source != null)
         {
-            source.clip = footstepSound;
+            source.clip = defaultFootstepSound;
             source.loop = false;
             source.playOnAwake = false;
-            source.volume = volume;
             source.pitch = pitch;
+            // Громкость задаётся в момент воспроизведения в зависимости от поверхности
         }
         else
         {
@@ -80,17 +85,20 @@ public class FootstepSound : MonoBehaviour
 
     private void PlayFootstep()
     {
+        AudioClip currentClip = onStairs ? stairsFootstepSound : defaultFootstepSound;
+        float currentVolume = onStairs ? stairsFootstepVolume : defaultFootstepVolume;
+
         if (isSprinting && sprintAudioSource != null)
         {
             sprintAudioSource.pitch = sprintPitch;
-            sprintAudioSource.PlayOneShot(footstepSound, volume);
-            if (forceDebugMode) Debug.Log("Бег - шаг");
+            sprintAudioSource.PlayOneShot(currentClip, currentVolume);
+            if (forceDebugMode) Debug.Log(onStairs ? "Бег - лестница" : "Бег - обычный шаг");
         }
         else if (walkAudioSource != null)
         {
             walkAudioSource.pitch = walkPitch;
-            walkAudioSource.PlayOneShot(footstepSound, volume);
-            if (forceDebugMode) Debug.Log("Ходьба - шаг");
+            walkAudioSource.PlayOneShot(currentClip, currentVolume);
+            if (forceDebugMode) Debug.Log(onStairs ? "Ходьба - лестница" : "Ходьба - обычный шаг");
         }
     }
 
@@ -103,16 +111,45 @@ public class FootstepSound : MonoBehaviour
             sprintAudioSource.Stop();
     }
 
-    public void SetVolume(float newVolume)
+    public void SetDefaultVolume(float newVolume)
     {
-        volume = Mathf.Clamp01(newVolume);
+        defaultFootstepVolume = Mathf.Clamp01(newVolume);
+    }
 
-        if (walkAudioSource != null) walkAudioSource.volume = volume;
-        if (sprintAudioSource != null) sprintAudioSource.volume = volume;
+    public void SetStairsVolume(float newVolume)
+    {
+        stairsFootstepVolume = Mathf.Clamp01(newVolume);
     }
 
     private void OnDestroy()
     {
         StopAllFootsteps();
+    }
+
+    // ====== Лестница ======
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Stairs"))
+        {
+            onStairs = true;
+            if (forceDebugMode) Debug.Log("Игрок вошёл на лестницу");
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Stairs"))
+        {
+            onStairs = false;
+
+            if (forceDebugMode) Debug.Log("Игрок покинул лестницу");
+
+            if (isMoving)
+            {
+                StopAllFootsteps();
+                PlayFootstep();
+                stepTimer = 0f;
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 public class InteractableFlashlight : MonoBehaviour
 {
+    [SerializeField] private GameObject footstepGhostPrefab;
     [Header("Настройки взаимодействия")]
     [SerializeField] private float interactionDistance = 2.0f;
     [SerializeField] private string interactionPrompt = "Нажмите E чтобы подобрать фонарик";
@@ -161,36 +162,58 @@ public class InteractableFlashlight : MonoBehaviour
         }
     }
     
-    private void PickupFlashlight()
-    {
-        if (playerFlashlight != null)
+        private void PickupFlashlight()
         {
-            // Убираем подсказку взаимодействия
-            ShowPrompt(false);
-            
-            // Включаем возможность использовать фонарик
-            playerFlashlight.HasFlashlight = true;
-            
-            // Воспроизводим звук подбора
-            if (pickupSound != null)
+            if (playerFlashlight != null)
             {
-                AudioSource.PlayClipAtPoint(pickupSound, transform.position, 1.0f);
+                // Убираем подсказку взаимодействия
+                ShowPrompt(false);
+
+                // Включаем возможность использовать фонарик
+                playerFlashlight.HasFlashlight = true;
+
+                // Воспроизводим звук подбора
+                if (pickupSound != null)
+                {
+                    AudioSource.PlayClipAtPoint(pickupSound, transform.position, 1.0f);
+                }
+
+                // Дополнительно вызываем подсказку с небольшой задержкой
+                Invoke("ShowUseFlashlightPromptDelayed", delayBeforeUsePrompt);
+
+                // Выводим сообщение в консоль для отладки
+                DebugLog("Фонарик подобран!");
+
+                // Движение шагов сзади игрока
+                Vector3 startPos = new Vector3(4.5f, 1.5f, -97f);
+
+                GameObject footstepGhost = Instantiate(
+                    footstepGhostPrefab,
+                    startPos,
+                    Quaternion.identity
+                );
+
+                FootstepGhost script = footstepGhost.GetComponent<FootstepGhost>();
+
+                // Задаём путь: сначала движение по X, потом по Z
+                script.pathPoints = new Vector3[]
+                {
+                    new Vector3(14f, 1.5f, -97f),   // движение по X (с 4.5 до 14)
+                    new Vector3(14f, 1.5f, -105f)   // движение по Z (с -97 до -105)
+                };
+
+                script.Initialize(player.transform);
+
+                // Уничтожаем объект фонарика
+                Destroy(gameObject);
             }
-            
-            // Дополнительно вызываем подсказку с небольшой задержкой для надежности
-            Invoke("ShowUseFlashlightPromptDelayed", delayBeforeUsePrompt);
-            
-            // Выводим сообщение в консоль для отладки
-            DebugLog("Фонарик подобран!");
-            
-            // Уничтожаем объект фонарика
-            Destroy(gameObject);
-        }
-        else
-        {
-            DebugLog("ОШИБКА: Невозможно передать фонарик игроку: компонент PlayerFlashlight не найден");
-        }
+            else
+            {
+                DebugLog("ОШИБКА: Невозможно передать фонарик игроку: компонент PlayerFlashlight не найден");
+            }
+        
     }
+
     
     // Метод для задержанного показа подсказки использования
     private void ShowUseFlashlightPromptDelayed()

@@ -7,11 +7,13 @@ TagManager:
   - Door
   - Door1
   - Door2
+  - Ladder
+  - Stairs
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - reycast
   - Water
   - UI
   - Screen
