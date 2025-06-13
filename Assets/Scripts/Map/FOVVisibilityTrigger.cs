@@ -3,17 +3,22 @@ using UnityEngine;
 
 public class VisibleInFOVOnly : MonoBehaviour
 {
-    [Header("Объекты, которые будут исчезать")]
+    [Header("РћР±СЉРµРєС‚С‹, РєРѕС‚РѕСЂС‹Рµ РЅСѓР¶РЅРѕ РѕС‚СЃР»РµР¶РёРІР°С‚СЊ")]
     public List<GameObject> targetObjects;
 
-    [Header("Параметры поля зрения")]
-    public Transform playerHead;           // Камера или "глаза" игрока
-    public float fieldOfView = 60f;        // Угол зрения
-    public float viewDistance = 15f;       // Дистанция, на которой объект виден
-    public float disappearDelay = 2f;      // Задержка перед исчезновением
+    [Header("РџР°СЂР°РјРµС‚СЂС‹ РїРѕР»СЏ Р·СЂРµРЅРёСЏ")]
+    public Transform playerHead;
+    public float fieldOfView = 60f;
+    public float viewDistance = 15f;
+    public float disappearDelay = 2f;
+
+    [Header("РЎР»РѕРё, С‡РµСЂРµР· РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РІРёРґРµС‚СЊ (РЅР°РїСЂРёРјРµСЂ, РРіСЂРѕРє Рё РњРѕРЅСЃС‚СЂ)")]
+    public LayerMask visionMask;
 
     private bool playerInsideTrigger = false;
+
     private Dictionary<GameObject, float> lastSeenTimes = new Dictionary<GameObject, float>();
+    private Dictionary<GameObject, bool> isPermanentlyHidden = new Dictionary<GameObject, bool>();
 
     void Start()
     {
@@ -22,6 +27,7 @@ public class VisibleInFOVOnly : MonoBehaviour
             if (obj != null)
             {
                 lastSeenTimes[obj] = Time.time;
+                isPermanentlyHidden[obj] = false;
             }
         }
     }
@@ -32,15 +38,28 @@ public class VisibleInFOVOnly : MonoBehaviour
 
         foreach (var obj in targetObjects)
         {
-            if (obj == null || !obj.activeSelf) continue;
+            if (obj == null || !obj.activeSelf || isPermanentlyHidden[obj]) continue;
 
             Vector3 direction = obj.transform.position - playerHead.position;
             float distance = direction.magnitude;
             direction.Normalize();
 
             float angle = Vector3.Angle(playerHead.forward, direction);
+            bool inFOV = angle < fieldOfView / 2f && distance < viewDistance;
 
-            if (angle < fieldOfView / 2f && distance < viewDistance)
+            // РџСЂРѕРІРµСЂРєР° РЅР° РїСЂСЏРјСѓСЋ РІРёРґРёРјРѕСЃС‚СЊ
+            bool hasLineOfSight = false;
+            RaycastHit hit;
+            Vector3 rayOrigin = playerHead.position + playerHead.forward * 0.1f;
+            if (Physics.Raycast(rayOrigin, direction, out hit, viewDistance, visionMask))
+            {
+                if (hit.transform == obj.transform)
+                {
+                    hasLineOfSight = true;
+                }
+            }
+
+            if (inFOV && hasLineOfSight)
             {
                 lastSeenTimes[obj] = Time.time;
             }
@@ -48,6 +67,7 @@ public class VisibleInFOVOnly : MonoBehaviour
             if (Time.time - lastSeenTimes[obj] > disappearDelay)
             {
                 obj.SetActive(false);
+                isPermanentlyHidden[obj] = true; // РїРѕРјРµС‡Р°РµРј, С‡С‚Рѕ Р±РѕР»СЊС€Рµ РЅРµ Р°РєС‚РёРІРёСЂСѓРµРј
             }
         }
     }
@@ -58,11 +78,13 @@ public class VisibleInFOVOnly : MonoBehaviour
         {
             playerInsideTrigger = true;
 
-            // Обновляем время, чтобы объекты не исчезли мгновенно при входе
             foreach (var obj in targetObjects)
             {
-                if (obj != null)
+                if (obj != null && !isPermanentlyHidden[obj])
+                {
+                    obj.SetActive(true);
                     lastSeenTimes[obj] = Time.time;
+                }
             }
         }
     }
@@ -72,15 +94,6 @@ public class VisibleInFOVOnly : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInsideTrigger = false;
-
-            // Деактивируем все объекты сразу, когда игрок выходит из триггера
-            foreach (var obj in targetObjects)
-            {
-                if (obj != null && obj.activeSelf)
-                {
-                    obj.SetActive(false);
-                }
-            }
         }
     }
 }
