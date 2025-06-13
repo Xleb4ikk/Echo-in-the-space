@@ -64,7 +64,11 @@ public class Pause : MonoBehaviour
     {
         EnsureInputSystemUIModule();
 
-        blurPanel?.SetActive(false);
+        if (blurPanel != null)
+        {
+            blurPanel?.SetActive(false);
+        }
+
         settingsPanel?.SetActive(false);
         settingsMenuPanel?.SetActive(false);
 
@@ -148,6 +152,7 @@ public class Pause : MonoBehaviour
     {
         if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
         {
+            Debug.Log("Кнопка esc нажата");
             if (settingsMenuPanel.activeSelf)
             {
                 settingsMenuPanel.SetActive(false);
@@ -172,7 +177,11 @@ public class Pause : MonoBehaviour
 
     public void OpenSettings()
     {
-        blurPanel?.SetActive(true);
+        if (blurPanel != null)
+        {
+            blurPanel?.SetActive(true);
+        }
+
         settingsPanel?.SetActive(true);
 
         isSettingsOpen = true;
@@ -242,7 +251,11 @@ public class Pause : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        blurPanel?.SetActive(false);
+        if (blurPanel != null)
+        {
+            blurPanel.SetActive(false);
+        }
+
         settingsPanel?.SetActive(false);
 
         isSettingsOpen = false;
