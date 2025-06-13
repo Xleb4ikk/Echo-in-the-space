@@ -130,6 +130,10 @@ public class AlarmControler : MonoBehaviour
         sharedMaterial2.EnableKeyword("_EMISSION");
         sharedMaterial2.SetColor("_EmissionColor", finalColor);
         triggerZone.enabled = false;
+        foreach (GameObject ReverseTriger in VisibleWalls)
+        {
+            ReverseTriger.SetActive(false);
+        }
     }
 
     private void ToggleAlarm()
