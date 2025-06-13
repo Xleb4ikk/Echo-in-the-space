@@ -15,6 +15,9 @@ public class AlarmControler : MonoBehaviour
     [Header("alarm освещение")]
     [SerializeField] private List<Light> AlarmLightSpotList;
 
+    [Header("Невидимые стены")]
+    [SerializeField] private List<GameObject> VisibleWalls;
+
     [Header("alarm звуковые источники")]
     [SerializeField] private List<AudioSource> alarmAudioSources;
 
