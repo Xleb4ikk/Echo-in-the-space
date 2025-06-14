@@ -12,20 +12,6 @@ public class MusicTrigger : MonoBehaviour
     private AudioSource musicSource;
     private bool isTriggered = false;
 
-    private void Start()
-    {
-        // Добавляем AudioSource, если его нет
-        musicSource = GetComponent<AudioSource>();
-        if (musicSource == null)
-            musicSource = gameObject.AddComponent<AudioSource>();
-
-        // Настройка источника
-        musicSource.clip = newMusicClip;
-        musicSource.loop = true;
-        musicSource.playOnAwake = false;
-        musicSource.volume = 0f; // Начинаем с нулевой громкости
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (isTriggered || !other.CompareTag("Player")) return;
@@ -40,14 +26,14 @@ public class MusicTrigger : MonoBehaviour
         // Включаем новую музыку
         if (newMusicClip != null)
         {
-            musicSource.Play();
-            musicSource.volume = newMusicVolume;
+            ambientSource.volume = newMusicVolume;
+            ambientSource.clip = newMusicClip;
+            ambientSource.Play();
         }
 
         isTriggered = true;
     }
 
-    // Метод для обновления громкости вручную, если нужно
     public void SetVolume(float volume)
     {
         newMusicVolume = Mathf.Clamp01(volume);
