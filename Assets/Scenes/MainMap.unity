@@ -27769,7 +27769,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &837124524
 Transform:
   m_ObjectHideFlags: 0
@@ -33144,6 +33144,7 @@ GameObject:
   - component: {fileID: 997900133}
   - component: {fileID: 997900135}
   - component: {fileID: 997900134}
+  - component: {fileID: 997900136}
   m_Layer: 0
   m_Name: PlaySongs
   m_TagString: Untagged
@@ -33203,6 +33204,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &997900136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 997900132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44a0c5754dd7dca478df1164ba6c7e74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ambientSource: {fileID: 837124525}
+  fadeDuration: 2
 --- !u!4 &1000215126 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 464552, guid: 64b3f36e835346747865afbf6cf62acf, type: 3}
