@@ -1,19 +1,23 @@
 using UnityEngine;
 using System.Collections;
 
-
 [RequireComponent(typeof(Collider))]
 public class AmbientTrigger : MonoBehaviour
 {
-    public AudioSource ambientSource;         // Привязанный AudioSource
-    public float fadeDuration = 2f;           // Длительность затухания/возврата
+    public AudioSource ambientSource;
+    public float fadeDuration = 2f;
+    public int maxTriggerCount = 2; // <-- Количество срабатываний (в инспекторе)
+    
     private bool isFading = false;
     private bool isPaused = false;
+    private int triggerCount = 0;   // <-- Сколько раз сработал
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !isFading)
+        if (other.CompareTag("Player") && !isFading && triggerCount < maxTriggerCount)
         {
+            triggerCount++;
+
             if (!isPaused)
                 StartCoroutine(FadeOut());
             else
@@ -33,16 +37,22 @@ public class AmbientTrigger : MonoBehaviour
         }
 
         ambientSource.volume = 0f;
-        ambientSource.Pause(); // Пауза, не стоп
+
+        // Дождаться одного кадра для гарантии, что звук не "проскочит"
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+
+        ambientSource.Pause(); // <-- теперь точно ничего не проиграется
         isPaused = true;
         isFading = false;
     }
+
 
     private IEnumerator FadeIn()
     {
         isFading = true;
         ambientSource.UnPause();
-        float targetVolume = 1f; // Можно сделать переменной
+        float targetVolume = 1f;
         float startVolume = ambientSource.volume;
 
         for (float t = 0; t < fadeDuration; t += Time.deltaTime)
