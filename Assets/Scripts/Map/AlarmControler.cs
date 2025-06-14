@@ -51,6 +51,9 @@ public class AlarmControler : MonoBehaviour
     public Collider triggerZone;
     public bool checkEnabled = true; // ← Управляющий флаг
 
+    [Header("Тригеры для включения")]
+    [SerializeField] private GameObject EventTriger;
+
     [Header("Игрок")]
     public Transform playerTransform;
 
@@ -134,6 +137,7 @@ public class AlarmControler : MonoBehaviour
         {
             ReverseTriger.SetActive(false);
         }
+        EventTriger.SetActive(true);
     }
 
     private void ToggleAlarm()
