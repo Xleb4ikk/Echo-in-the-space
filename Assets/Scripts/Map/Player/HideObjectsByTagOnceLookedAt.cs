@@ -1,12 +1,12 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using System.Collections;
 
 public class HideOnLookedAt : MonoBehaviour
 {
     public Camera playerCamera;
-    public float maxDistance = 100f;
-    public string targetTag = "Hideable"; // Тег объекта
-    public float Delay = 0.2f; // Галлюцинация длится 0.2 секунды
+    public float viewAngle = 10f;        // РЈРіРѕР» РѕР±Р·РѕСЂР° (РіСЂР°РґСѓСЃС‹)
+    public float maxDistance = 100f;     // РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґРёСЃС‚Р°РЅС†РёСЏ
+    public float delay = 0.2f;           // Р—Р°РґРµСЂР¶РєР° РїРµСЂРµРґ РёСЃС‡РµР·РЅРѕРІРµРЅРёРµРј
 
     private bool isHiding = false;
     private bool isHidden = false;
@@ -16,31 +16,30 @@ public class HideOnLookedAt : MonoBehaviour
         if (isHidden || isHiding || playerCamera == null)
             return;
 
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
+        Vector3 toObject = transform.position - playerCamera.transform.position;
+        float angle = Vector3.Angle(playerCamera.transform.forward, toObject);
+
+        if (angle < viewAngle && toObject.sqrMagnitude <= maxDistance * maxDistance)
         {
-            if (hit.transform.CompareTag(targetTag))
-            {
-                StartCoroutine(HideObjectAfterDelay(hit.transform.gameObject));
-                isHiding = true;
-            }
+            StartCoroutine(HideAfterDelay());
+            isHiding = true;
         }
     }
 
-    private IEnumerator HideObjectAfterDelay(GameObject obj)
+    private IEnumerator HideAfterDelay()
     {
-        yield return new WaitForSeconds(Delay);
+        yield return new WaitForSeconds(delay);
 
-        // Убираем только если всё ещё тот же объект в прицеле
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
+        // РџСЂРѕРІРµСЂРєР°: РІСЃС‘ РµС‰С‘ РІ СѓРіР»Рµ РѕР±Р·РѕСЂР°?
+        Vector3 toObject = transform.position - playerCamera.transform.position;
+        float angle = Vector3.Angle(playerCamera.transform.forward, toObject);
+
+        if (angle < viewAngle && toObject.sqrMagnitude <= maxDistance * maxDistance)
         {
-            if (hit.transform.gameObject == obj)
-            {
-                obj.SetActive(false); // Полное исчезновение
-                isHidden = true;
-            }
+            gameObject.SetActive(false);
+            isHidden = true;
         }
-    }
 
+        isHiding = false;
+    }
 }

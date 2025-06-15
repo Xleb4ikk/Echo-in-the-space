@@ -23432,9 +23432,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 330585545}
+  viewAngle: 30
   maxDistance: 100
-  targetTag: Hideable
-  Delay: 0.2
+  delay: 0.2
 --- !u!136 &685256111
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -69388,8 +69388,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 494475409}
   m_LocalEulerAnglesHint: {x: 42.289, y: 0, z: 0}
-  m_Father: {fileID: 655820621}
-  m_LocalEulerAnglesHint: {x: 42.289, y: -90, z: 0}
 --- !u!64 &1956538723
 MeshCollider:
   m_ObjectHideFlags: 0
