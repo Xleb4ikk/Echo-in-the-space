@@ -50,7 +50,7 @@ public class EventWalking : MonoBehaviour
         }
     }
 
-    private void StartMonsterMovement()
+    public void StartMonsterMovement()
     {
         MonsterAnimation.SetBool("Walking", true);
         hasStarted = true;

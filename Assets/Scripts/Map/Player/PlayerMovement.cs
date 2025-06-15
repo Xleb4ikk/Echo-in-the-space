@@ -118,4 +118,9 @@ public class Player : MonoBehaviour
         moveInput = Vector2.zero;
         isSprinting = false;
     }
+
+    public void MovementControl(bool Value)
+    {
+        canMove = Value;
+    }
 }

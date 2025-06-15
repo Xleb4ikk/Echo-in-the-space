@@ -21,17 +21,6 @@ public class TypewriterEffect : MonoBehaviour
 
     void Start()
     {
-        if (dialoguePanel != null)
-        {
-            audioSource = dialoguePanel.GetComponent<AudioSource>();
-            // Скрываем панель диалога при старте
-            dialoguePanel.SetActive(false);
-        }
-        else
-        {
-            Debug.LogError("Dialogue panel reference is missing on " + gameObject.name);
-        }
-        
         if (dialogueText == null)
         {
             Debug.LogError("Dialogue text reference is missing on " + gameObject.name);

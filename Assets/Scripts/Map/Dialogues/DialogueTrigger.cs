@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 [System.Serializable]
 public class DialogueLine
@@ -10,31 +11,37 @@ public class DialogueLine
     public string text;
     public string speakerName;
     public Color speakerNameColor = Color.yellow;
-    public AudioClip typingSound; // Индивидуальный звук для каждой реплики
+    public AudioClip typingSound;
     [Range(0.1f, 2.0f)]
-    public float typingSpeed = 1.0f; // Индивидуальная скорость печатания
+    public float typingSpeed = 1.0f;
+
+    public float lineDelay = 0f;
+    public float eventDelay = 0f;
+
+    public UnityEvent onLineEvent;
 }
 
 public class DialogueTrigger : MonoBehaviour
 {
-    [Header("Ссылки на UI элементы")]
+    [Header("UI Elements")]
     public GameObject dialoguePanel;
     public TMP_Text dialogueText;
     public TMP_Text speakerNameText;
 
-    [Header("Настройки диалога")]
+    [Header("Dialogue Settings")]
     public DialogueLine[] dialogueLines;
     public float defaultTypingDelay = 0.05f;
     public float activationDelay = 0f;
+    public float defaultLineDelay = 0f;
 
-    [Header("Аудио")]
-    public AudioSource audioSource; // <- вручную настраиваемый источник звука
+    [Header("Audio")]
+    public AudioSource audioSource;
 
-    [Header("Параметры игрока")]
+    [Header("Player")]
     public GameObject playerObject;
     public string playerTag = "Player";
 
-    [Header("Настройки триггера")]
+    [Header("Trigger Settings")]
     public bool activateOnStart = false;
     public bool activateOnTrigger = true;
     public bool debugMode = true;
@@ -44,107 +51,71 @@ public class DialogueTrigger : MonoBehaviour
     private string currentText = "";
     private bool isTyping = false;
     private bool hasTriggered = false;
+    private bool canProceed = false;
 
-    void Awake()
-    {
-        if (debugMode) Debug.Log("[DialogueTrigger] Awake: " + gameObject.name);
-    }
+    private Coroutine typingCoroutine = null;
+    private Coroutine eventCoroutine = null;
 
     void Start()
     {
-        if (debugMode) Debug.Log("[DialogueTrigger] Start: " + gameObject.name);
-
-        if (dialoguePanel == null)
-        {
-            Debug.LogError("[DialogueTrigger] Отсутствует ссылка на панель диалога");
-            return;
-        }
-
-        if (dialogueText == null)
-        {
-            Debug.LogError("[DialogueTrigger] Отсутствует ссылка на текст диалога");
-            return;
-        }
-
-        if (dialogueLines == null || dialogueLines.Length == 0)
-        {
-            Debug.LogError("[DialogueTrigger] Нет строк диалога");
-            return;
-        }
-
-        // Попробуем найти AudioSource, если не установлен вручную
-        if (audioSource == null)
-        {
-            audioSource = GetComponent<AudioSource>();
-            if (audioSource == null)
-            {
-                Debug.LogWarning("[DialogueTrigger] AudioSource не найден и не установлен вручную.");
-            }
-        }
-
-        if (dialoguePanel.activeSelf)
-        {
+        if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
-        }
 
         if (activateOnStart)
-        {
             Invoke("ActivateDialogue", activationDelay);
-        }
 
         if (activateOnTrigger)
         {
             Collider col = GetComponent<Collider>();
-            if (col == null)
-            {
-                Debug.LogWarning("[DialogueTrigger] Нет Collider для триггера");
-            }
-            else if (!col.isTrigger)
-            {
-                Debug.LogWarning("[DialogueTrigger] Collider не помечен как триггер");
-            }
+            if (col == null || !col.isTrigger)
+                Debug.LogWarning("[DialogueTrigger] Collider must be marked as Trigger.");
         }
-    }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (debugMode) Debug.Log("[DialogueTrigger] OnTriggerEnter: " + other.gameObject.name);
-        CheckAndActivate(other.gameObject);
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (debugMode) Debug.Log("[DialogueTrigger] OnCollisionEnter: " + collision.gameObject.name);
-        CheckAndActivate(collision.gameObject);
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
     {
         if (!isDialogueActive) return;
 
-        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            if (debugMode) Debug.Log("[DialogueTrigger] Нажат пробел");
-            NextLine();
-        }
+        bool nextPressed = false;
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) nextPressed = true;
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) nextPressed = true;
 
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        if (nextPressed)
         {
-            if (debugMode) Debug.Log("[DialogueTrigger] Нажата левая кнопка мыши");
-            NextLine();
+            if (isTyping)
+            {
+                if (typingCoroutine != null)
+                    StopCoroutine(typingCoroutine);
+
+                dialogueText.text = dialogueLines[currentLine].text;
+                isTyping = false;
+                canProceed = true;
+            }
+            else if (canProceed)
+            {
+                NextLine();
+            }
         }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        CheckAndActivate(other.gameObject);
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        CheckAndActivate(collision.gameObject);
     }
 
     private void CheckAndActivate(GameObject obj)
     {
         if (!activateOnTrigger || hasTriggered) return;
 
-        if (playerObject == null && obj.CompareTag(playerTag))
-        {
-            hasTriggered = true;
-            ActivateDialogue();
-        }
-        else if (obj == playerObject)
+        if (playerObject == null && obj.CompareTag(playerTag) || obj == playerObject)
         {
             hasTriggered = true;
             ActivateDialogue();
@@ -153,15 +124,11 @@ public class DialogueTrigger : MonoBehaviour
 
     public void ActivateDialogue()
     {
-        if (isDialogueActive) return;
-        if (dialogueLines == null || dialogueLines.Length == 0) return;
+        if (isDialogueActive || dialogueLines.Length == 0) return;
 
         isDialogueActive = true;
         currentLine = 0;
-
-        if (dialoguePanel != null)
-            dialoguePanel.SetActive(true);
-
+        dialoguePanel?.SetActive(true);
         ShowCurrentDialogueLine();
     }
 
@@ -175,13 +142,19 @@ public class DialogueTrigger : MonoBehaviour
             speakerNameText.color = line.speakerNameColor;
         }
 
-        StartDialogue(line);
+        if (typingCoroutine != null) StopCoroutine(typingCoroutine);
+        typingCoroutine = StartCoroutine(TypeText(line));
+
+        if (eventCoroutine != null) StopCoroutine(eventCoroutine);
+        eventCoroutine = StartCoroutine(InvokeEventWithDelay(line));
     }
 
-    private void StartDialogue(DialogueLine line)
+    private IEnumerator InvokeEventWithDelay(DialogueLine line)
     {
-        StopAllCoroutines();
-        StartCoroutine(TypeText(line));
+        if (line.eventDelay > 0f)
+            yield return new WaitForSeconds(line.eventDelay);
+
+        line.onLineEvent?.Invoke();
     }
 
     private IEnumerator TypeText(DialogueLine line)
@@ -198,44 +171,44 @@ public class DialogueTrigger : MonoBehaviour
             dialogueText.text = currentText;
 
             if (audioSource != null && line.typingSound != null && letter != ' ')
-            {
                 audioSource.PlayOneShot(line.typingSound);
-            }
 
             yield return new WaitForSeconds(delay);
         }
 
         isTyping = false;
+
+        float waitTime = line.lineDelay > 0 ? line.lineDelay : defaultLineDelay;
+        if (waitTime > 0)
+            yield return new WaitForSeconds(waitTime);
+
+        canProceed = true;
     }
 
     public void NextLine()
     {
         if (isTyping)
         {
-            StopAllCoroutines();
+            if (typingCoroutine != null)
+                StopCoroutine(typingCoroutine);
+
             dialogueText.text = dialogueLines[currentLine].text;
             isTyping = false;
+            canProceed = true;
             return;
         }
 
         currentLine++;
 
         if (currentLine < dialogueLines.Length)
-        {
             ShowCurrentDialogueLine();
-        }
         else
-        {
             EndDialogue();
-        }
     }
 
     private void EndDialogue()
     {
         isDialogueActive = false;
-        if (dialoguePanel != null)
-        {
-            dialoguePanel.SetActive(false);
-        }
+        dialoguePanel?.SetActive(false);
     }
 }

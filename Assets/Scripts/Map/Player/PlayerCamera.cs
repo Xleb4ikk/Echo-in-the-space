@@ -72,4 +72,9 @@ public class PlayerCamera : MonoBehaviour
     {
         lookInput = Vector2.zero;
     }
+
+    public void CamerMovementConstrol(bool Value)
+    {
+        canMove = Value;
+    }
 }

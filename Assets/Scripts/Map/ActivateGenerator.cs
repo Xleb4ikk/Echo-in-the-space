@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
+using Unity.VisualScripting;
 
 public class ActivateGenerator : MonoBehaviour
 {
@@ -21,6 +22,7 @@ public class ActivateGenerator : MonoBehaviour
     public GameObject RealMonster;
     public GameObject AnimationDoor;
     public GameObject RealDoor;
+    public GameObject DialogTriger;
 
     public bool IsPlayerInside { get; private set; }
 
@@ -43,13 +45,13 @@ public class ActivateGenerator : MonoBehaviour
             {
                 if (Keyboard.current.eKey.wasPressedThisFrame)
                 {
-                    StartCoroutine(CatSceneLogic());
+                    DialogTriger.SetActive(true);
                 }
             }      
         }
     }
 
-    IEnumerator CatSceneLogic()
+    public IEnumerator CatSceneLogic()
     {
         PlayerCameraScript.canMove = false;
         PlayerMovementScript.canMove = false;
@@ -85,5 +87,10 @@ public class ActivateGenerator : MonoBehaviour
         PlayerCameraScript.canMove = true;
         PlayerMovementScript.canMove = true;
         RealMonster.SetActive(true);
+    }
+
+    public void StartCoroutineCatScene()
+    {
+        StartCoroutine(CatSceneLogic());
     }
 }

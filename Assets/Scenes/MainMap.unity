@@ -382,7 +382,7 @@ Transform:
   m_GameObject: {fileID: 10354549}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.965, y: -2.882, z: -49.37}
+  m_LocalPosition: {x: 15.16, y: -2.882, z: -49.75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -407,7 +407,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.38, y: 2.1, z: 1.11}
+  m_Size: {x: 2.92, y: 2.41, z: 2.41}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &10354552
 MonoBehaviour:
@@ -437,6 +437,7 @@ MonoBehaviour:
   RealMonster: {fileID: 1735250535}
   AnimationDoor: {fileID: 2083192195}
   RealDoor: {fileID: 980002999}
+  DialogTriger: {fileID: 312002423}
   CatScene: 0
 --- !u!1001 &18014562
 PrefabInstance:
@@ -737,6 +738,7 @@ GameObject:
   - component: {fileID: 28315791}
   - component: {fileID: 28315792}
   - component: {fileID: 28315793}
+  - component: {fileID: 28315794}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -960,6 +962,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7fdeddc68b36194782b131aa1dff323, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &28315794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 28315782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 036307319c694ff4491f91afc72741c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetTransform: {fileID: 330585546}
+  targetEulerAngles: {x: -15.9, y: -105, z: 0}
+  rotationSpeed: 90
+  onStartRotateToTarget:
+    m_PersistentCalls:
+      m_Calls: []
+  onCompleteRotateToTarget:
+    m_PersistentCalls:
+      m_Calls: []
+  onStartReturnToOriginal:
+    m_PersistentCalls:
+      m_Calls: []
+  onCompleteReturnToOriginal:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &28536343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1509,8 +1538,14 @@ MonoBehaviour:
     speakerNameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   defaultTypingDelay: 0.03
   activationDelay: 1.01
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -6325,7 +6360,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 445452, guid: 14f2f01264616214ba79f88c8f46c15f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -99.15
+      value: -99.011
       objectReference: {fileID: 0}
     - target: {fileID: 445452, guid: 14f2f01264616214ba79f88c8f46c15f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9815,7 +9850,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &312002424
 Transform:
   m_ObjectHideFlags: 0
@@ -9825,7 +9860,7 @@ Transform:
   m_GameObject: {fileID: 312002423}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.000000014901159, z: -0, w: 1}
-  m_LocalPosition: {x: 12, y: -2, z: -50}
+  m_LocalPosition: {x: 14.894, y: -2.74, z: -49.86}
   m_LocalScale: {x: 0.7893203, y: 1.5957338, z: 5.105267}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9856,6 +9891,11 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.627451, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u042F \u043D\u0430\u043F\u0440\u0430\u0432\u0438\u043B\u0430 \u043E\u0441\u0442\u0430\u0442\u043A\u0438
       \u044D\u043D\u0435\u0440\u0433\u0438\u0438 \u043D\u0430 \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0443
       \u0441\u043F\u0430\u0441\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0439 \u043A\u0430\u043F\u0441\u0443\u043B\u044B.
@@ -9866,13 +9906,36 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.627451, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u0410 \u0437\u0430\u0447\u0435\u043C \u0441\u043F\u0435\u0448\u0438\u0442\u044C?"
     speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0.2
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 10354552}
+          m_TargetAssemblyTypeName: ActivateGenerator, Assembly-CSharp
+          m_MethodName: StartCoroutineCatScene
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
   defaultTypingDelay: 0.03
   activationDelay: 1.01
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -9898,7 +9961,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 4.15, y: 1.39, z: 0.69}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &313297973 stripped
 Transform:
@@ -13105,7 +13168,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &401047276
 Transform:
   m_ObjectHideFlags: 0
@@ -13115,7 +13178,7 @@ Transform:
   m_GameObject: {fileID: 401047275}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.962, y: 2.01, z: -88.94}
+  m_LocalPosition: {x: -11.962, y: 6.09, z: -88.94}
   m_LocalScale: {x: 0.03, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -18365,7 +18428,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 516685790}
   m_Enabled: 1
-  m_VideoClip: {fileID: 0}
+  m_VideoClip: {fileID: 32900000, guid: 56f6dfc4c79065449b2daeff24b08489, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -19227,8 +19290,14 @@ MonoBehaviour:
     speakerNameColor: {r: 1, g: 1, b: 1, a: 0}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   defaultTypingDelay: 0.03
   activationDelay: 1.01
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -20830,8 +20899,14 @@ MonoBehaviour:
     speakerNameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   defaultTypingDelay: 0.03
   activationDelay: 1.01
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -23589,12 +23664,10 @@ MonoBehaviour:
   - {fileID: 1236873096}
   - {fileID: 657578890}
   - {fileID: 1508693492}
-  - {fileID: 0}
   - {fileID: 1823108891}
   - {fileID: 306377576}
   - {fileID: 160459035}
   - {fileID: 1508693492}
-  - {fileID: 0}
   - {fileID: 2068614217}
   - {fileID: 1560871415}
   AlarmLightSpotList:
@@ -23612,7 +23685,6 @@ MonoBehaviour:
   - {fileID: 576219208}
   VisibleWalls:
   - {fileID: 986444230}
-  - {fileID: 0}
   alarmAudioSources:
   - {fileID: 1293078079}
   - {fileID: 1080779395}
@@ -23633,6 +23705,8 @@ MonoBehaviour:
   maxIntensity: 50
   triggerZone: {fileID: 1668309909}
   checkEnabled: 1
+  DialogTriger: {fileID: 1467558215}
+  DialogTrigerAlaramOff: {fileID: 0}
   EventTriger: {fileID: 401047275}
   playerTransform: {fileID: 28315783}
   AlarmEnabled: 1
@@ -31917,12 +31991,12 @@ GameObject:
   - component: {fileID: 861104279}
   - component: {fileID: 861104278}
   m_Layer: 0
-  m_Name: DialogueTrigger (3)
+  m_Name: "DialogueTrigger (3) \u041F\u043E\u0441\u043B\u0435 \u0442\u0440\u0435\u0432\u043E\u0433\u0438"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &861104277
 Transform:
   m_ObjectHideFlags: 0
@@ -31964,6 +32038,11 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.62644434, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u042F \u0434\u0443\u043C\u0430\u044E, \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u044C
       \u0433\u0435\u043D\u0435\u0440\u0430\u0442\u043E\u0440, \u044D\u0442\u043E
       \u043D\u0435 \u0442\u0430\u043A\u0430\u044F \u0443\u0436 \u0441\u043B\u043E\u0436\u043D\u0430\u044F
@@ -31973,8 +32052,14 @@ MonoBehaviour:
     speakerNameColor: {r: 1, g: 0.9817114, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   defaultTypingDelay: 0.03
   activationDelay: 1.01
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -33104,7 +33189,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 908116128}
   m_Enabled: 1
-  m_VideoClip: {fileID: 0}
+  m_VideoClip: {fileID: 32900000, guid: 56f6dfc4c79065449b2daeff24b08489, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -35772,7 +35857,7 @@ Transform:
   m_GameObject: {fileID: 986444230}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.02, y: 0, z: 0}
+  m_LocalPosition: {x: -0.67, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -45150,7 +45235,8 @@ GameObject:
   - component: {fileID: 1207222246}
   - component: {fileID: 1207222245}
   m_Layer: 0
-  m_Name: DialogueTrigger (4)
+  m_Name: "DialogueTrigger (4) \u041F\u043E\u0441\u043B\u0435 \u0444\u0440\u0430\u0437\u044B
+    \u0437\u0430\u0447\u0435\u043C \u0444\u043E\u043D\u0430\u0440\u0438\u043A"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45165,7 +45251,7 @@ Transform:
   m_GameObject: {fileID: 1207222243}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.000000014901159, z: -0, w: 1}
-  m_LocalPosition: {x: 4.2, y: 1, z: -89}
+  m_LocalPosition: {x: 3.09, y: 1, z: -89}
   m_LocalScale: {x: 0.7893203, y: 1.5957338, z: 5.105267}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -45193,17 +45279,57 @@ MonoBehaviour:
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
-  - text: "\u041F\u043E\u0439\u0434\u0443 \u0447\u0435\u0440\u0435\u0437 \u043D\u0438\u0436\u043D\u0438\u0439
-      \u044D\u0442\u0430\u0436"
-    speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
-    speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
-    typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
-    typingSpeed: 1
+    lineDelay: 3
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 401047277}
+          m_TargetAssemblyTypeName: EventWalking, Assembly-CSharp
+          m_MethodName: StartMonsterMovement
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 28315790}
+          m_TargetAssemblyTypeName: Player, Assembly-CSharp
+          m_MethodName: MovementControl
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
   - text: "\u042D\u0442\u043E \u0447\u0451 \u0441\u0435\u0439\u0447\u0430\u0441 \u0431\u044B\u043B\u043E?"
     speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
     speakerNameColor: {r: 1, g: 0.9817114, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 28315790}
+          m_TargetAssemblyTypeName: Player, Assembly-CSharp
+          m_MethodName: MovementControl
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
   - text: "\u042D\u0442\u043E \u0413\u0430\u0440\u0440\u0438, \u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0435\u043D\u043D\u044B\u0439
       \u0437\u0430 \u0440\u0435\u0430\u043A\u0442\u043E\u0440, \u043D\u0435 \u0434\u0443\u043C\u0430\u0439
       \u043F\u043E\u0434\u0445\u043E\u0434\u0438\u0442\u044C \u043A \u043D\u0435\u043C\u0443,
@@ -45212,18 +45338,33 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.62644434, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u0414\u0430? \u0410 \u044F \u0435\u0433\u043E \u0442\u0430\u043A\u0438\u043C
       \u0438 \u0437\u0430\u043F\u043E\u043C\u043D\u0438\u043B"
     speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u041C\u043E\u0436\u0435\u0442, \u043F\u043E\u0439\u0442\u0438 \u043F\u043E\u0437\u0434\u043E\u0440\u043E\u0432\u0430\u0442\u044C\u0441\u044F
       \u0441 \u043D\u0438\u043C?"
     speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u041D\u0435\u0442! \u041F\u043E\u0441\u043B\u0435 \u0438\u043D\u0446\u0438\u0434\u0435\u043D\u0442\u0430
       \u043D\u0430 \u0441\u0442\u0430\u043D\u0446\u0438\u0438 \u043E\u043D \u0441\u043E\u0448\u0451\u043B
       \u0441 \u0443\u043C\u0430, \u0438 \u0435\u0433\u043E \u043F\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435
@@ -45232,6 +45373,11 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.627451, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u0421\u0442\u0430\u0440\u0430\u0439\u0441\u044F \u043D\u0435 \u043F\u043E\u043F\u0430\u0434\u0430\u0442\u044C\u0441\u044F
       \u0435\u043C\u0443 \u043D\u0430 \u0433\u043B\u0430\u0437\u0430, \u0430 \u0432
       \u0441\u043B\u0443\u0447\u0430\u0435 \u0447\u0435\u0433\u043E, \u0443\u043D\u043E\u0441\u0438
@@ -45240,6 +45386,11 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.627451, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u041B\u0430\u0434\u043D\u043E, \u043B\u0430\u0434\u043D\u043E... \u042F
       \u0434\u0443\u043C\u0430\u044E \u043E\u043D \u043D\u0435 \u0431\u0443\u0434\u0435\u0442
       \u0440\u0430\u0434 \u043C\u043D\u0435."
@@ -45247,14 +45398,25 @@ MonoBehaviour:
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u041F\u043E\u0439\u0434\u0443 \u0447\u0435\u0440\u0435\u0437 \u043D\u0438\u0436\u043D\u0438\u0439
       \u044D\u0442\u0430\u0436"
     speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   defaultTypingDelay: 0.03
-  activationDelay: 1.01
+  activationDelay: 0
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -48991,7 +49153,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1296290675}
   m_Enabled: 1
-  m_VideoClip: {fileID: 0}
+  m_VideoClip: {fileID: 32900000, guid: f3f84b570ae264d40a5394d111fabbf6, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -51534,8 +51696,14 @@ MonoBehaviour:
     speakerNameColor: {r: 1, g: 1, b: 1, a: 0}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   defaultTypingDelay: 0.03
   activationDelay: 1.01
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -55612,7 +55780,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1467558216
 Transform:
   m_ObjectHideFlags: 0
@@ -55622,7 +55790,7 @@ Transform:
   m_GameObject: {fileID: 1467558215}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.000000014901159, z: -0, w: 1}
-  m_LocalPosition: {x: -61.937, y: 2.73, z: -96.32}
+  m_LocalPosition: {x: -61.893, y: 1.09, z: -97.62}
   m_LocalScale: {x: 0.7893203, y: 0.56963545, z: 1.2928}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -55656,12 +55824,58 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.62644434, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1.11
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 330585550}
+          m_TargetAssemblyTypeName: PlayerCamera, Assembly-CSharp
+          m_MethodName: CamerMovementConstrol
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 28315790}
+          m_TargetAssemblyTypeName: Player, Assembly-CSharp
+          m_MethodName: MovementControl
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 28315794}
+          m_TargetAssemblyTypeName: SmoothCameraRotation, Assembly-CSharp
+          m_MethodName: StartRotateToTarget
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
   - text: "\u041F\u0440\u0435\u043A\u0440\u0430\u0441\u043D\u043E... \u0422\u0443\u0442
       \u0434\u0430\u0436\u0435 \u0434\u0432\u0435\u0440\u0438 \u043D\u0430 \u0431\u0430\u0442\u0430\u0440\u0435\u0439\u043A\u0430\u0445"
     speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
     speakerNameColor: {r: 1, g: 0.9817114, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u0421\u043B\u0443\u0448\u0430\u0439, \u043A\u0430\u043A \u0431\u044B
       \u0442\u043E \u043D\u0438 \u0431\u044B\u043B\u043E, \u0441\u0438\u0442\u0443\u0430\u0446\u0438\u044F
       \u043D\u0435 \u0432\u0435\u0441\u0451\u043B\u0430\u044F, \u0438 \u0447\u0442\u043E\u0431\u044B
@@ -55674,11 +55888,21 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.627451, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u0410 \u0441\u0430\u043C \u0413\u0430\u0440\u0440\u0438 \u0433\u0434\u0435? "
     speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u041E\u043D \u0432\u0441\u0435\u0433\u0434\u0430 \u043E\u0441\u0442\u0430\u0432\u043B\u044F\u0435\u0442
       \u0444\u043E\u043D\u0430\u0440\u0438\u043A \u043D\u0430 \u0441\u0442\u043E\u043B\u0435,
       \u0442\u0430\u043A \u0447\u0442\u043E \u043D\u0435 \u0442\u0435\u0440\u044F\u0439
@@ -55690,14 +55914,61 @@ MonoBehaviour:
     speakerNameColor: {r: 0, g: 0.627451, b: 1, a: 1}
     typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   - text: "\u0422\u044B \u043D\u0435 \u043E\u0442\u0432\u0435\u0442\u0438\u043B\u0430
       \u043D\u0430 \u043C\u043E\u0439 \u0432\u043E\u043F\u0440\u043E\u0441..."
     speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0.5
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 28315794}
+          m_TargetAssemblyTypeName: SmoothCameraRotation, Assembly-CSharp
+          m_MethodName: ReturnToOriginalRotation
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 28315790}
+          m_TargetAssemblyTypeName: Player, Assembly-CSharp
+          m_MethodName: MovementControl
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+        - m_Target: {fileID: 330585550}
+          m_TargetAssemblyTypeName: PlayerCamera, Assembly-CSharp
+          m_MethodName: CamerMovementConstrol
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
   defaultTypingDelay: 0.03
   activationDelay: 1.01
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -55723,7 +55994,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 3.46, y: 3.57, z: 2.31}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1471500767 stripped
 Transform:
@@ -55799,8 +56070,14 @@ MonoBehaviour:
     speakerNameColor: {r: 1, g: 0.9803922, b: 0, a: 1}
     typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
     typingSpeed: 1
+    lineDelay: 0
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
   defaultTypingDelay: 0.03
   activationDelay: 1.01
+  defaultLineDelay: 0
   audioSource: {fileID: 1297373291}
   playerObject: {fileID: 28315782}
   playerTag: Player
@@ -56101,7 +56378,6 @@ GameObject:
   - component: {fileID: 1489717344}
   - component: {fileID: 1489717347}
   - component: {fileID: 1489717346}
-  - component: {fileID: 1489717345}
   - component: {fileID: 1489717348}
   m_Layer: 0
   m_Name: Cube (1)
@@ -56125,27 +56401,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 245336153}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1489717345
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1489717343}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1489717346
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -74149,7 +74404,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1948730917
 Transform:
   m_ObjectHideFlags: 0
@@ -74159,7 +74414,7 @@ Transform:
   m_GameObject: {fileID: 1948730916}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.83, y: 1.845, z: -96.964}
+  m_LocalPosition: {x: 3.17, y: 1.845, z: -88.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -74198,7 +74453,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3.35, z: 3.37}
+  m_Size: {x: 1, y: 3.35, z: 6.91}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1950565205
 PrefabInstance:
