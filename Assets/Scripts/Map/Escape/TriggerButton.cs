@@ -17,12 +17,22 @@ public class TriggerButton : MonoBehaviour
     public bool IsPlayerInside { get; private set; }
     public Transform playerTransform;
     public Collider triggerZone;
+    public Light[] launchLights; // Массив источников света
 
     public event Action OnButtonPressed;
 
     private void Start()
     {
         audioSource.clip = soundEffect;
+        // Выключаем все источники света при старте
+        if (launchLights != null)
+        {
+            foreach (var light in launchLights)
+            {
+                if (light != null)
+                    light.enabled = false;
+            }
+        }
     }
 
     private void Update()
@@ -50,6 +60,16 @@ public class TriggerButton : MonoBehaviour
 
         if (soundEffect != null && audioSource != null)
             audioSource.Play();
+
+        // Включаем источники света
+        if (launchLights != null)
+        {
+            foreach (var light in launchLights)
+            {
+                if (light != null)
+                    light.enabled = true;
+            }
+        }
 
         // Вызываем событие нажатия кнопки
         OnButtonPressed?.Invoke();
