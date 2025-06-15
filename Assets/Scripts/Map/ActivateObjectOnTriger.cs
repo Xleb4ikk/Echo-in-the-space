@@ -11,7 +11,6 @@ public class ActivateObjectOnTriger : MonoBehaviour
 
     void Update()
     {
-        //if (CompleteScript == true) { return; }
 
         if(triggerZone != null && playerTransform != null)
         {
@@ -21,13 +20,6 @@ public class ActivateObjectOnTriger : MonoBehaviour
             {
                 GameObject.SetActive(true);
             }
-            
-            //if (Destroid == true)
-            //{
-            //    triggerObject.SetActive(false);
-            //}
-
-            CompleteScript = true;
         }
     }
 }
