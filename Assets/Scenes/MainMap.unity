@@ -752,8 +752,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 28315782}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.70710886, z: -0, w: -0.70710474}
-  m_LocalPosition: {x: -11.237, y: 1.58, z: -72.801}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -11.07, y: 1.25, z: -73.19}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -761,7 +761,7 @@ Transform:
   - {fileID: 743515794}
   - {fileID: 900621517}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 270, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!143 &28315785
 CharacterController:
   m_ObjectHideFlags: 0
@@ -12417,6 +12417,7 @@ GameObject:
   - component: {fileID: 390599542}
   - component: {fileID: 390599540}
   - component: {fileID: 390599543}
+  - component: {fileID: 390599544}
   m_Layer: 0
   m_Name: EventTriger 1
   m_TagString: Untagged
@@ -12496,6 +12497,19 @@ MonoBehaviour:
   playerTransform: {fileID: 28315783}
   GameObject: {fileID: 685256103}
   Destroid: 0
+--- !u!114 &390599544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 390599538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ec56ef5df73de14eb28f5301caa7670, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hideScript: {fileID: 685256110}
 --- !u!1001 &392563907
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23515,6 +23529,7 @@ GameObject:
   - component: {fileID: 669062337}
   - component: {fileID: 669062338}
   - component: {fileID: 669062339}
+  - component: {fileID: 669062340}
   m_Layer: 0
   m_Name: ScriptFolder
   m_TagString: Untagged
@@ -23635,6 +23650,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeImage: {fileID: 882060553}
   fadeDuration: 1
+--- !u!114 &669062340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669062335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04b64bb774b692e49891a0e54af003eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioMixer: {fileID: 24100000, guid: 6f16e19ed7ee6214d9bb44da6b81c271, type: 2}
 --- !u!4 &675518863 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 426630, guid: 9e613db9d284cc14a9b0209f88d3b941, type: 3}
@@ -24842,7 +24870,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 330585545}
-  viewAngle: 30
+  viewAngle: 90
   maxDistance: 100
   delay: 0.2
 --- !u!136 &685256111
@@ -40162,7 +40190,7 @@ AudioSource:
   m_GameObject: {fileID: 1080779393}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 4046015503133950147, guid: 6f16e19ed7ee6214d9bb44da6b81c271, type: 2}
   m_audioClip: {fileID: 8300000, guid: fb199955cfa3e4341b9991d4d67d9206, type: 3}
   m_Resource: {fileID: 8300000, guid: fb199955cfa3e4341b9991d4d67d9206, type: 3}
   m_PlayOnAwake: 0
@@ -48766,7 +48794,7 @@ AudioSource:
   m_GameObject: {fileID: 1293078077}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 4046015503133950147, guid: 6f16e19ed7ee6214d9bb44da6b81c271, type: 2}
   m_audioClip: {fileID: 8300000, guid: fb199955cfa3e4341b9991d4d67d9206, type: 3}
   m_Resource: {fileID: 8300000, guid: fb199955cfa3e4341b9991d4d67d9206, type: 3}
   m_PlayOnAwake: 0
