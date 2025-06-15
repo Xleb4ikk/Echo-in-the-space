@@ -8,9 +8,11 @@ public class TriggerButton : MonoBehaviour
     public string animationBoolName = "IsPressed";
     public string animationDoorBoolName = "IsOpen";
     public AudioClip soundEffect;
+    public AudioClip secondSoundEffect; // Второй звуковой эффект
     public Animator targetAnimator;
     public Animator DoorAnimator; 
     public AudioSource audioSource;
+    public AudioSource secondAudioSource; // Второй источник звука
     public Renderer ButtonRenderer;
     public Material ButtonMaterialEnabled;
     public Material ButtonMaterialDisabled;
@@ -24,6 +26,10 @@ public class TriggerButton : MonoBehaviour
     private void Start()
     {
         audioSource.clip = soundEffect;
+        if (secondAudioSource != null)
+        {
+            secondAudioSource.clip = secondSoundEffect;
+        }
         // Выключаем все источники света при старте
         if (launchLights != null)
         {
@@ -58,6 +64,7 @@ public class TriggerButton : MonoBehaviour
         if (targetAnimator != null)
             targetAnimator.SetBool(animationBoolName, true);
 
+        // Воспроизводим первый звук
         if (soundEffect != null && audioSource != null)
             audioSource.Play();
 
@@ -78,6 +85,10 @@ public class TriggerButton : MonoBehaviour
 
         if (targetAnimator != null)
             targetAnimator.SetBool(animationBoolName, false);
+
+        // Воспроизводим второй звук
+        if (secondSoundEffect != null && secondAudioSource != null)
+            secondAudioSource.Play();
 
         yield return new WaitForSeconds(0.30f);
 
