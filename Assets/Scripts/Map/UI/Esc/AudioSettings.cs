@@ -17,11 +17,6 @@ public class Settings : MonoBehaviour
 
     private void InitMusicSlider()
     {
-        if (musicSlider == null)
-        {
-            Debug.LogWarning("AudioSettings: musicSlider не присвоен в инспекторе");
-            return;
-        }
 
         float musicVolume = PlayerPrefs.GetFloat("musicVolume", 1f);
         musicSlider.value = musicVolume;
@@ -35,12 +30,6 @@ public class Settings : MonoBehaviour
 
     private void InitSFXSlider()
     {
-        if (sfxSlider == null)
-        {
-            Debug.LogWarning("AudioSettings: sfxSlider не присвоен в инспекторе");
-            return;
-        }
-
         float sfxVolume = PlayerPrefs.GetFloat("sfxVolume", 1f);
         sfxSlider.value = sfxVolume;
         ApplyVolume("SFXVolume", sfxVolume);

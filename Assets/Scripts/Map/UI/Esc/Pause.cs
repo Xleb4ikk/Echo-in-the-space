@@ -12,7 +12,6 @@ public class Pause : MonoBehaviour
     [Header("UI Панели")]
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject settingsMenuPanel;
-    [SerializeField] private GameObject blurPanel;
 
     [Header("Кнопки")]
     [SerializeField] private Button continueButton;
@@ -64,11 +63,6 @@ public class Pause : MonoBehaviour
     {
         EnsureInputSystemUIModule();
 
-        if (blurPanel != null)
-        {
-            blurPanel?.SetActive(false);
-        }
-
         settingsPanel?.SetActive(false);
         settingsMenuPanel?.SetActive(false);
 
@@ -76,15 +70,13 @@ public class Pause : MonoBehaviour
 
         continueButton.onClick.AddListener(CloseSettings);
         exitButton.onClick.AddListener(ReturnToMainMenu);
-
-        if (settingsButton != null)
-            settingsButton.onClick.AddListener(OpenSettingsMenu);
+        settingsButton?.onClick.AddListener(OpenSettingsMenu);
 
         if (playerMovement == null)
-            playerMovement = FindObjectOfType<Player>();
+            playerMovement = FindFirstObjectByType<Player>();
 
         if (playerCamera == null)
-            playerCamera = FindObjectOfType<PlayerCamera>();
+            playerCamera = FindFirstObjectByType<PlayerCamera>();
     }
 
     private void EnsureInputSystemUIModule()
@@ -177,23 +169,16 @@ public class Pause : MonoBehaviour
 
     public void OpenSettings()
     {
-        if (blurPanel != null)
-        {
-            blurPanel?.SetActive(true);
-        }
-
         settingsPanel?.SetActive(true);
-
         isSettingsOpen = true;
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
         Time.timeScale = 0f;
-
         DisableAllControls();
 
-        foreach (AudioSource audio in FindObjectsOfType<AudioSource>())
+        foreach (AudioSource audio in Object.FindObjectsByType<AudioSource>(FindObjectsSortMode.None))
         {
             if (audio != pauseMusicSource && audio.isPlaying)
                 audio.Pause();
@@ -218,7 +203,7 @@ public class Pause : MonoBehaviour
         {
             if (settingsScript != null)
             {
-                // settingsScript.SaveSettings(); // если потребуется
+                // settingsScript.SaveSettings(); // если нужно
             }
             settingsMenuPanel.SetActive(false);
         }
@@ -228,7 +213,7 @@ public class Pause : MonoBehaviour
         if (pauseMusicSource != null)
             pauseMusicSource.Stop();
 
-        foreach (AudioSource audio in FindObjectsOfType<AudioSource>())
+        foreach (AudioSource audio in Object.FindObjectsByType<AudioSource>(FindObjectsSortMode.None))
         {
             if (audio != pauseMusicSource && audio != buttonSoundSource && !audio.isPlaying)
                 audio.UnPause();
@@ -251,13 +236,7 @@ public class Pause : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        if (blurPanel != null)
-        {
-            blurPanel.SetActive(false);
-        }
-
         settingsPanel?.SetActive(false);
-
         isSettingsOpen = false;
     }
 

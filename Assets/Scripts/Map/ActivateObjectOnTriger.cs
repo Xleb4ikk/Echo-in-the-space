@@ -7,7 +7,6 @@ public class ActivateObjectOnTriger : MonoBehaviour
     public Transform playerTransform;
     public GameObject GameObject;
     public bool Destroid = false;
-    private bool CompleteScript = false;
 
     void Update()
     {
