@@ -6,14 +6,16 @@ public class TriggerSoundPlayer : MonoBehaviour
     public Transform soundPlayPosition;      // Точка, где будет воспроизводиться звук
     public float volume = 1.0f;              // Громкость звука
 
+    private bool hasPlayed = false;          // Флаг, чтобы звук проигрывался один раз
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (!hasPlayed && other.CompareTag("Player"))
         {
-            // Воспроизводим звук в заданной точке
             if (soundToPlay != null && soundPlayPosition != null)
             {
                 AudioSource.PlayClipAtPoint(soundToPlay, soundPlayPosition.position, volume);
+                hasPlayed = true; // Помечаем, что звук уже проигран
             }
         }
     }
