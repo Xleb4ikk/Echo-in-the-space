@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public class TriggerButton : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class TriggerButton : MonoBehaviour
     public bool IsPlayerInside { get; private set; }
     public Transform playerTransform;
     public Collider triggerZone;
+
+    public event Action OnButtonPressed;
 
     private void Start()
     {
@@ -48,6 +51,9 @@ public class TriggerButton : MonoBehaviour
         if (soundEffect != null && audioSource != null)
             audioSource.Play();
 
+        // Вызываем событие нажатия кнопки
+        OnButtonPressed?.Invoke();
+
         yield return new WaitForSeconds(0.10f);
 
         if (targetAnimator != null)
@@ -56,6 +62,8 @@ public class TriggerButton : MonoBehaviour
         yield return new WaitForSeconds(0.30f);
 
         ButtonRenderer.material = ButtonMaterialDisabled;
+
+        yield return new WaitForSeconds(1f);
 
         if (DoorAnimator != null)
             DoorAnimator.SetBool(animationDoorBoolName, true);

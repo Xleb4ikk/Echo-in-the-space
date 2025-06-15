@@ -42,7 +42,7 @@ public class AmbientTrigger : MonoBehaviour
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
 
-        ambientSource.Pause(); // <-- теперь точно ничего не проиграется
+        ambientSource.Pause(); // <-- теперь точно ничего не проиграется (ахуеть просто)
         isPaused = true;
         isFading = false;
     }
