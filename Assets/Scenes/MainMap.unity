@@ -30354,9 +30354,11 @@ MonoBehaviour:
   animationBoolName: ButtonPresed
   animationDoorBoolName: IsOpen
   soundEffect: {fileID: 8300000, guid: 92a173e2d7e9e5749aad90cbc414dc9f, type: 3}
+  secondSoundEffect: {fileID: 8300000, guid: a1c53fd8ce7ace04fba730f53b8f3f35, type: 3}
   targetAnimator: {fileID: 819385105}
   DoorAnimator: {fileID: 1956538726}
   audioSource: {fileID: 350289461}
+  secondAudioSource: {fileID: 350289461}
   ButtonRenderer: {fileID: 819385107}
   ButtonMaterialEnabled: {fileID: 2100000, guid: b4981100dba314e4296dff1339f76f21, type: 2}
   ButtonMaterialDisabled: {fileID: 2100000, guid: 061414f852fdac6469a088681100a399, type: 2}
