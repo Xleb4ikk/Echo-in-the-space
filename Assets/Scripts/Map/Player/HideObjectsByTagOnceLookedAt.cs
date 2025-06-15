@@ -5,37 +5,42 @@ public class HideOnLookedAt : MonoBehaviour
 {
     public Camera playerCamera;
     public float maxDistance = 100f;
-    public string targetTag = "Hideable"; // Тег объекта, который нужно прятать
-    public float Delay = 0f;
+    public string targetTag = "Hideable"; // Тег объекта
+    public float Delay = 0.2f; // Галлюцинация длится 0.2 секунды
 
+    private bool isHiding = false;
     private bool isHidden = false;
-    private GameObject hiddenObject = null;
 
     void Update()
     {
-        if (isHidden) return;
-        if (playerCamera == null) return;
+        if (isHidden || isHiding || playerCamera == null)
+            return;
 
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
         {
             if (hit.transform.CompareTag(targetTag))
             {
-                StartCoroutine(HideObject(hit.transform.gameObject));
+                StartCoroutine(HideObjectAfterDelay(hit.transform.gameObject));
+                isHiding = true;
             }
         }
     }
 
-
-    public IEnumerator HideObject(GameObject obj)
+    private IEnumerator HideObjectAfterDelay(GameObject obj)
     {
         yield return new WaitForSeconds(Delay);
-        Renderer[] rends = obj.GetComponentsInChildren<Renderer>();
-        foreach (var r in rends)
+
+        // Убираем только если всё ещё тот же объект в прицеле
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
         {
-            r.enabled = false;
+            if (hit.transform.gameObject == obj)
+            {
+                obj.SetActive(false); // Полное исчезновение
+                isHidden = true;
+            }
         }
-        isHidden = true;
-        hiddenObject = obj;
     }
+
 }
