@@ -10550,7 +10550,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 4046015503133950147, guid: 6f16e19ed7ee6214d9bb44da6b81c271, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -28654,7 +28654,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 56981e33a88a91f4dbd2705cd0bbfc21, type: 2}
+  - {fileID: 2100000, guid: 061414f852fdac6469a088681100a399, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -28697,9 +28697,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animationBoolName: ButtonPresed
+  animationDoorBoolName: IsOpen
   soundEffect: {fileID: 8300000, guid: 92a173e2d7e9e5749aad90cbc414dc9f, type: 3}
   targetAnimator: {fileID: 819385105}
+  DoorAnimator: {fileID: 1956538726}
   audioSource: {fileID: 350289461}
+  ButtonRenderer: {fileID: 819385107}
+  ButtonMaterialEnabled: {fileID: 2100000, guid: b4981100dba314e4296dff1339f76f21, type: 2}
+  ButtonMaterialDisabled: {fileID: 2100000, guid: 061414f852fdac6469a088681100a399, type: 2}
   playerTransform: {fileID: 28315783}
   triggerZone: {fileID: 819385110}
 --- !u!135 &819385110

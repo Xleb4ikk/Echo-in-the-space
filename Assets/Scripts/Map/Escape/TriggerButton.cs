@@ -1,33 +1,29 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class TriggerButton : MonoBehaviour
 {
-    public string animationBoolName = "IsPressed";   // Имя параметра в Animator
-    public AudioClip soundEffect;                    // Звук при активации
-    public Animator targetAnimator;                  // Animator можно задать отдельно
+    public string animationBoolName = "IsPressed";
+    public string animationDoorBoolName = "IsOpen";
+    public AudioClip soundEffect;
+    public Animator targetAnimator;
+    public Animator DoorAnimator; 
     public AudioSource audioSource;
-    private bool playerInTrigger = false;            // Флаг: игрок в зоне
+    public Renderer ButtonRenderer;
+    public Material ButtonMaterialEnabled;
+    public Material ButtonMaterialDisabled;
     public bool IsPlayerInside { get; private set; }
     public Transform playerTransform;
     public Collider triggerZone;
 
     private void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = soundEffect;
     }
 
     private void Update()
     {
-        if (playerInTrigger && Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            if (targetAnimator != null)
-                targetAnimator.SetBool(animationBoolName, true);
-
-            if (soundEffect != null && audioSource != null)
-                audioSource.PlayOneShot(soundEffect);
-        }
-
         if (triggerZone != null && playerTransform != null)
         {
             IsPlayerInside = triggerZone.bounds.Contains(playerTransform.position);
@@ -36,34 +32,32 @@ public class TriggerButton : MonoBehaviour
             {
                 if (Keyboard.current.eKey.wasPressedThisFrame)
                 {
-                    if (targetAnimator != null)
-                        targetAnimator.SetBool(animationBoolName, true);
-
-                    if (soundEffect != null && audioSource != null)
-                        audioSource.PlayOneShot(soundEffect);
-
-                    Debug.Log("Process ");
+                    StartCoroutine(ButtonPresed());
                 }
             }
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    IEnumerator ButtonPresed()
     {
-        if (other.CompareTag("Player"))
-        {
-            playerInTrigger = true;
-        }
-    }
+        ButtonRenderer.material = ButtonMaterialEnabled;
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInTrigger = false;
+        if (targetAnimator != null)
+            targetAnimator.SetBool(animationBoolName, true);
 
-            if (targetAnimator != null)
-                targetAnimator.SetBool(animationBoolName, false);
-        }
+        if (soundEffect != null && audioSource != null)
+            audioSource.Play();
+
+        yield return new WaitForSeconds(0.10f);
+
+        if (targetAnimator != null)
+            targetAnimator.SetBool(animationBoolName, false);
+
+        yield return new WaitForSeconds(0.30f);
+
+        ButtonRenderer.material = ButtonMaterialDisabled;
+
+        if (DoorAnimator != null)
+            DoorAnimator.SetBool(animationDoorBoolName, true);
     }
 }
