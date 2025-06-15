@@ -21,6 +21,7 @@ public class MoveAlongPointsWithAnimationAndSound : MonoBehaviour
 
     [Header("Монстр")]
     public GameObject Monster;
+    public CapsuleCollider MonsterColider;
 
     private int currentIndex = 0;
     private bool isMoving = false;
@@ -113,6 +114,7 @@ public class MoveAlongPointsWithAnimationAndSound : MonoBehaviour
     public void StartMoving()
     {
         Monster.SetActive(true);
+        MonsterColider.enabled = true;
         isMoving = true;
         currentIndex = 0;
         stepTimer = 0f;

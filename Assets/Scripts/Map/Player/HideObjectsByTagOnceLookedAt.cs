@@ -1,10 +1,12 @@
 using UnityEngine;
+using System.Collections;
 
 public class HideOnLookedAt : MonoBehaviour
 {
     public Camera playerCamera;
     public float maxDistance = 100f;
     public string targetTag = "Hideable"; // Тег объекта, который нужно прятать
+    public float Delay = 0f;
 
     private bool isHidden = false;
     private GameObject hiddenObject = null;
@@ -19,13 +21,15 @@ public class HideOnLookedAt : MonoBehaviour
         {
             if (hit.transform.CompareTag(targetTag))
             {
-                HideObject(hit.transform.gameObject);
+                StartCoroutine(HideObject(hit.transform.gameObject));
             }
         }
     }
 
-    void HideObject(GameObject obj)
+
+    public IEnumerator HideObject(GameObject obj)
     {
+        yield return new WaitForSeconds(Delay);
         Renderer[] rends = obj.GetComponentsInChildren<Renderer>();
         foreach (var r in rends)
         {
