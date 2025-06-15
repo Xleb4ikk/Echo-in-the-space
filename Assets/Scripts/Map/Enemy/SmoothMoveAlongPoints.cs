@@ -53,8 +53,8 @@ public class MoveAlongPointsWithAnimationAndSound : MonoBehaviour
 
         PlayFootstepSoundWithDelay();
 
-        if (!animator.GetBool("Walking"))
-            animator.SetBool("Walking", true);
+        if (!animator.GetBool("Injured"))
+            animator.SetBool("Injured", true);
     }
 
     private void MoveAndRotate()
@@ -107,7 +107,7 @@ public class MoveAlongPointsWithAnimationAndSound : MonoBehaviour
             footstepAudio.Stop();
 
         if (animator != null)
-            animator.SetBool("Walking", false);
+            animator.SetBool("Injured", false);
 
     }
 
