@@ -2,32 +2,46 @@ using UnityEngine;
 
 public class EscapePod : MonoBehaviour
 {
-    public float acceleration = 6f;
+    public float acceleration = 7f; // ускорение в м/с^2
     public float launchDuration = 3f;
 
     private Rigidbody rb;
     private bool launched = false;
+    private bool accelerating = false;
     private float launchTime;
+    private float currentSpeed = 0f;
+    private Vector3 startPosition;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
-        rb.isKinematic = true;
+        rb.isKinematic = true; // Делаем капсулу кинематической с самого начала
+        startPosition = transform.position;
     }
 
     void FixedUpdate()
     {
         if (launched)
         {
-            if (Time.time - launchTime < launchDuration)
+            float elapsed = Time.time - launchTime;
+
+            if (elapsed < launchDuration && accelerating)
             {
-                rb.linearVelocity = transform.forward * acceleration;
+                // Увеличиваем скорость
+                currentSpeed += acceleration * Time.fixedDeltaTime;
+                // Перемещаем капсулу напрямую
+                transform.position += transform.forward * currentSpeed * Time.fixedDeltaTime;
+            }
+            else if (accelerating)
+            {
+                // Заканчиваем ускорение, но продолжаем движение
+                accelerating = false;
             }
             else
             {
-                launched = false;
-                // Оставляем скорость как есть (по инерции)
+                // Продолжаем движение с постоянной скоростью
+                transform.position += transform.forward * currentSpeed * Time.fixedDeltaTime;
             }
         }
     }
@@ -37,8 +51,13 @@ public class EscapePod : MonoBehaviour
         if (launched) return;
 
         transform.parent = null;
-        rb.isKinematic = false;
+        rb.useGravity = false;
+        rb.isKinematic = true;
+        currentSpeed = 0f;
+        startPosition = transform.position;
+
         launched = true;
+        accelerating = true;
         launchTime = Time.time;
     }
 }
