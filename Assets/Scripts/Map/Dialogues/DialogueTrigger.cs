@@ -52,9 +52,12 @@ public class DialogueTrigger : MonoBehaviour
     private bool isTyping = false;
     private bool hasTriggered = false;
     private bool canProceed = false;
+    private bool isDelayingAfterLine = false;
+    private bool preventSkip = false;
 
     private Coroutine typingCoroutine = null;
     private Coroutine eventCoroutine = null;
+    private Coroutine delayCoroutine = null;
 
     void Start()
     {
@@ -77,7 +80,7 @@ public class DialogueTrigger : MonoBehaviour
 
     void Update()
     {
-        if (!isDialogueActive) return;
+        if (!isDialogueActive || isDelayingAfterLine) return;
 
         bool nextPressed = false;
         if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) nextPressed = true;
@@ -87,11 +90,25 @@ public class DialogueTrigger : MonoBehaviour
         {
             if (isTyping)
             {
+                if (preventSkip) return;
+
                 if (typingCoroutine != null)
                     StopCoroutine(typingCoroutine);
 
                 dialogueText.text = dialogueLines[currentLine].text;
                 isTyping = false;
+
+                float waitTime = dialogueLines[currentLine].lineDelay > 0 ?
+                                 dialogueLines[currentLine].lineDelay :
+                                 defaultLineDelay;
+
+                if (waitTime > 0)
+                {
+                    isDelayingAfterLine = true;
+                    delayCoroutine = StartCoroutine(DelayBeforeNext(waitTime));
+                    return;
+                }
+
                 canProceed = true;
             }
             else if (canProceed)
@@ -115,7 +132,7 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (!activateOnTrigger || hasTriggered) return;
 
-        if (playerObject == null && obj.CompareTag(playerTag) || obj == playerObject)
+        if ((playerObject == null && obj.CompareTag(playerTag)) || obj == playerObject)
         {
             hasTriggered = true;
             ActivateDialogue();
@@ -157,9 +174,21 @@ public class DialogueTrigger : MonoBehaviour
         line.onLineEvent?.Invoke();
     }
 
+    private IEnumerator DelayBeforeNext(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isDelayingAfterLine = false;
+        preventSkip = false;
+        canProceed = true;
+    }
+
     private IEnumerator TypeText(DialogueLine line)
     {
         isTyping = true;
+        isDelayingAfterLine = false;
+        canProceed = false;
+        preventSkip = line.lineDelay > 0;
+
         dialogueText.text = "";
         currentText = "";
 
@@ -179,21 +208,42 @@ public class DialogueTrigger : MonoBehaviour
         isTyping = false;
 
         float waitTime = line.lineDelay > 0 ? line.lineDelay : defaultLineDelay;
-        if (waitTime > 0)
-            yield return new WaitForSeconds(waitTime);
 
-        canProceed = true;
+        if (waitTime > 0)
+        {
+            isDelayingAfterLine = true;
+            delayCoroutine = StartCoroutine(DelayBeforeNext(waitTime));
+        }
+        else
+        {
+            preventSkip = false;
+            canProceed = true;
+        }
     }
 
     public void NextLine()
     {
         if (isTyping)
         {
+            if (preventSkip) return;
+
             if (typingCoroutine != null)
                 StopCoroutine(typingCoroutine);
 
             dialogueText.text = dialogueLines[currentLine].text;
             isTyping = false;
+
+            float waitTime = dialogueLines[currentLine].lineDelay > 0 ?
+                             dialogueLines[currentLine].lineDelay :
+                             defaultLineDelay;
+
+            if (waitTime > 0)
+            {
+                isDelayingAfterLine = true;
+                delayCoroutine = StartCoroutine(DelayBeforeNext(waitTime));
+                return;
+            }
+
             canProceed = true;
             return;
         }
@@ -201,9 +251,13 @@ public class DialogueTrigger : MonoBehaviour
         currentLine++;
 
         if (currentLine < dialogueLines.Length)
+        {
             ShowCurrentDialogueLine();
+        }
         else
+        {
             EndDialogue();
+        }
     }
 
     private void EndDialogue()
