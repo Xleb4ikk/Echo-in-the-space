@@ -5,14 +5,23 @@ public class LaunchTrigger : MonoBehaviour
     public EscapePod escapePod;
     public TriggerButton launchButton;
 
-    [Header("Audio Settings")]
-    public AudioSource launchSound;       // Компонент AudioSource
-    public AudioClip launchClip;          // Аудиофайл
-    public float soundDelay = 0f;         // Задержка воспроизведения
+    [Header("Primary Audio Settings")]
+    public AudioSource launchSound;
+    public AudioClip launchClip;
+    public float soundDelay = 0f;
     [Range(0.1f, 3f)]
-    public float playbackSpeed = 1f;      // Скорость звука
+    public float playbackSpeed = 1f;
     [Range(0f, 1f)]
-    public float volume = 1f;             // Громкость звука
+    public float volume = 1f;
+
+    [Header("Secondary Audio Settings")]
+    public AudioSource secondarySound;
+    public AudioClip secondaryClip;
+    public float secondarySoundDelay = 0f;
+    [Range(0.1f, 3f)]
+    public float secondaryPlaybackSpeed = 1f;
+    [Range(0f, 1f)]
+    public float secondaryVolume = 1f;
 
     private bool alreadyLaunched = false;
 
@@ -30,6 +39,14 @@ public class LaunchTrigger : MonoBehaviour
             launchSound.pitch = playbackSpeed;
             launchSound.volume = volume;
         }
+
+        if (secondarySound != null)
+        {
+            secondarySound.playOnAwake = false;
+            secondarySound.clip = secondaryClip;
+            secondarySound.pitch = secondaryPlaybackSpeed;
+            secondarySound.volume = secondaryVolume;
+        }
     }
 
     void OnDestroy()
@@ -46,13 +63,18 @@ public class LaunchTrigger : MonoBehaviour
 
         if (launchSound != null && launchClip != null)
         {
-            launchSound.pitch = playbackSpeed;
-            launchSound.volume = volume;
-
             if (soundDelay > 0f)
                 Invoke(nameof(PlayLaunchSound), soundDelay);
             else
                 PlayLaunchSound();
+        }
+
+        if (secondarySound != null && secondaryClip != null)
+        {
+            if (secondarySoundDelay > 0f)
+                Invoke(nameof(PlaySecondarySound), secondarySoundDelay);
+            else
+                PlaySecondarySound();
         }
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -67,17 +89,25 @@ public class LaunchTrigger : MonoBehaviour
                 playerRb.isKinematic = true;
                 playerRb.linearVelocity = Vector3.zero;
             }
-
-            escapePod.Launch();
-            alreadyLaunched = true;
         }
+
+        escapePod.Launch();
+        alreadyLaunched = true;
     }
 
     private void PlayLaunchSound()
     {
-        if (launchSound != null && launchClip != null)
+        if (launchSound != null)
         {
             launchSound.Play();
+        }
+    }
+
+    private void PlaySecondarySound()
+    {
+        if (secondarySound != null)
+        {
+            secondarySound.Play();
         }
     }
 }
