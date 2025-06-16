@@ -11025,7 +11025,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 55.8, y: 1}
+  m_AnchoredPosition: {x: 46, y: 1}
   m_SizeDelta: {x: 160.9465, y: 36.7051}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &348367996
@@ -27655,6 +27655,7 @@ MonoBehaviour:
   continueButton: {fileID: 420517849}
   exitButton: {fileID: 838842203}
   settingsButton: {fileID: 165233046}
+  backButton: {fileID: 1142642469}
   pauseMusicClip: {fileID: 8300000, guid: 0f9ce7ea75583f8438e938db6aac65a7, type: 3}
   buttonHoverSound: {fileID: 8300000, guid: 1931f514c4e310b4d9e6ca884becc68a, type: 3}
   buttonClickSound: {fileID: 8300000, guid: 4c1ba99f12ef62f458b2574c32664f7a, type: 3}
@@ -35728,7 +35729,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 69, y: -5}
+  m_AnchoredPosition: {x: 70, y: -5}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &972424417

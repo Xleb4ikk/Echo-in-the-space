@@ -17,6 +17,7 @@ public class Pause : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private Button exitButton;
     [SerializeField] private Button settingsButton;
+    [SerializeField] private Button backButton;
 
     [Header("Аудио клипы")]
     [SerializeField] private AudioClip pauseMusicClip;
@@ -71,6 +72,7 @@ public class Pause : MonoBehaviour
         continueButton.onClick.AddListener(CloseSettings);
         exitButton.onClick.AddListener(ReturnToMainMenu);
         settingsButton?.onClick.AddListener(OpenSettingsMenu);
+        backButton?.onClick.AddListener(ReturnToPauseMenu);
 
         if (playerMovement == null)
             playerMovement = FindFirstObjectByType<Player>();
@@ -279,6 +281,13 @@ public class Pause : MonoBehaviour
 
     public void ShowPausePanel()
     {
+        settingsPanel?.SetActive(true);
+    }
+
+    public void ReturnToPauseMenu()
+    {
+        PlayButtonClickSound();
+        settingsMenuPanel?.SetActive(false);
         settingsPanel?.SetActive(true);
     }
 }
