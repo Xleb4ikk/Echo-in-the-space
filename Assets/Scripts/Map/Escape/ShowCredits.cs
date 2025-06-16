@@ -17,7 +17,7 @@ public class ShowTheEnd : MonoBehaviour
 
     private IEnumerator ShowEndCoroutine()
     {
-        // ¬ключить чЄрный экран и текст
+
         blackScreen.SetActive(true);
         endText.gameObject.SetActive(true);
 

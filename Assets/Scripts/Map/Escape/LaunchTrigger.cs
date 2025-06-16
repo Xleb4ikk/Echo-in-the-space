@@ -25,6 +25,9 @@ public class LaunchTrigger : MonoBehaviour
 
     private bool alreadyLaunched = false;
 
+    [Header("Скрипты")]
+    public ShowTheEnd showTheEnd;
+
     void Start()
     {
         if (launchButton != null)
@@ -107,6 +110,7 @@ public class LaunchTrigger : MonoBehaviour
     {
         if (secondarySound != null)
         {
+            showTheEnd.ShowEndScreen();
             secondarySound.Play();
         }
     }
