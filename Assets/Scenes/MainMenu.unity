@@ -189,7 +189,7 @@ RectTransform:
   m_GameObject: {fileID: 283316675}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 9.4061775, y: 6.1498685, z: 0.4218017}
+  m_LocalScale: {x: 47.030888, y: 30.749342, z: 0.4218017}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1735573298}
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcf1edc42ef214bb08020d31081a5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  script: {fileID: 0}
+  script: {fileID: 413340992}
   residential_module: {fileID: 6652515}
   Solar_Panel1: {fileID: 551618495}
   minDelay: 1
