@@ -1,59 +1,92 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using System.Collections;
 
 public class CameraFade : MonoBehaviour
 {
-    public Image fadeImage;          // UI Image, растянутый на весь экран, цвет черный
-    public float fadeDuration = 1f;  // длительность затемнения
+    public Image fadeImage;              // UI Image, черный экран
+    public TMP_Text fadeText;            // TMP Text поверх изображения
+    public float fadeDuration = 1f;      // длительность затемнения
 
     void Start()
     {
         if (fadeImage != null)
         {
-            Color c = fadeImage.color;
-            c.a = 0f;
-            fadeImage.color = c;
+            SetAlpha(fadeImage, 0f);
             fadeImage.gameObject.SetActive(false);
+        }
+
+        if (fadeText != null)
+        {
+            SetAlpha(fadeText, 0f);
+            fadeText.gameObject.SetActive(false);
         }
     }
 
-    public void FadeIn()
+    public void FadeIn(string text = "")
     {
         if (fadeImage != null)
         {
             fadeImage.gameObject.SetActive(true);
-            StartCoroutine(Fade(0f, 1f));
         }
+
+        if (fadeText != null)
+        {
+            fadeText.text = text;
+            fadeText.gameObject.SetActive(true);
+        }
+
+        StartCoroutine(Fade(0f, 1f));
     }
 
     public void FadeOut()
     {
-        if (fadeImage != null)
-        {
-            fadeImage.gameObject.SetActive(true);
-            StartCoroutine(Fade(1f, 0f));
-        }
+        StartCoroutine(Fade(1f, 0f));
     }
 
     IEnumerator Fade(float startAlpha, float endAlpha)
     {
         float elapsed = 0f;
-        Color c = fadeImage.color;
 
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(startAlpha, endAlpha, elapsed / fadeDuration);
-            c.a = alpha;
-            fadeImage.color = c;
+
+            if (fadeImage != null)
+                SetAlpha(fadeImage, alpha);
+
+            if (fadeText != null)
+                SetAlpha(fadeText, alpha);
+
             yield return null;
         }
 
-        c.a = endAlpha;
-        fadeImage.color = c;
+        if (fadeImage != null)
+        {
+            SetAlpha(fadeImage, endAlpha);
+            if (endAlpha == 0f) fadeImage.gameObject.SetActive(false);
+        }
 
-        if (endAlpha == 0f)
-            fadeImage.gameObject.SetActive(false);
+        if (fadeText != null)
+        {
+            SetAlpha(fadeText, endAlpha);
+            if (endAlpha == 0f) fadeText.gameObject.SetActive(false);
+        }
+    }
+
+    private void SetAlpha(Graphic graphic, float alpha)
+    {
+        Color c = graphic.color;
+        c.a = alpha;
+        graphic.color = c;
+    }
+
+    private void SetAlpha(TMP_Text text, float alpha)
+    {
+        Color c = text.color;
+        c.a = alpha;
+        text.color = c;
     }
 }

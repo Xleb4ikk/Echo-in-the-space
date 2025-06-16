@@ -3,6 +3,16 @@ using UnityEngine.InputSystem;
 
 public class TeleportOnKey : MonoBehaviour
 {
+    Vector3 RunPos = new Vector3(14.80115f, -2.538255f, -50.82444f);
+
+    public void Update()
+    {
+        if (Keyboard.current.oKey.wasPressedThisFrame)
+        {
+            Teleport(RunPos, 90f);
+        }
+    } 
+
     public void Teleport(Vector3 newPosition, float yRotationDegrees)
     {
         Debug.Log("Телепортирование...");

@@ -1,8 +1,9 @@
-using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
-using Unity.VisualScripting;
 
 public class ActivateGenerator : MonoBehaviour
 {
@@ -23,17 +24,13 @@ public class ActivateGenerator : MonoBehaviour
     public GameObject AnimationDoor;
     public GameObject RealDoor;
     public GameObject DialogTriger;
+    public List<GameObject> VisibleWalls;
 
     public bool IsPlayerInside { get; private set; }
 
     public bool CatScene = false;
 
     Vector3 RunPos = new Vector3(14.80115f, -2.538255f, -50.82444f);
-
-    void Start()
-    {
-        
-    }
 
     void Update()
     {
@@ -46,6 +43,11 @@ public class ActivateGenerator : MonoBehaviour
                 if (Keyboard.current.eKey.wasPressedThisFrame)
                 {
                     DialogTriger.SetActive(true);
+
+                    foreach (GameObject GameObject in VisibleWalls)
+                    {
+                        GameObject.SetActive(false);
+                    }
                 }
             }      
         }
