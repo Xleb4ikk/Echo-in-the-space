@@ -5,6 +5,15 @@ public class LaunchTrigger : MonoBehaviour
     public EscapePod escapePod;
     public TriggerButton launchButton;
 
+    [Header("Audio Settings")]
+    public AudioSource launchSound;       // Компонент AudioSource
+    public AudioClip launchClip;          // Аудиофайл
+    public float soundDelay = 0f;         // Задержка воспроизведения
+    [Range(0.1f, 3f)]
+    public float playbackSpeed = 1f;      // Скорость звука
+    [Range(0f, 1f)]
+    public float volume = 1f;             // Громкость звука
+
     private bool alreadyLaunched = false;
 
     void Start()
@@ -12,6 +21,14 @@ public class LaunchTrigger : MonoBehaviour
         if (launchButton != null)
         {
             launchButton.OnButtonPressed += HandleButtonPress;
+        }
+
+        if (launchSound != null)
+        {
+            launchSound.playOnAwake = false;
+            launchSound.clip = launchClip;
+            launchSound.pitch = playbackSpeed;
+            launchSound.volume = volume;
         }
     }
 
@@ -27,14 +44,22 @@ public class LaunchTrigger : MonoBehaviour
     {
         if (alreadyLaunched) return;
 
-        // Находим игрока
+        if (launchSound != null && launchClip != null)
+        {
+            launchSound.pitch = playbackSpeed;
+            launchSound.volume = volume;
+
+            if (soundDelay > 0f)
+                Invoke(nameof(PlayLaunchSound), soundDelay);
+            else
+                PlayLaunchSound();
+        }
+
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            // Прикрепляем игрока к капсуле
             player.transform.parent = escapePod.transform;
-            
-            // Настраиваем физику игрока
+
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
             if (playerRb != null)
             {
@@ -45,6 +70,14 @@ public class LaunchTrigger : MonoBehaviour
 
             escapePod.Launch();
             alreadyLaunched = true;
+        }
+    }
+
+    private void PlayLaunchSound()
+    {
+        if (launchSound != null && launchClip != null)
+        {
+            launchSound.Play();
         }
     }
 }
