@@ -23,6 +23,9 @@ public class TriggerButton : MonoBehaviour
 
     public event Action OnButtonPressed;
 
+    public GameObject GameObject;
+
+
     private void Start()
     {
         audioSource.clip = soundEffect;
@@ -98,5 +101,7 @@ public class TriggerButton : MonoBehaviour
 
         if (DoorAnimator != null)
             DoorAnimator.SetBool(animationDoorBoolName, true);
+
+        GameObject.SetActive(true);
     }
 }

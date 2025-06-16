@@ -283,7 +283,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2923072
 Transform:
   m_ObjectHideFlags: 0
@@ -13028,6 +13028,108 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 428772, guid: 73eea014833549e42853d51ff2b37c32, type: 3}
   m_PrefabInstance: {fileID: 1814770095}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &399580290
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 399580291}
+  - component: {fileID: 399580293}
+  - component: {fileID: 399580292}
+  m_Layer: 0
+  m_Name: DialogueTrigger (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &399580291
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399580290}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.0000011324881}
+  m_LocalPosition: {x: 53.710003, y: -2.759, z: -6.309044}
+  m_LocalScale: {x: 3.8554127, y: 2.4737942, z: 2.0571003}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1770232205}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &399580292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399580290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f26e9168e88d034ea689605d5c34481, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dialoguePanel: {fileID: 2144510944}
+  dialogueText: {fileID: 997140440}
+  speakerNameText: {fileID: 1321166852}
+  dialogueLines:
+  - text: "\u0423\u0441\u043F\u0435\u043B\u0438, \u0444\u0443\u0445..."
+    speakerName: "\u0418\u043B\u0430\u0439 \u041A\u0430\u0440\u0442\u0435\u0440"
+    speakerNameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    typingSound: {fileID: 8300000, guid: 54d38032c4febd24590f0a86ecb4e8f5, type: 3}
+    typingSpeed: 1
+    lineDelay: 3
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
+  - text: "\u041F\u043E\u0437\u0434\u0440\u0430\u0432\u043B\u044F\u044E \u0432\u0430\u0441,
+      \u0442\u0435\u043F\u0435\u0440\u044C \u0432\u0430\u043C \u043F\u0440\u0435\u0434\u0441\u0442\u043E\u0438\u0442
+      \u0434\u043E\u043B\u0433\u0438\u0439 \u043F\u043E\u043B\u0451\u0442 \u043A
+      \u043F\u043B\u0430\u043D\u0435\u0442\u0435"
+    speakerName: "\u0410\u043B\u0438\u0441\u0430 \u0412\u0435\u0439\u043D"
+    speakerNameColor: {r: 0.015686274, g: 0.43997407, b: 1, a: 1}
+    typingSound: {fileID: 8300000, guid: c0f1712fd0470cf458ac2e3f7cbfecbc, type: 3}
+    typingSpeed: 0.89
+    lineDelay: 8
+    eventDelay: 0
+    onLineEvent:
+      m_PersistentCalls:
+        m_Calls: []
+  defaultTypingDelay: 0.03
+  activationDelay: 1.01
+  defaultLineDelay: 1
+  audioSource: {fileID: 1297373291}
+  playerObject: {fileID: 28315782}
+  playerTag: Player
+  activateOnStart: 0
+  activateOnTrigger: 1
+  debugMode: 0
+--- !u!65 &399580293
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399580290}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &400403006 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 414238, guid: 64b3f36e835346747865afbf6cf62acf, type: 3}
@@ -30279,6 +30381,7 @@ MonoBehaviour:
   launchLights:
   - {fileID: 1103060445}
   - {fileID: 1648571703}
+  GameObject: {fileID: 399580290}
 --- !u!135 &819385110
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -68916,6 +69019,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: ccc62a5e857090743a57749ea8f7a33f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1097346067}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: ccc62a5e857090743a57749ea8f7a33f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 399580291}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ccc62a5e857090743a57749ea8f7a33f, type: 3}
       insertIndex: -1
@@ -75803,7 +75909,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1999026063
 Transform:
   m_ObjectHideFlags: 0
