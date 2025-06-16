@@ -9,7 +9,7 @@ public class TriggerButton : MonoBehaviour
     public string animationDoorBoolName = "IsOpen";
     public AudioClip soundEffect;
     public AudioClip secondSoundEffect; // Второй звуковой эффект
-    public Animator targetAnimator;
+    public Animator ButtonAnimator;
     public Animator DoorAnimator; 
     public AudioSource audioSource;
     public AudioSource secondAudioSource; // Второй источник звука
@@ -61,8 +61,8 @@ public class TriggerButton : MonoBehaviour
     {
         ButtonRenderer.material = ButtonMaterialEnabled;
 
-        if (targetAnimator != null)
-            targetAnimator.SetBool(animationBoolName, true);
+        if (ButtonAnimator != null)
+            ButtonAnimator.SetBool(animationBoolName, true);
 
         // Воспроизводим первый звук
         if (soundEffect != null && audioSource != null)
@@ -83,8 +83,8 @@ public class TriggerButton : MonoBehaviour
 
         yield return new WaitForSeconds(0.10f);
 
-        if (targetAnimator != null)
-            targetAnimator.SetBool(animationBoolName, false);
+        if (ButtonAnimator != null)
+            ButtonAnimator.SetBool(animationBoolName, false);
 
         // Воспроизводим второй звук
         if (secondSoundEffect != null && secondAudioSource != null)
@@ -97,6 +97,6 @@ public class TriggerButton : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         if (DoorAnimator != null)
-            DoorAnimator.SetBool(animationDoorBoolName, true);
+            DoorAnimator.SetBool(animationDoorBoolName, false);
     }
 }
