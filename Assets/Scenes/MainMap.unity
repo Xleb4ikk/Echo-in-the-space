@@ -283,7 +283,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2923072
 Transform:
   m_ObjectHideFlags: 0
@@ -490,28 +490,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec6f33dcb57774a4783e1c34eb44021c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggerZone: {fileID: 10354551}
-  playerTransform: {fileID: 28315783}
-  MonsterTransform: {fileID: 1194577934}
   ButtonAnimation: {fileID: 1489717348}
   director: {fileID: 493749661}
-  Camera: {fileID: 1784608752}
-  ButtonMaterial: {fileID: 1489717346}
-  newMaterial: {fileID: 2100000, guid: 8f703191a4057ae4688087533aa01a85, type: 2}
+  triggerZone: {fileID: 10354551}
+  playerTransform: {fileID: 28315783}
+  TeleportOnKeyPlayer: {fileID: 28315793}
   PlayerCameraScript: {fileID: 330585550}
   PlayerMovementScript: {fileID: 28315790}
-  TeleportOnKeyPlayer: {fileID: 28315793}
   CameraFade: {fileID: 669062339}
-  FakeMonster: {fileID: 1194577920}
-  RealMonster: {fileID: 1735250535}
+  Camera: {fileID: 1784608752}
   AnimationDoor: {fileID: 2083192195}
   RealDoor: {fileID: 980002999}
+  FakeMonster: {fileID: 1194577920}
+  RealMonster: {fileID: 1735250535}
+  MonsterTransform: {fileID: 1194577934}
   DialogTriger: {fileID: 312002423}
+  ButtonMaterial: {fileID: 1489717346}
+  newMaterial: {fileID: 2100000, guid: 8f703191a4057ae4688087533aa01a85, type: 2}
+  AmbientAudioSource: {fileID: 837124525}
+  GeneratorAudioSource: {fileID: 1557234168}
+  AmbientAudio: {fileID: 8300000, guid: 9a1c3ba35d50b754f878ec4fcc7bda4a, type: 3}
+  GeneratorAudio: {fileID: 8300000, guid: 238b79776b088a044b87cde48c1d4f36, type: 3}
   VisibleWalls:
   - {fileID: 1488087287}
   - {fileID: 1207222243}
   - {fileID: 1207222243}
   CatScene: 1
+  ActivateDoorTriger: {fileID: 2923071}
 --- !u!1001 &18014562
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4207,6 +4212,38 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 434982, guid: 6812e31ceb91fc04da03973c6b1054cd, type: 3}
   m_PrefabInstance: {fileID: 1248872723}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &125209299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 125209300}
+  m_Layer: 0
+  m_Name: Sounds
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &125209300
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 125209299}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1557234167}
+  m_Father: {fileID: 499232921}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &130346869 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 439240, guid: 548a40efc092c6f408cc4d1691b171cc, type: 3}
@@ -9963,7 +10000,19 @@ MonoBehaviour:
     eventDelay: 0
     onLineEvent:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 10354552}
+          m_TargetAssemblyTypeName: ActivateGenerator, Assembly-CSharp
+          m_MethodName: StartDialogLogic
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
   - text: "\u042F \u043D\u0430\u043F\u0440\u0430\u0432\u0438\u043B\u0430 \u043E\u0441\u0442\u0430\u0442\u043A\u0438
       \u044D\u043D\u0435\u0440\u0433\u0438\u0438 \u043D\u0430 \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0443
       \u0441\u043F\u0430\u0441\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0439 \u043A\u0430\u043F\u0441\u0443\u043B\u044B.
@@ -18335,6 +18384,7 @@ Transform:
   - {fileID: 1335517576}
   - {fileID: 1926282303}
   - {fileID: 1407622197}
+  - {fileID: 125209300}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &502423500 stripped
@@ -59711,6 +59761,135 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 469584, guid: 2216270888a4ced48b33b7b5641611e6, type: 3}
   m_PrefabInstance: {fileID: 1407048419}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1557234166
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1557234167}
+  - component: {fileID: 1557234168}
+  m_Layer: 0
+  m_Name: GeneratorAudioSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1557234167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1557234166}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 14.925, y: -2.289, z: -46.439}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 125209300}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1557234168
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1557234166}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 4046015503133950147, guid: 6f16e19ed7ee6214d9bb44da6b81c271, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 5
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &1557895230
 PrefabInstance:
   m_ObjectHideFlags: 0
