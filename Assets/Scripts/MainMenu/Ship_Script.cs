@@ -98,7 +98,6 @@ public class Ship_Script : MonoBehaviour
 
             isRotating = true;
 
-            // Ждём пока вращение завершится
             while (isRotating)
                 yield return null;
         }

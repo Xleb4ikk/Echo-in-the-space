@@ -2,17 +2,41 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using TMPro;
+using System.Security;
+using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 public class ShowTheEnd : MonoBehaviour
 {
-    public GameObject blackScreen;  // Чёрный экран (Image)
-    public TMP_Text endText;            // Текст "The END"
-    public float displayDuration = 5f; // Время отображения экрана
+    public GameObject blackScreen;
+    public TMP_Text endText;
+    public float displayDuration = 5f;
 
-    // Функция, вызываемая кнопкой
-    public void ShowEndScreen()
+    public AudioSource secondarySound;
+
+    public float xyi = 0f;
+
+    private bool checkaudio = false;
+
+    private void Update()
     {
-        StartCoroutine(ShowEndCoroutine());
+        if (checkaudio == false)
+        {
+            return;
+        }
+
+        if (secondarySound != null && secondarySound.isPlaying)
+        {
+            if (secondarySound.time >= xyi)
+            {
+                StartCoroutine(ShowEndCoroutine());
+            }
+        }
+    }
+
+    public void AudioCons()
+    {
+        checkaudio = true;
     }
 
     private IEnumerator ShowEndCoroutine()
@@ -21,11 +45,8 @@ public class ShowTheEnd : MonoBehaviour
         blackScreen.SetActive(true);
         endText.gameObject.SetActive(true);
 
-        // Пауза на экране
         yield return new WaitForSeconds(displayDuration);
 
-        // Оставьте экран или выполните другие действия (если нужно, отключите экран)
-        // blackScreen.SetActive(false);
-        // endText.gameObject.SetActive(false);
+        SceneManager.LoadScene(0);
     }
 }

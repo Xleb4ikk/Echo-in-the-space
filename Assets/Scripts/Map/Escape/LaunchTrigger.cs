@@ -25,6 +25,8 @@ public class LaunchTrigger : MonoBehaviour
 
     private bool alreadyLaunched = false;
 
+    public AudioSource Ambient;
+
     [Header("Скрипты")]
     public ShowTheEnd showTheEnd;
 
@@ -110,7 +112,8 @@ public class LaunchTrigger : MonoBehaviour
     {
         if (secondarySound != null)
         {
-            showTheEnd.ShowEndScreen();
+            Ambient.Stop();
+            showTheEnd.AudioCons();
             secondarySound.Play();
         }
     }

@@ -38,6 +38,7 @@ public class UI_Script : MonoBehaviour
     void Start()
     {
         NewGame_Button.onClick.AddListener(StartNewGame);
+        Exit_Button.onClick.AddListener(QuitGame);
 
         AddHoverHandler(NewGame_Button.gameObject, NewGame_Button_Text);
         AddHoverHandler(Settings_Button.gameObject, Settings_Button_Text);
@@ -48,6 +49,16 @@ public class UI_Script : MonoBehaviour
         Canvas.blocksRaycasts = false;
 
         StartCoroutine(FadeIn());
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+        #if UNITY_EDITOR
+
+        UnityEditor.EditorApplication.isPlaying = false;
+
+        #endif
     }
 
     void Update()
