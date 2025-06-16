@@ -23,6 +23,9 @@ public class TriggerButton : MonoBehaviour
 
     public event Action OnButtonPressed;
 
+    public GameObject GameObject;
+
+
     private void Start()
     {
         audioSource.clip = soundEffect;
