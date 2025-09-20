@@ -122,13 +122,11 @@ public class InteractableFlashlight : MonoBehaviour
     
     private void ShowHighlight(bool show)
     {
-        // Включаем/выключаем свет
         if (highlightLight != null)
         {
             highlightLight.enabled = show;
         }
         
-        // Меняем материалы
         for (int i = 0; i < renderers.Length; i++)
         {
             renderers[i].material = show ? highlightMaterials[i] : originalMaterials[i];

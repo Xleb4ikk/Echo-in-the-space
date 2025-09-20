@@ -1,6 +1,10 @@
 {
   "dependencies": {
+    "com.unity.2d.enhancers": "1.0.0",
     "com.unity.2d.sprite": "1.0.0",
+    "com.unity.ai.assistant": "1.0.0-pre.12",
+    "com.unity.ai.generators": "1.0.0-pre.20",
+    "com.unity.ai.inference": "2.3.0",
     "com.unity.ai.navigation": "2.0.8",
     "com.unity.cloud.gltfast": "6.13.1",
     "com.unity.collab-proxy": "2.9.2",
