@@ -1084,7 +1084,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionObgect
   mainCam: {fileID: 330585545}
-  interactionDistance: 3.98
+  interactionDistance: 2.07
   interactionUI: {fileID: 1580843424}
   interactionText: {fileID: 360301106}
 --- !u!1001 &28536343
