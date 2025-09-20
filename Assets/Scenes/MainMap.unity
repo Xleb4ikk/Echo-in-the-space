@@ -70624,17 +70624,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48664d3bb8e9001479d9ef2cb89b0992, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorAnimation: {fileID: 980003001}
-  rayDistance: 5
-  interactableLayer:
-    m_Bits: 1
-  cameraTransform: {fileID: 0}
-  isOpen: 0
-  isAnimating: 0
-  clip: {fileID: 8300000, guid: d55a68c3b45f30e4c918421ea007d5d0, type: 3}
-  audioSource: {fileID: 1937217815}
-  volume: 0.5
-  interactableTag: Door1
 --- !u!65 &1782062260
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -81643,17 +81632,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48664d3bb8e9001479d9ef2cb89b0992, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorAnimation: {fileID: 112240347}
-  rayDistance: 5
-  interactableLayer:
-    m_Bits: 1
-  cameraTransform: {fileID: 0}
-  isOpen: 0
-  isAnimating: 0
-  clip: {fileID: 8300000, guid: d55a68c3b45f30e4c918421ea007d5d0, type: 3}
-  audioSource: {fileID: 1099671860}
-  volume: 0.5
-  interactableTag: Door2
 --- !u!65 &2144769383
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -19,40 +19,39 @@ public class InteractionObject : MonoBehaviour  // Исправлено назв
     void InteractionRay()
     {
         Ray ray = mainCam.ViewportPointToRay(Vector3.one / 2f);
-        Debug.DrawRay(ray.origin, ray.direction * interactionDistance, Color.red); // Отладочный луч
-        RaycastHit hit;
+        Debug.DrawRay(ray.origin, ray.direction * interactionDistance, Color.red);
 
+        RaycastHit[] hits = Physics.SphereCastAll(ray, 0.3f, interactionDistance);
         bool hitSomething = false;
+        float closestDistance = Mathf.Infinity;
+        Door bestDoor = null;
 
-        if (Physics.Raycast(ray, out hit, interactionDistance))
+        foreach (var h in hits)
         {
-            if (hit.collider.CompareTag("Door")) // Проверка тега для фильтрации
+            if (h.collider.CompareTag("Door") && h.collider is BoxCollider)
             {
-                // НОВОЕ: Проверяем, что коллайдер — именно BoxCollider, игнорируем MeshCollider и другие
-                if (hit.collider is BoxCollider)
+                Door interactable = h.collider.GetComponentInParent<Door>();
+                if (interactable != null)
                 {
-                    Door interactable = hit.collider.GetComponentInParent<Door>(); // Ищем Door на объекте или parent'е
-                    if (interactable != null)
+                    float dist = h.distance;
+                    if (dist < closestDistance)
                     {
-                        hitSomething = true;
-                        interactionText.text = interactable.GetDescription(); // Прямой вызов метода
+                        closestDistance = dist;
+                        bestDoor = interactable;
+                    }
+                }
+            }
+        }
 
-                        if (Keyboard.current.eKey.wasPressedThisFrame)
-                        {
-                            interactable.Interact(); // Прямой вызов метода
-                            Debug.Log("Interact called on " + interactable.name);
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log("No Door component found on " + hit.collider.name + " or its parents");
-                    }
-                }
-                else
-                {
-                    // НОВОЕ: Лог для отладки, если попался не BoxCollider
-                    Debug.Log("Ignored collider on " + hit.collider.name + " (not a BoxCollider)");
-                }
+        if (bestDoor != null)
+        {
+            hitSomething = true;
+            interactionText.text = bestDoor.GetDescription();
+
+            if (Keyboard.current.eKey.wasPressedThisFrame)
+            {
+                bestDoor.Interact();
+                Debug.Log("Interact called on " + bestDoor.name);
             }
         }
 
