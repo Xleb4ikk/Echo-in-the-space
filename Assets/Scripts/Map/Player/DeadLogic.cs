@@ -60,7 +60,6 @@ public class DeadLogic : MonoBehaviour
         }
     }
 
-    [SerializeField]
     private IEnumerator StartDead()
     {
         player.canMove = false;
