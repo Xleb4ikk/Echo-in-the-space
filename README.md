@@ -13,6 +13,8 @@
 
 ## 📸 Скриншоты
 
+## 📸 Скриншоты
+
 <table>
 	<tr>
 		<td align="center">
@@ -21,7 +23,7 @@
 		</td>
 		<td align="center">
 			<img src="Screenshots/settings.jpg" alt="Настройки" width="320"><br/>
-			<strong>Коридор</strong>
+			<strong>Настройки</strong>
 		</td>
 		<td align="center">
 			<img src="Screenshots/room.jpg" alt="Комната" width="320"><br/>
@@ -41,6 +43,6 @@
 			<img src="Screenshots/enemy.jpg" alt="Враг 2" width="320"><br/>
 			<strong>Враг</strong>
 		</td>
-		<td></td>
+		<!-- Я удалил отсюда пустую ячейку <td></td>, она ломала таблицу -->
 	</tr>
 </table>
