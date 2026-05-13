@@ -13,10 +13,32 @@
 
 ## 📸 Скриншоты
 
-Положите скриншоты в папку Screenshots/ и замените имена файлов ниже.
+Ниже — скриншоты из папки Screenshots/. Если хотите другую последовательность — скажите.
 
-![Меню](Screenshots/menu.jpg)
-![Коридор](Screenshots/coridor.jpg)
-![Комната](Screenshots/room.jpg)
-![Враг (1)](Screenshots/enemy1.jpg)
-![Враг](Screenshots/enemy.jpg)
+<table>
+	<tr>
+		<td align="center">
+			<img src="Screenshots/menu.jpg" alt="Меню" width="320"><br/>
+			<strong>Меню</strong>
+		</td>
+		<td align="center">
+			<img src="Screenshots/coridor.jpg" alt="Коридор" width="320"><br/>
+			<strong>Коридор</strong>
+		</td>
+		<td align="center">
+			<img src="Screenshots/room.jpg" alt="Комната" width="320"><br/>
+			<strong>Комната</strong>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">
+			<img src="Screenshots/enemy1.jpg" alt="Враг (1)" width="320"><br/>
+			<strong>Враг (1)</strong>
+		</td>
+		<td align="center">
+			<img src="Screenshots/enemy.jpg" alt="Враг" width="320"><br/>
+			<strong>Враг</strong>
+		</td>
+		<td></td>
+	</tr>
+</table>
