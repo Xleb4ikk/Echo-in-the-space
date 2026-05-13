@@ -13,8 +13,6 @@
 
 ## 📸 Скриншоты
 
-## 📸 Скриншоты
-
 <table>
 	<tr>
 		<td align="center">
@@ -37,12 +35,11 @@
 		</td>
 		<td align="center">
 			<img src="Screenshots/enemy1.jpg" alt="Враг" width="320"><br/>
-			<strong>Враг (1)</strong>
+			<strong>Враг</strong>
 		</td>
 		<td align="center">
 			<img src="Screenshots/enemy.jpg" alt="Враг 2" width="320"><br/>
-			<strong>Враг</strong>
+			<strong>Враг 2</strong>
 		</td>
-		<!-- Я удалил отсюда пустую ячейку <td></td>, она ломала таблицу -->
 	</tr>
 </table>
