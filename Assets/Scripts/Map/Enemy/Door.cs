@@ -6,7 +6,7 @@ public class Door : MonoBehaviour
 {
     public Animator m_Animator;
     public bool isOpen;
-    public AudioSource audioSource; // Место для аудиосурса
+    public AudioSource audioSource;
     private Collider doorCollider; // Добавляем для управления коллайдером
     private float interactionCooldown = 0.5f; // Задержка для предотвращения спама
     private float lastInteractionTime;
@@ -15,8 +15,9 @@ public class Door : MonoBehaviour
     {
         m_Animator = GetComponent<Animator>(); // Автоматическая инициализация
         doorCollider = GetComponent<Collider>(); // Инициализация коллайдера
-        audioSource = GetComponent<AudioSource>(); // Инициализация аудио
-        m_Animator.SetBool("isOpen", isOpen); // Используем правильный параметр
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        m_Animator.SetBool("isOpen", isOpen);
         
         if (doorCollider != null)
         {
