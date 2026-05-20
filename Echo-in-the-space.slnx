@@ -1,4 +1,7 @@
 ﻿<Solution>
+  <Project Path="Unity.ShaderGraph.Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Unity.UI.Shaders.Sample.Editor.csproj" />
+  <Project Path="Unity.UI.Shaders.Sample.csproj" />
 </Solution>
