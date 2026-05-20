@@ -93,11 +93,11 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _Blur: 0.88
-    - _BlurCycles: 2.53
-    - _BlurMultiplier: 1.45
+    - _Blur: 0.02
+    - _BlurCycles: 1.42
+    - _BlurMultiplier: 1.6
     - _BlurRadius: 8.4
-    - _BlurSamplesPerCycle: 54.92
+    - _BlurSamplesPerCycle: 50.35
     - _BlurStrength: 0.246
     - _BumpAmt: 70.4
     - _BumpScale: 1
